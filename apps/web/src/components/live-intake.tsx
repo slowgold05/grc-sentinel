@@ -19,6 +19,7 @@ export function LiveIntake() {
   const [error, setError] = useState("");
   const [engagements, setEngagements] = useState<Engagement[]>([]);
   const [coverage, setCoverage] = useState<CoverageRow[] | null>(null);
+  const [auditShare, setAuditShare] = useState<{ url: string; token: string } | null>(null);
 
   const refresh = useCallback(async () => {
     const token = await getToken();
@@ -138,6 +139,43 @@ export function LiveIntake() {
     }
   }
 
+  async function createAuditShare(engagementId: string) {
+    const token = await getToken();
+    if (!token) return;
+    try {
+      const response = await fetch(`${apiUrl}/api/engagements/${engagementId}/audit-shares`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ expires_in_hours: 24 }),
+      });
+      if (!response.ok) return setError("Could not create audit share");
+      const payload = await response.json();
+      setAuditShare({
+        url: `${window.location.origin}/audit/share/${payload.token}`,
+        token: payload.token,
+      });
+    } catch {
+      setError("Could not reach the audit-share API");
+    }
+  }
+
+  async function revokeAuditShare() {
+    if (!auditShare) return;
+    const token = await getToken();
+    if (!token) return;
+    try {
+      const response = await fetch(`${apiUrl}/api/audit-shares/${auditShare.token}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) return setError("Could not revoke audit share");
+      setAuditShare(null);
+      setResult("Audit link revoked");
+    } catch {
+      setError("Could not reach the audit-share API");
+    }
+  }
+
   if (!userId) return null;
   return (
     <section className="mb-10 rounded-2xl border border-cyan-400/20 bg-cyan-400/[0.04] p-6" aria-labelledby="new-engagement">
@@ -155,8 +193,9 @@ export function LiveIntake() {
       {result && <p className="mt-4 text-sm font-medium text-emerald-300">{result}</p>}
       {error && <p role="alert" className="mt-4 text-sm text-rose-300">{error}</p>}
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
-        {engagements.map((engagement) => <article key={engagement.id} className="rounded-xl border border-slate-800 bg-slate-950/70 p-4"><h3 className="font-semibold">{engagement.company.company_name}</h3><p className="mt-2 text-sm text-slate-400">{engagement.company.domain} · {engagement.regulations.join(", ") || "No matched regulation"}</p><label className="mt-3 block cursor-pointer text-sm font-medium text-cyan-300">Attach PDF or DOCX<input type="file" accept=".pdf,.docx" className="sr-only" onChange={(event) => { const file = event.target.files?.[0]; if (file) upload(engagement.id, file); }} /></label><button onClick={() => inspectPosture(engagement.id)} className="mt-3 block text-sm font-medium text-cyan-300 hover:text-cyan-200">Run passive posture check</button><button onClick={() => inspectCoverage(engagement.id)} className="mt-3 block text-sm font-medium text-cyan-300 hover:text-cyan-200">View coverage matrix</button><button onClick={() => remove(engagement.id)} className="mt-3 text-sm font-medium text-rose-300 hover:text-rose-200">Delete engagement</button></article>)}
+        {engagements.map((engagement) => <article key={engagement.id} className="rounded-xl border border-slate-800 bg-slate-950/70 p-4"><h3 className="font-semibold">{engagement.company.company_name}</h3><p className="mt-2 text-sm text-slate-400">{engagement.company.domain} · {engagement.regulations.join(", ") || "No matched regulation"}</p><label className="mt-3 block cursor-pointer text-sm font-medium text-cyan-300">Attach PDF or DOCX<input type="file" accept=".pdf,.docx" className="sr-only" onChange={(event) => { const file = event.target.files?.[0]; if (file) upload(engagement.id, file); }} /></label><button onClick={() => inspectPosture(engagement.id)} className="mt-3 block text-sm font-medium text-cyan-300 hover:text-cyan-200">Run passive posture check</button><button onClick={() => inspectCoverage(engagement.id)} className="mt-3 block text-sm font-medium text-cyan-300 hover:text-cyan-200">View coverage matrix</button><button onClick={() => createAuditShare(engagement.id)} className="mt-3 block text-sm font-medium text-cyan-300 hover:text-cyan-200">Create 24-hour audit link</button><button onClick={() => remove(engagement.id)} className="mt-3 text-sm font-medium text-rose-300 hover:text-rose-200">Delete engagement</button></article>)}
       </div>
+      {auditShare && <div className="mt-5 break-all rounded-lg border border-emerald-400/20 p-3 text-sm text-emerald-300">Audit link: <a className="underline" href={auditShare.url}>{auditShare.url}</a><button type="button" onClick={revokeAuditShare} className="ml-4 text-rose-300">Revoke</button></div>}
       {coverage && coverage.length > 0 && <div className="mt-8"><CoverageMatrix rows={coverage} /></div>}
     </section>
   );

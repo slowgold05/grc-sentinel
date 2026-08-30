@@ -1,6 +1,7 @@
 from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
+import pytest
 from sqlalchemy import create_engine, text
 
 from ruleset.audit_hub import create_share_link, resolve_share, revoke_share
@@ -21,6 +22,8 @@ def test_share_is_hashed_expiring_revocable_and_logged() -> None:
             {"id": engagement_id, "org": org_id, "expires": datetime.now(UTC) + timedelta(days=2)},
         )
     try:
+        with pytest.raises(LookupError, match="engagement not found"):
+            create_share_link(engine, org_id, uuid4(), datetime.now(UTC) + timedelta(days=1))
         token = create_share_link(engine, org_id, engagement_id, datetime.now(UTC) + timedelta(days=1))
         assert token not in str(resolve_share(engine, token))
         with engine.begin() as connection:

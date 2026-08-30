@@ -1,3 +1,4 @@
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
 from typing import Literal
 
@@ -5,7 +6,14 @@ from fastapi import FastAPI, Header, HTTPException, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.concurrency import run_in_threadpool
 
-from ruleset.audit_hub import AuditShare, resolve_share
+from ruleset.audit_hub import (
+    AuditShare,
+    AuditShareCreate,
+    AuditShareCreated,
+    create_share_link,
+    resolve_share,
+    revoke_share,
+)
 from ruleset.auth import CurrentTenant, TenantIdentity
 from ruleset.config import settings
 from ruleset.coverage_store import CoverageRow, list_coverage_results
@@ -67,6 +75,29 @@ def open_audit_share(token: str) -> AuditShare:
     if share is None:
         raise HTTPException(status_code=404, detail="share not found or expired")
     return share
+
+
+@app.post(
+    "/api/engagements/{engagement_id}/audit-shares",
+    response_model=AuditShareCreated,
+    status_code=status.HTTP_201_CREATED,
+)
+def post_audit_share(
+    engagement_id: UUID, payload: AuditShareCreate, identity: CurrentTenant
+) -> AuditShareCreated:
+    expires_at = datetime.now(UTC) + timedelta(hours=payload.expires_in_hours)
+    try:
+        token = create_share_link(engine, identity.org_id, engagement_id, expires_at)
+    except LookupError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    return AuditShareCreated(token=token, expires_at=expires_at)
+
+
+@app.delete("/api/audit-shares/{token}", status_code=status.HTTP_204_NO_CONTENT)
+def remove_audit_share(token: str, identity: CurrentTenant) -> Response:
+    if not revoke_share(engine, identity.org_id, token):
+        raise HTTPException(status_code=404, detail="share not found")
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @app.get("/api/tenant", response_model=TenantIdentity)

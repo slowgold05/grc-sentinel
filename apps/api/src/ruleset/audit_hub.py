@@ -3,7 +3,7 @@ import hashlib
 import secrets
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy import Engine, text
 
 
@@ -13,6 +13,15 @@ class AuditShare(BaseModel):
     company: dict[str, object]
     policies: list[dict[str, object]]
     coverage: list[dict[str, object]]
+
+
+class AuditShareCreate(BaseModel):
+    expires_in_hours: int = Field(default=24, ge=1, le=168)
+
+
+class AuditShareCreated(BaseModel):
+    token: str
+    expires_at: datetime
 
 
 def _digest(token: str) -> bytes:
@@ -30,6 +39,10 @@ def create_share_link(
         connection.execute(
             text("SELECT set_config('app.org_id', :org_id, true)"), {"org_id": str(org_id)}
         )
+        if connection.execute(
+            text("SELECT 1 FROM engagements WHERE id = :id"), {"id": engagement_id}
+        ).scalar_one_or_none() is None:
+            raise LookupError("engagement not found")
         connection.execute(
             text(
                 "INSERT INTO audit_share_links (org_id, engagement_id, token_hash, expires_at) "
