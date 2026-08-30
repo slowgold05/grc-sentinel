@@ -25,6 +25,7 @@ export default function Home() {
           <div className="flex gap-3 text-sm">
             <AuthControls />
             <Link href="/risks" className="rounded-full border border-cyan-400/30 px-4 py-2 font-medium text-cyan-300 hover:bg-cyan-400/10">Risk register</Link>
+            <Link href="/monitoring" className="rounded-full border border-cyan-400/30 px-4 py-2 font-medium text-cyan-300 hover:bg-cyan-400/10">Monitoring</Link>
             <Link href="/trust" className="rounded-full border border-cyan-400/30 px-4 py-2 font-medium text-cyan-300 hover:bg-cyan-400/10">Trust center</Link>
             <span className="rounded-full border border-slate-700 px-4 py-2 text-slate-300">HIPAA + SOC 2</span>
             <span className="rounded-full bg-emerald-400/10 px-4 py-2 font-medium text-emerald-300">Analysis complete</span>
