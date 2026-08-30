@@ -17,6 +17,26 @@ class PolicySummary(BaseModel):
     created_at: datetime
 
 
+class UsageSummary(BaseModel):
+    input_tokens: int
+    output_tokens: int
+    cost_microusd: int
+
+
+def summarize_usage(engine: Engine, org_id: UUID) -> UsageSummary:
+    """Sum provider-reported model usage for one tenant using integer money units."""
+    with engine.begin() as connection:
+        connection.execute(text("SELECT set_config('app.org_id', :id, true)"), {"id": str(org_id)})
+        row = connection.execute(
+            text(
+                "SELECT COALESCE(sum(input_tokens), 0) AS input_tokens, "
+                "COALESCE(sum(output_tokens), 0) AS output_tokens, "
+                "COALESCE(sum(cost_microusd), 0) AS cost_microusd FROM model_usage"
+            )
+        ).mappings().one()
+    return UsageSummary.model_validate(row)
+
+
 def list_policies(engine: Engine, org_id: UUID) -> list[PolicySummary]:
     """Return the tenant's newest generated policies."""
     with engine.begin() as connection:

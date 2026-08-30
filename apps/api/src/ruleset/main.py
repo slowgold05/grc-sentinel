@@ -26,7 +26,13 @@ from ruleset.engagements import (
     create_engagement,
     list_engagements,
 )
-from ruleset.generation.store import PolicySummary, export_stored_policy, list_policies
+from ruleset.generation.store import (
+    PolicySummary,
+    UsageSummary,
+    export_stored_policy,
+    list_policies,
+    summarize_usage,
+)
 from ruleset.framework_drift import (
     FrameworkImpact,
     FrameworkOption,
@@ -167,6 +173,11 @@ def get_questionnaire_answers(identity: CurrentTenant) -> list[AnswerRecord]:
 @app.get("/api/policies", response_model=list[PolicySummary])
 def get_policies(identity: CurrentTenant) -> list[PolicySummary]:
     return list_policies(engine, identity.org_id)
+
+
+@app.get("/api/model-usage", response_model=UsageSummary)
+def get_model_usage(identity: CurrentTenant) -> UsageSummary:
+    return summarize_usage(engine, identity.org_id)
 
 
 @app.get("/api/policies/{policy_id}/docx")

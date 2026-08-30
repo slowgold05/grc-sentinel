@@ -7,7 +7,13 @@ from sqlalchemy import create_engine, text
 from ruleset.config import settings
 from ruleset.generation.faithfulness import FaithfulnessVerdict
 from ruleset.generation.models import CitationVerdict, GeneratedStatement, GenerationOutput
-from ruleset.generation.store import export_stored_policy, list_policies, record_model_usage, store_policy
+from ruleset.generation.store import (
+    export_stored_policy,
+    list_policies,
+    record_model_usage,
+    store_policy,
+    summarize_usage,
+)
 
 
 def test_stores_only_citation_verified_policy_and_usage() -> None:
@@ -62,6 +68,11 @@ def test_stores_only_citation_verified_policy_and_usage() -> None:
         filename, document = export_stored_policy(engine, org_id, policy_id)
         assert filename == "access-control-v1.docx"
         assert document.startswith(b"PK")
+        assert summarize_usage(engine, org_id).model_dump() == {
+            "input_tokens": 10,
+            "output_tokens": 5,
+            "cost_microusd": 20,
+        }
         with engine.begin() as connection:
             connection.execute(text("SELECT set_config('app.org_id', :id, true)"), {"id": str(org_id)})
             assert connection.execute(
