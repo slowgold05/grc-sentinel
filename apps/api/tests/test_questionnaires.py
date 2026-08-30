@@ -10,6 +10,7 @@ from ruleset.questionnaires import (
     QuestionnaireAnswer,
     RetrievedStatement,
     build_answer_prompt,
+    list_answers,
     retrieve_approved_statements,
     review_answer,
     store_answer,
@@ -156,7 +157,9 @@ def test_verified_answer_requires_human_review() -> None:
             QuestionnaireAnswer(answer="Yes.", statement_ids=[statement_id]),
             AnswerCitationVerdict(accepted=True, invalid_statement_ids=[]),
         )
+        assert list_answers(engine, org_id)[0].review_status == "pending"
         assert review_answer(engine, org_id, answer_id, "approved", edited_answer="Yes, for admins.")
+        assert list_answers(engine, org_id)[0].answer == "Yes, for admins."
         assert not review_answer(engine, org_id, answer_id, "rejected")
     finally:
         with engine.begin() as connection:

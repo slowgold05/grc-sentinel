@@ -37,6 +37,7 @@ from ruleset.monitoring.evidence import EvidenceRecord, list_evidence
 from ruleset.monitoring.runner import EvidenceRun, run_aws_checks, run_github_checks
 from ruleset.osint.snapshot import SecurityPostureSnapshot
 from ruleset.posture_service import collect_posture
+from ruleset.questionnaires import AnswerRecord, AnswerReview, list_answers, review_answer
 from ruleset.risk_register import (
     Risk,
     RiskCreate,
@@ -134,6 +135,26 @@ def remove_connection(
 @app.get("/api/evidence", response_model=list[EvidenceRecord])
 def get_evidence(identity: CurrentTenant) -> list[EvidenceRecord]:
     return list_evidence(engine, identity.org_id)
+
+
+@app.get("/api/questionnaire-answers", response_model=list[AnswerRecord])
+def get_questionnaire_answers(identity: CurrentTenant) -> list[AnswerRecord]:
+    return list_answers(engine, identity.org_id)
+
+
+@app.patch("/api/questionnaire-answers/{answer_id}", status_code=status.HTTP_204_NO_CONTENT)
+def patch_questionnaire_answer(
+    answer_id: UUID, payload: AnswerReview, identity: CurrentTenant
+) -> Response:
+    if not review_answer(
+        engine,
+        identity.org_id,
+        answer_id,
+        payload.status,
+        edited_answer=payload.edited_answer,
+    ):
+        raise HTTPException(status_code=404, detail="pending answer not found")
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @app.post("/api/connections/github/run", response_model=list[EvidenceRun])

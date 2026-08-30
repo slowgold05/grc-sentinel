@@ -1,4 +1,6 @@
 import json
+from datetime import datetime
+from typing import Literal
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -22,6 +24,36 @@ class QuestionnaireAnswer(BaseModel):
 class AnswerCitationVerdict(BaseModel):
     accepted: bool
     invalid_statement_ids: list[UUID]
+
+
+class AnswerRecord(BaseModel):
+    id: UUID
+    engagement_id: UUID
+    question: str
+    answer: str
+    statement_ids: list[UUID]
+    review_status: str
+    created_at: datetime
+
+
+class AnswerReview(BaseModel):
+    status: Literal["approved", "rejected"]
+    edited_answer: str | None = Field(default=None, min_length=1, max_length=10_000)
+
+
+def list_answers(engine: Engine, org_id: UUID) -> list[AnswerRecord]:
+    """Return the tenant's newest 100 questionnaire answers for human review."""
+    with engine.begin() as connection:
+        connection.execute(
+            text("SELECT set_config('app.org_id', :org_id, true)"), {"org_id": str(org_id)}
+        )
+        rows = connection.execute(
+            text(
+                "SELECT id, engagement_id, question, answer, statement_ids, review_status, "
+                "created_at FROM questionnaire_answers ORDER BY created_at DESC LIMIT 100"
+            )
+        ).mappings()
+    return [AnswerRecord.model_validate(row) for row in rows]
 
 
 def store_answer(
