@@ -25,6 +25,29 @@ class AwsConnection:
             iam=session.client("iam"),
         )
 
+    @classmethod
+    def from_assumed_role(
+        cls, role_arn: str, external_id: str, region_name: str
+    ) -> "AwsConnection":
+        """Assume a tenant's read-only role and use only temporary credentials."""
+        response = boto3.Session(region_name=region_name).client("sts").assume_role(
+            RoleArn=role_arn,
+            RoleSessionName="ruleset-control-monitoring",
+            ExternalId=external_id,
+        )
+        credentials = response["Credentials"]
+        session = boto3.Session(
+            aws_access_key_id=credentials["AccessKeyId"],
+            aws_secret_access_key=credentials["SecretAccessKey"],
+            aws_session_token=credentials["SessionToken"],
+            region_name=region_name,
+        )
+        return cls(
+            s3=session.client("s3"),
+            cloudtrail=session.client("cloudtrail"),
+            iam=session.client("iam"),
+        )
+
 
 def _result(status: str, observed: dict[str, object]) -> TestResult:
     return TestResult(status=status, observed=observed, tested_at=datetime.now(UTC))

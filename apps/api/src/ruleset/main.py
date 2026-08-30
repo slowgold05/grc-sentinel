@@ -25,7 +25,7 @@ from ruleset.monitoring.connections import (
     delete_connection,
     save_connection,
 )
-from ruleset.monitoring.runner import EvidenceRun, run_github_checks
+from ruleset.monitoring.runner import EvidenceRun, run_aws_checks, run_github_checks
 from ruleset.osint.snapshot import SecurityPostureSnapshot
 from ruleset.posture_service import collect_posture
 from ruleset.risk_register import (
@@ -107,6 +107,22 @@ async def post_github_run(identity: CurrentTenant) -> list[EvidenceRun]:
     try:
         return await run_in_threadpool(
             run_github_checks,
+            engine,
+            identity.org_id,
+            decode_master_key(settings.upload_master_key_base64.get_secret_value()),
+        )
+    except LookupError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+
+
+@app.post("/api/connections/aws/run", response_model=list[EvidenceRun])
+async def post_aws_run(identity: CurrentTenant) -> list[EvidenceRun]:
+    """Assume the configured read-only AWS role and persist test evidence."""
+    if settings.upload_master_key_base64 is None:
+        raise HTTPException(status_code=503, detail="credential encryption is not configured")
+    try:
+        return await run_in_threadpool(
+            run_aws_checks,
             engine,
             identity.org_id,
             decode_master_key(settings.upload_master_key_base64.get_secret_value()),
