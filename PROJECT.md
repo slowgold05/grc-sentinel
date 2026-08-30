@@ -273,7 +273,7 @@ a provider. The sweeper in `retention/` enforces `expires_at`.
 The repository has been rebuilt through roadmap Part 7.5. Alembic head `0018`
 includes the knowledge base, tenancy, uploads, coverage, OSINT, generated
 policies, monitoring evidence, questionnaire answers, risks, audit shares, and
-retention enforcement, Clerk organization authentication, and encrypted connector credentials. The backend suite contains 65 passing tests; the web
+retention enforcement, Clerk organization authentication, and encrypted connector credentials. The backend suite contains 66 passing tests; the web
 app exposes the coverage demo, trust page, and risk heatmap.
 
 Remaining external inputs are Clerk application keys, live provider credentials,

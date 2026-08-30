@@ -25,6 +25,7 @@ from ruleset.monitoring.connections import (
     delete_connection,
     save_connection,
 )
+from ruleset.monitoring.runner import EvidenceRun, run_github_checks
 from ruleset.osint.snapshot import SecurityPostureSnapshot
 from ruleset.posture_service import collect_posture
 from ruleset.risk_register import (
@@ -96,6 +97,22 @@ def remove_connection(
     if not delete_connection(engine, identity.org_id, provider):
         raise HTTPException(status_code=404, detail="connection not found")
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@app.post("/api/connections/github/run", response_model=list[EvidenceRun])
+async def post_github_run(identity: CurrentTenant) -> list[EvidenceRun]:
+    """Run read-only GitHub checks and persist immutable evidence."""
+    if settings.upload_master_key_base64 is None:
+        raise HTTPException(status_code=503, detail="credential encryption is not configured")
+    try:
+        return await run_in_threadpool(
+            run_github_checks,
+            engine,
+            identity.org_id,
+            decode_master_key(settings.upload_master_key_base64.get_secret_value()),
+        )
+    except LookupError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
 
 
 @app.post(
