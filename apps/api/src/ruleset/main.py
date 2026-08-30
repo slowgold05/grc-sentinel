@@ -26,6 +26,12 @@ from ruleset.engagements import (
     create_engagement,
     list_engagements,
 )
+from ruleset.framework_drift import (
+    FrameworkImpact,
+    FrameworkOption,
+    framework_impact,
+    list_frameworks,
+)
 from ruleset.logging import configure_logging
 from ruleset.monitoring.connections import (
     AwsCredentials,
@@ -105,6 +111,21 @@ def remove_audit_share(token: str, identity: CurrentTenant) -> Response:
 def current_tenant(identity: CurrentTenant) -> TenantIdentity:
     """Prove the verified Clerk organization-to-RLS tenant mapping."""
     return identity
+
+
+@app.get("/api/frameworks", response_model=list[FrameworkOption])
+def get_frameworks(identity: CurrentTenant) -> list[FrameworkOption]:
+    return list_frameworks(engine)
+
+
+@app.get("/api/framework-drift", response_model=FrameworkImpact)
+def get_framework_drift(
+    old: UUID, new: UUID, identity: CurrentTenant
+) -> FrameworkImpact:
+    try:
+        return framework_impact(engine, identity.org_id, old, new)
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
 
 
 @app.post("/api/connections", status_code=status.HTTP_201_CREATED)

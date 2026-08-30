@@ -35,6 +35,37 @@ class AffectedStatement(BaseModel):
     control_ids: list[str]
 
 
+class FrameworkOption(BaseModel):
+    id: UUID
+    name: str
+    version: str
+
+
+class FrameworkImpact(BaseModel):
+    drift: FrameworkDrift
+    statements: list[AffectedStatement]
+
+
+def list_frameworks(engine: Engine) -> list[FrameworkOption]:
+    """List installed framework versions available for comparison."""
+    with engine.connect() as connection:
+        rows = connection.execute(
+            text("SELECT id, name, version FROM frameworks ORDER BY name, version")
+        ).mappings()
+    return [FrameworkOption.model_validate(row) for row in rows]
+
+
+def framework_impact(
+    engine: Engine, org_id: UUID, old_framework_id: UUID, new_framework_id: UUID
+) -> FrameworkImpact:
+    """Compare framework versions and find tenant statements needing review."""
+    drift = compare_frameworks(engine, old_framework_id, new_framework_id)
+    return FrameworkImpact(
+        drift=drift,
+        statements=find_affected_statements(engine, org_id, drift.affected_codes),
+    )
+
+
 def diff_controls(old: list[ControlSnapshot], new: list[ControlSnapshot]) -> FrameworkDrift:
     """Compare versions by stable control code and substantive content."""
     old_by_code = {control.code: control for control in old}
