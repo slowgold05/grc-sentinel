@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
 from sqlalchemy import create_engine, text
@@ -18,28 +18,41 @@ def test_evidence_is_tenant_scoped_and_immutable() -> None:
             text("INSERT INTO orgs (id, name) VALUES (:id, 'evidence test')"), {"id": org_id}
         )
     try:
-        evidence_id = append_evidence(
+        tested_at = datetime.now(UTC)
+        write = append_evidence(
             engine,
             org_id,
             GitHubOrgMfaTest(),
             ControlTestResult(
-                status="pass", observed={"enabled": True}, tested_at=datetime.now(UTC)
+                status="pass", observed={"enabled": True}, tested_at=tested_at
             ),
             {"two_factor_requirement_enabled": True},
         )
         records = list_evidence(engine, org_id)
-        assert records[0].id == evidence_id
+        assert records[0].id == write.id
+        assert not write.drift
         assert records[0].control_ids == ["IA-2", "CC6.1"]
+        drift = append_evidence(
+            engine,
+            org_id,
+            GitHubOrgMfaTest(),
+            ControlTestResult(
+                status="fail", observed={"enabled": False}, tested_at=tested_at + timedelta(seconds=1)
+            ),
+            {"two_factor_requirement_enabled": False},
+        )
+        assert drift.drift
+        assert list_evidence(engine, org_id)[0].drift
         with engine.begin() as connection:
             connection.execute(
                 text("SELECT set_config('app.org_id', :id, true)"), {"id": str(org_id)}
             )
             assert connection.execute(
-                text("SELECT status FROM control_evidence WHERE id = :id"), {"id": evidence_id}
+                text("SELECT status FROM control_evidence WHERE id = :id"), {"id": write.id}
             ).scalar_one() == "pass"
             assert connection.execute(
                 text("UPDATE control_evidence SET status = 'fail' WHERE id = :id"),
-                {"id": evidence_id},
+                {"id": write.id},
             ).rowcount == 0
     finally:
         with engine.begin() as connection:

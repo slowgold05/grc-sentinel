@@ -270,7 +270,7 @@ a provider. The sweeper in `retention/` enforces `expires_at`.
 
 ## 9. Rebuild status
 
-The repository has been rebuilt through roadmap Part 7.5. Alembic head `0018`
+The repository has been rebuilt through roadmap Part 7.5. Alembic head `0019`
 includes the knowledge base, tenancy, uploads, coverage, OSINT, generated
 policies, monitoring evidence, questionnaire answers, risks, audit shares, and
 retention enforcement, Clerk organization authentication, and encrypted connector credentials. The backend suite contains 67 passing tests; the web

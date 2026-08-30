@@ -24,6 +24,7 @@ from ruleset.monitoring.models import ControlTest, TestResult
 class EvidenceRun(BaseModel):
     evidence_id: UUID
     test_id: str
+    drift: bool
     result: TestResult
 
 
@@ -33,8 +34,12 @@ def _run_checks(
     runs = []
     for test in tests:
         result = test.run(connection)
-        evidence_id = append_evidence(engine, org_id, test, result, result.observed)
-        runs.append(EvidenceRun(evidence_id=evidence_id, test_id=test.test_id, result=result))
+        write = append_evidence(engine, org_id, test, result, result.observed)
+        runs.append(
+            EvidenceRun(
+                evidence_id=write.id, test_id=test.test_id, drift=write.drift, result=result
+            )
+        )
     return runs
 
 

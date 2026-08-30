@@ -5,8 +5,8 @@ import { FormEvent, useState } from "react";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 type Provider = "github" | "aws";
-type Run = { test_id: string; result: { status: "pass" | "fail" | "error"; observed: object } };
-type Evidence = { id: string; test_id: string; status: "pass" | "fail" | "error"; observed: object; control_ids: string[]; tested_at: string };
+type Run = { test_id: string; drift: boolean; result: { status: "pass" | "fail" | "error"; observed: object } };
+type Evidence = { id: string; test_id: string; status: "pass" | "fail" | "error"; drift: boolean; observed: object; control_ids: string[]; tested_at: string };
 
 export function LiveMonitoring() {
   const { getToken } = useAuth();
@@ -89,8 +89,8 @@ export function LiveMonitoring() {
     </div>
     <button type="button" onClick={loadEvidence} className="mt-6 rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-200">Load evidence history</button>
     {message && <p role="status" className="mt-4 text-sm text-cyan-300">{message}</p>}
-    {runs.length > 0 && <div className="mt-8 grid gap-3 sm:grid-cols-3">{runs.map((item) => <article key={item.test_id} className="rounded-xl border border-slate-800 bg-slate-900 p-4"><p className="font-mono text-xs text-slate-400">{item.test_id}</p><p className="mt-2 font-semibold uppercase text-cyan-300">{item.result.status}</p><pre className="mt-3 overflow-auto text-xs text-slate-400">{JSON.stringify(item.result.observed, null, 2)}</pre></article>)}</div>}
-    {evidence.length > 0 && <section className="mt-8"><h2 className="text-xl font-semibold">Evidence history</h2><div className="mt-3 overflow-x-auto rounded-xl border border-slate-800"><table className="w-full text-left text-sm"><thead className="bg-slate-900 text-slate-400"><tr><th className="p-3">Test</th><th className="p-3">Controls</th><th className="p-3">Verdict</th><th className="p-3">Tested</th></tr></thead><tbody>{evidence.map((item) => <tr key={item.id} className="border-t border-slate-800"><td className="p-3 font-mono text-xs">{item.test_id}</td><td className="p-3">{item.control_ids.join(", ")}</td><td className="p-3 uppercase text-cyan-300">{item.status}</td><td className="p-3 text-slate-400">{new Date(item.tested_at).toLocaleString()}</td></tr>)}</tbody></table></div></section>}
+    {runs.length > 0 && <div className="mt-8 grid gap-3 sm:grid-cols-3">{runs.map((item) => <article key={item.test_id} className={`rounded-xl border bg-slate-900 p-4 ${item.drift ? "border-rose-400/50" : "border-slate-800"}`}><p className="font-mono text-xs text-slate-400">{item.test_id}</p><p className="mt-2 font-semibold uppercase text-cyan-300">{item.result.status}{item.drift && " · drift"}</p><pre className="mt-3 overflow-auto text-xs text-slate-400">{JSON.stringify(item.result.observed, null, 2)}</pre></article>)}</div>}
+    {evidence.length > 0 && <section className="mt-8"><h2 className="text-xl font-semibold">Evidence history</h2><div className="mt-3 overflow-x-auto rounded-xl border border-slate-800"><table className="w-full text-left text-sm"><thead className="bg-slate-900 text-slate-400"><tr><th className="p-3">Test</th><th className="p-3">Controls</th><th className="p-3">Verdict</th><th className="p-3">Tested</th></tr></thead><tbody>{evidence.map((item) => <tr key={item.id} className={`border-t ${item.drift ? "border-rose-400/50 bg-rose-400/[0.06]" : "border-slate-800"}`}><td className="p-3 font-mono text-xs">{item.test_id}</td><td className="p-3">{item.control_ids.join(", ")}</td><td className="p-3 uppercase text-cyan-300">{item.status}{item.drift && " · drift"}</td><td className="p-3 text-slate-400">{new Date(item.tested_at).toLocaleString()}</td></tr>)}</tbody></table></div></section>}
   </>;
 }
 
