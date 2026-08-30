@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LiveRiskRegister } from "../../components/live-risk-register";
 
 const risks = [
   { title: "Administrator credential compromise", likelihood: 3, impact: 5, controls: ["IA-2"], status: "Mitigating" },
@@ -25,6 +26,8 @@ export default function RisksPage() {
           <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">Risk, linked to controls.</h1>
           <p className="mt-4 max-w-2xl leading-7 text-slate-400">Scores are likelihood × impact. Select a populated cell to review the treatment and mapped controls.</p>
         </header>
+
+        {process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && <LiveRiskRegister />}
 
         <section className="grid gap-10 py-10 lg:grid-cols-[1fr_22rem]">
           <div>

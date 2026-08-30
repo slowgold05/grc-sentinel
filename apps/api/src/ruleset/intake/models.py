@@ -19,3 +19,8 @@ class CompanyIntake(BaseModel):
     def validate_domain(cls, value: str) -> str:
         """Store domains in their validated canonical form."""
         return normalize_domain(value)
+
+    @field_validator("geos", "data_types", "cloud_providers")
+    @classmethod
+    def normalize_fact_lists(cls, values: list[str]) -> list[str]:
+        return sorted({value.strip().lower() for value in values if value.strip()})

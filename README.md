@@ -20,7 +20,8 @@ Ruleset is a security-first GRC prototype that maps company facts and policy evi
 - Read-only GitHub/AWS control monitoring with immutable evidence and pass-to-fail drift detection
 - Grounded questionnaire answering, a risk register heatmap, and expiring Audit Hub shares
 - Clerk-managed authentication with signed organization-to-RLS tenant mapping
-- 30-profile applicability evaluation set and 60 automated backend tests
+- Authenticated intake and risk-management APIs with live Clerk-enabled UI modes
+- 30-profile applicability evaluation set and 62 automated backend tests
 
 The current golden set scores HIPAA applicability at 1.00 precision and 1.00 recall. Citation validity is structurally gated: a generated control ID must be present in the retrieved context before output can be stored.
 

@@ -1,6 +1,7 @@
 import { CoverageMatrix, type CoverageRow } from "../components/coverage-matrix";
 import Link from "next/link";
 import { AuthControls } from "../components/auth-controls";
+import { LiveIntake } from "../components/live-intake";
 
 const rows = [
   { control: "AC-2", title: "Account Management", frameworks: ["SOC 2 CC6.2", "ISO A.5.15"], status: "covered", evidence: "Access reviews are completed quarterly by the system owner.", gap: "" },
@@ -29,6 +30,7 @@ export default function Home() {
             <span className="rounded-full bg-emerald-400/10 px-4 py-2 font-medium text-emerald-300">Analysis complete</span>
           </div>
         </header>
+        {process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && <LiveIntake />}
         <CoverageMatrix rows={rows} />
       </div>
     </main>

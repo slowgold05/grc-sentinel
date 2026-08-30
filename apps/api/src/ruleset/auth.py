@@ -9,6 +9,7 @@ from pydantic import BaseModel
 from sqlalchemy import Engine, text
 
 from ruleset.config import settings
+from ruleset.database import engine
 
 
 class TenantIdentity(BaseModel):
@@ -53,8 +54,6 @@ def clerk_options() -> AuthenticateRequestOptions:
 
 
 def require_tenant(request: Request) -> TenantIdentity:
-    from ruleset.main import engine
-
     return authenticate_tenant(request, engine, clerk_options())
 
 

@@ -18,6 +18,21 @@ class Risk(BaseModel):
     control_ids: list[str]
 
 
+class RiskCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    title: str = Field(min_length=1, max_length=200)
+    description: str = Field(min_length=1, max_length=10_000)
+    likelihood: int = Field(ge=1, le=5)
+    impact: int = Field(ge=1, le=5)
+    treatment: str = Field(default="", max_length=10_000)
+    control_ids: list[str] = Field(default_factory=list, max_length=100)
+
+
+class RiskStatusUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    status: Literal["open", "mitigating", "accepted", "closed"]
+
+
 def _set_org(connection: object, org_id: UUID) -> None:
     connection.execute(
         text("SELECT set_config('app.org_id', :org_id, true)"), {"org_id": str(org_id)}
