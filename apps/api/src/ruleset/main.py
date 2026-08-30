@@ -26,6 +26,7 @@ from ruleset.engagements import (
     create_engagement,
     list_engagements,
 )
+from ruleset.generation.store import PolicySummary, export_stored_policy, list_policies
 from ruleset.framework_drift import (
     FrameworkImpact,
     FrameworkOption,
@@ -161,6 +162,26 @@ def get_evidence(identity: CurrentTenant) -> list[EvidenceRecord]:
 @app.get("/api/questionnaire-answers", response_model=list[AnswerRecord])
 def get_questionnaire_answers(identity: CurrentTenant) -> list[AnswerRecord]:
     return list_answers(engine, identity.org_id)
+
+
+@app.get("/api/policies", response_model=list[PolicySummary])
+def get_policies(identity: CurrentTenant) -> list[PolicySummary]:
+    return list_policies(engine, identity.org_id)
+
+
+@app.get("/api/policies/{policy_id}/docx")
+def get_policy_docx(policy_id: UUID, identity: CurrentTenant) -> Response:
+    try:
+        filename, content = export_stored_policy(engine, identity.org_id, policy_id)
+    except LookupError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    except ValueError as error:
+        raise HTTPException(status_code=409, detail=str(error)) from error
+    return Response(
+        content=content,
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
 
 
 @app.patch("/api/questionnaire-answers/{answer_id}", status_code=status.HTTP_204_NO_CONTENT)
