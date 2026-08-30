@@ -1,14 +1,24 @@
 from uuid import UUID
 
-from fastapi import FastAPI, HTTPException, Response, status
+from fastapi import FastAPI, Header, HTTPException, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.concurrency import run_in_threadpool
 
 from ruleset.audit_hub import AuditShare, resolve_share
 from ruleset.auth import CurrentTenant, TenantIdentity
 from ruleset.config import settings
 from ruleset.database import engine
-from ruleset.engagements import EngagementCreate, EngagementCreated, create_engagement
+from ruleset.document_ingestion import IngestedDocument, ingest_document
+from ruleset.engagements import (
+    EngagementCreate,
+    EngagementCreated,
+    EngagementSummary,
+    create_engagement,
+    list_engagements,
+)
 from ruleset.logging import configure_logging
+from ruleset.osint.snapshot import SecurityPostureSnapshot
+from ruleset.posture_service import collect_posture
 from ruleset.risk_register import (
     Risk,
     RiskCreate,
@@ -18,6 +28,10 @@ from ruleset.risk_register import (
     list_risks,
     update_risk_status,
 )
+from ruleset.retention.delete_engagement import delete_engagement
+from ruleset.errors import DocumentParseError, InvalidUploadError
+from ruleset.uploads.crypto import decode_master_key
+from ruleset.uploads.validation import MAX_UPLOAD_BYTES
 
 configure_logging()
 app = FastAPI(title="Ruleset API")
@@ -26,7 +40,7 @@ app.add_middleware(
     allow_origins=settings.clerk_authorized_parties,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PATCH", "DELETE"],
-    allow_headers=["Authorization", "Content-Type"],
+    allow_headers=["Authorization", "Content-Type", "X-Filename"],
 )
 
 
@@ -58,6 +72,65 @@ def current_tenant(identity: CurrentTenant) -> TenantIdentity:
 )
 def post_engagement(payload: EngagementCreate, identity: CurrentTenant) -> EngagementCreated:
     return create_engagement(engine, identity.org_id, payload)
+
+
+@app.get("/api/engagements", response_model=list[EngagementSummary])
+def get_engagements(identity: CurrentTenant) -> list[EngagementSummary]:
+    return list_engagements(engine, identity.org_id)
+
+
+@app.delete("/api/engagements/{engagement_id}", status_code=status.HTTP_204_NO_CONTENT)
+def remove_engagement(engagement_id: UUID, identity: CurrentTenant) -> Response:
+    if not delete_engagement(engine, identity.org_id, engagement_id):
+        raise HTTPException(status_code=404, detail="engagement not found")
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@app.get(
+    "/api/engagements/{engagement_id}/posture",
+    response_model=SecurityPostureSnapshot,
+)
+async def get_posture(
+    engagement_id: UUID, identity: CurrentTenant
+) -> SecurityPostureSnapshot:
+    try:
+        return await run_in_threadpool(collect_posture, engine, identity.org_id, engagement_id)
+    except LookupError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+
+
+@app.post(
+    "/api/engagements/{engagement_id}/uploads",
+    response_model=IngestedDocument,
+    status_code=status.HTTP_201_CREATED,
+)
+async def post_upload(
+    engagement_id: UUID,
+    request: Request,
+    identity: CurrentTenant,
+    x_filename: str = Header(min_length=1, max_length=255),
+) -> IngestedDocument:
+    if settings.upload_master_key_base64 is None:
+        raise HTTPException(status_code=503, detail="upload encryption is not configured")
+    content = bytearray()
+    async for chunk in request.stream():
+        content.extend(chunk)
+        if len(content) > MAX_UPLOAD_BYTES:
+            raise HTTPException(status_code=413, detail="upload exceeds 20 MiB")
+    try:
+        return await run_in_threadpool(
+            ingest_document,
+            engine,
+            identity.org_id,
+            engagement_id,
+            x_filename,
+            bytes(content),
+            decode_master_key(settings.upload_master_key_base64.get_secret_value()),
+        )
+    except LookupError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    except (InvalidUploadError, DocumentParseError, ValueError) as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
 
 
 @app.get("/api/risks", response_model=list[Risk])

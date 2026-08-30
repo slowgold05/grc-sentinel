@@ -33,6 +33,9 @@ def test_intake_creates_engagement_and_hipaa_determination() -> None:
         )
         assert response.status_code == 201
         assert response.json()["determinations"][0]["regulation"] == "HIPAA"
+        engagement_id = response.json()["id"]
+        assert TestClient(app).get("/api/engagements").json()[0]["regulations"] == ["HIPAA"]
+        assert TestClient(app).delete(f"/api/engagements/{engagement_id}").status_code == 204
     finally:
         app.dependency_overrides.clear()
         with engine.begin() as connection:

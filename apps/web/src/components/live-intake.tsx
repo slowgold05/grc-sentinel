@@ -1,14 +1,36 @@
 "use client";
 
 import { useAuth } from "@clerk/nextjs";
-import { FormEvent, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
+type Engagement = {
+  id: string;
+  company: { company_name: string; domain: string };
+  regulations: string[];
+  expires_at: string;
+};
 
 export function LiveIntake() {
   const { getToken, userId } = useAuth();
   const [result, setResult] = useState("");
   const [error, setError] = useState("");
+  const [engagements, setEngagements] = useState<Engagement[]>([]);
+
+  const refresh = useCallback(async () => {
+    const token = await getToken();
+    if (!token) return;
+    const response = await fetch(`${apiUrl}/api/engagements`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) throw new Error("Could not load engagements");
+    setEngagements(await response.json());
+  }, [getToken]);
+
+  useEffect(() => {
+    if (userId) refresh().catch((reason: Error) => setError(reason.message));
+  }, [refresh, userId]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -38,8 +60,62 @@ export function LiveIntake() {
           ? `${payload.determinations.map((item: { regulation: string }) => item.regulation).join(", ")} applies`
           : "No current rule matched",
       );
+      await refresh();
     } catch {
       setError("Could not reach the intake API");
+    }
+  }
+
+  async function remove(id: string) {
+    const token = await getToken();
+    if (!token) return;
+    try {
+      const response = await fetch(`${apiUrl}/api/engagements/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) return setError("Could not delete engagement");
+      await refresh();
+    } catch {
+      setError("Could not reach the intake API");
+    }
+  }
+
+  async function upload(engagementId: string, file: File) {
+    const token = await getToken();
+    if (!token) return;
+    setError("");
+    try {
+      const response = await fetch(`${apiUrl}/api/engagements/${engagementId}/uploads`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/octet-stream",
+          "X-Filename": file.name,
+        },
+        body: file,
+      });
+      if (!response.ok) return setError("Upload rejected; use a valid PDF or DOCX under 20 MiB");
+      const payload = await response.json();
+      setResult(`Encrypted upload stored with ${payload.sections} parsed section(s)`);
+    } catch {
+      setError("Could not reach the upload API");
+    }
+  }
+
+  async function inspectPosture(engagementId: string) {
+    const token = await getToken();
+    if (!token) return;
+    setError("");
+    try {
+      const response = await fetch(`${apiUrl}/api/engagements/${engagementId}/posture`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) return setError("Passive posture check was unavailable");
+      const payload = await response.json();
+      setResult(payload.observations.join(" · "));
+    } catch {
+      setError("Could not reach the posture API");
     }
   }
 
@@ -59,6 +135,9 @@ export function LiveIntake() {
       </form>
       {result && <p className="mt-4 text-sm font-medium text-emerald-300">{result}</p>}
       {error && <p role="alert" className="mt-4 text-sm text-rose-300">{error}</p>}
+      <div className="mt-5 grid gap-3 sm:grid-cols-2">
+        {engagements.map((engagement) => <article key={engagement.id} className="rounded-xl border border-slate-800 bg-slate-950/70 p-4"><h3 className="font-semibold">{engagement.company.company_name}</h3><p className="mt-2 text-sm text-slate-400">{engagement.company.domain} · {engagement.regulations.join(", ") || "No matched regulation"}</p><label className="mt-3 block cursor-pointer text-sm font-medium text-cyan-300">Attach PDF or DOCX<input type="file" accept=".pdf,.docx" className="sr-only" onChange={(event) => { const file = event.target.files?.[0]; if (file) upload(engagement.id, file); }} /></label><button onClick={() => inspectPosture(engagement.id)} className="mt-3 block text-sm font-medium text-cyan-300 hover:text-cyan-200">Run passive posture check</button><button onClick={() => remove(engagement.id)} className="mt-3 text-sm font-medium text-rose-300 hover:text-rose-200">Delete engagement</button></article>)}
+      </div>
     </section>
   );
 }

@@ -10,7 +10,7 @@ from ruleset.intake.models import CompanyIntake
 from ruleset.rules.engine import evaluate
 from ruleset.rules.loader import load_rules
 from ruleset.rules.models import CompanyFacts, Determination
-from ruleset.rules.store import store_determinations
+from ruleset.rules.store import insert_determinations
 
 _HIPAA_RULES = Path(__file__).parent / "rules" / "rulesets" / "hipaa-v2.json"
 
@@ -24,6 +24,14 @@ class EngagementCreate(BaseModel):
 class EngagementCreated(BaseModel):
     id: UUID
     determinations: list[Determination]
+
+
+class EngagementSummary(BaseModel):
+    id: UUID
+    company: CompanyIntake
+    created_at: datetime
+    expires_at: datetime
+    regulations: list[str]
 
 
 def create_engagement(
@@ -55,16 +63,22 @@ def create_engagement(
                 "expires_at": datetime.now(UTC) + timedelta(days=request.retention_days),
             },
         ).scalar_one()
-    try:
-        store_determinations(engine, org_id, engagement_id, determinations)
-    except Exception:
-        with engine.begin() as connection:
-            connection.execute(
-                text("SELECT set_config('app.org_id', :org_id, true)"),
-                {"org_id": str(org_id)},
-            )
-            connection.execute(
-                text("DELETE FROM engagements WHERE id = :id"), {"id": engagement_id}
-            )
-        raise
+        insert_determinations(connection, org_id, engagement_id, determinations)
     return EngagementCreated(id=engagement_id, determinations=determinations)
+
+
+def list_engagements(engine: Engine, org_id: UUID) -> list[EngagementSummary]:
+    with engine.begin() as connection:
+        connection.execute(
+            text("SELECT set_config('app.org_id', :org_id, true)"), {"org_id": str(org_id)}
+        )
+        rows = connection.execute(
+            text(
+                "SELECT e.id, e.company, e.created_at, e.expires_at, "
+                "COALESCE(array_agg(r.name) FILTER (WHERE r.name IS NOT NULL), '{}') AS regulations "
+                "FROM engagements e LEFT JOIN determinations d ON d.engagement_id = e.id "
+                "LEFT JOIN regulations r ON r.id = d.regulation_id "
+                "GROUP BY e.id ORDER BY e.created_at DESC"
+            )
+        ).mappings()
+        return [EngagementSummary.model_validate(row) for row in rows]
