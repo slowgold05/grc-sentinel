@@ -1,0 +1,1 @@
+"""Typed company intake contracts."""

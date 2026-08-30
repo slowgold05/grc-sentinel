@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - uses: astral-sh/setup-uv@v9
+        with:
+          version: "0.12.4"
+          enable-cache: true
+
+      - name: Configure isolated test database
+        shell: bash
+        run: |
+          db_password="$(openssl rand -hex 24)"
+          app_password="$(openssl rand -hex 24)"
+          echo "::add-mask::$db_password"
+          echo "::add-mask::$app_password"
+          echo "POSTGRES_PASSWORD=$db_password" >> "$GITHUB_ENV"
+          echo "POSTGRES_APP_PASSWORD=$app_password" >> "$GITHUB_ENV"
+          echo "DATABASE_URL=postgresql+psycopg://ruleset_app:$app_password@localhost:5432/ruleset" >> "$GITHUB_ENV"
+          echo "MIGRATION_DATABASE_URL=postgresql+psycopg://ruleset:$db_password@localhost:5432/ruleset" >> "$GITHUB_ENV"
+
+      - run: docker compose up -d --wait
+      - run: pnpm install --frozen-lockfile
+      - run: uv sync --locked
+        working-directory: apps/api
+      - run: uv run alembic upgrade head
+        working-directory: apps/api
+      - run: uv run pytest
+        working-directory: apps/api
+      - run: uv run ruff check .
+        working-directory: apps/api
+      - run: pnpm --filter web lint
+      - run: pnpm --filter web typecheck
+      - run: pnpm --filter web build
+
+      - name: Audit dependencies
+        shell: bash
+        run: |
+          uv run --project apps/api --with pip-audit==2.10.1 pip-audit --local
+          pnpm audit --audit-level high
+      - run: uvx bandit==1.9.4 -r apps/api/src
+      - run: uvx semgrep==1.175.0 scan --config .semgrep.yml --error apps/api/src
+      - uses: gitleaks/gitleaks-action@v2

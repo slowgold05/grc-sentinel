@@ -1,0 +1,13 @@
+[
+  {
+    "rule_id": "hipaa-covered-entity-v2",
+    "regulation": "HIPAA",
+    "all": [
+      {"fact": "data_types", "op": "includes", "value": "phi"},
+      {"fact": "geos", "op": "includes", "value": "us"}
+    ],
+    "explanation": "Handles PHI for US persons; the HIPAA Security Rule applies.",
+    "citations": ["45 CFR §164.302"],
+    "version": 2
+  }
+]

@@ -1,0 +1,20 @@
+rules:
+  - id: no-eval
+    message: Never execute untrusted strings.
+    severity: ERROR
+    languages: [python]
+    pattern: eval(...)
+  - id: no-dynamic-sql
+    message: Use static SQL with bound parameters.
+    severity: ERROR
+    languages: [python]
+    patterns:
+      - pattern-either:
+          - pattern: text(f"...")
+          - pattern: text("...".format(...))
+          - pattern: text($LEFT + $RIGHT)
+  - id: no-disabled-tls-verification
+    message: TLS verification must remain enabled.
+    severity: ERROR
+    languages: [python]
+    pattern: $CALL(..., verify=False, ...)
