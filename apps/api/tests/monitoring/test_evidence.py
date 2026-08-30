@@ -4,7 +4,7 @@ from uuid import uuid4
 from sqlalchemy import create_engine, text
 
 from ruleset.config import settings
-from ruleset.monitoring.evidence import append_evidence, is_control_drift
+from ruleset.monitoring.evidence import append_evidence, is_control_drift, list_evidence
 from ruleset.monitoring.github import GitHubOrgMfaTest
 from ruleset.monitoring.models import TestResult as ControlTestResult
 
@@ -27,6 +27,9 @@ def test_evidence_is_tenant_scoped_and_immutable() -> None:
             ),
             {"two_factor_requirement_enabled": True},
         )
+        records = list_evidence(engine, org_id)
+        assert records[0].id == evidence_id
+        assert records[0].control_ids == ["IA-2", "CC6.1"]
         with engine.begin() as connection:
             connection.execute(
                 text("SELECT set_config('app.org_id', :id, true)"), {"id": str(org_id)}

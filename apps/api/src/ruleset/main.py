@@ -25,6 +25,7 @@ from ruleset.monitoring.connections import (
     delete_connection,
     save_connection,
 )
+from ruleset.monitoring.evidence import EvidenceRecord, list_evidence
 from ruleset.monitoring.runner import EvidenceRun, run_aws_checks, run_github_checks
 from ruleset.osint.snapshot import SecurityPostureSnapshot
 from ruleset.posture_service import collect_posture
@@ -97,6 +98,11 @@ def remove_connection(
     if not delete_connection(engine, identity.org_id, provider):
         raise HTTPException(status_code=404, detail="connection not found")
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@app.get("/api/evidence", response_model=list[EvidenceRecord])
+def get_evidence(identity: CurrentTenant) -> list[EvidenceRecord]:
+    return list_evidence(engine, identity.org_id)
 
 
 @app.post("/api/connections/github/run", response_model=list[EvidenceRun])

@@ -1,10 +1,35 @@
 import json
+from datetime import datetime
 from uuid import UUID
 
-from pydantic import JsonValue
+from pydantic import BaseModel, JsonValue
 from sqlalchemy import Engine, text
 
 from ruleset.monitoring.models import ControlTest, TestResult
+
+
+class EvidenceRecord(BaseModel):
+    id: UUID
+    test_id: str
+    status: str
+    observed: dict[str, JsonValue]
+    control_ids: list[str]
+    tested_at: datetime
+
+
+def list_evidence(engine: Engine, org_id: UUID) -> list[EvidenceRecord]:
+    """Return the tenant's newest 100 immutable evidence records."""
+    with engine.begin() as connection:
+        connection.execute(
+            text("SELECT set_config('app.org_id', :org_id, true)"), {"org_id": str(org_id)}
+        )
+        rows = connection.execute(
+            text(
+                "SELECT id, test_id, status, observed, control_ids, tested_at "
+                "FROM control_evidence ORDER BY tested_at DESC LIMIT 100"
+            )
+        ).mappings()
+    return [EvidenceRecord.model_validate(row) for row in rows]
 
 
 def is_control_drift(previous_status: str | None, current_status: str) -> bool:
