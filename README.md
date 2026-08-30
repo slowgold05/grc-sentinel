@@ -21,7 +21,7 @@ Ruleset is a security-first GRC prototype that maps company facts and policy evi
 - Grounded questionnaire answering, a risk register heatmap, and expiring Audit Hub shares
 - Clerk-managed authentication with signed organization-to-RLS tenant mapping
 - Authenticated intake and risk-management APIs with live Clerk-enabled UI modes
-- 30-profile applicability evaluation set and 64 automated backend tests
+- 30-profile applicability evaluation set and 67 automated backend tests
 
 The current golden set scores HIPAA applicability at 1.00 precision and 1.00 recall. Citation validity is structurally gated: a generated control ID must be present in the retrieved context before output can be stored.
 
@@ -126,7 +126,8 @@ ISO standards text is not copied; only allowed identifiers and sourced mappings 
 - The rules catalog currently implements HIPAA applicability only.
 - Live Anthropic generation and Voyage embeddings require API keys and have not been claimed as offline test results.
 - Have I Been Pwned domain exposure is omitted because it requires a verified-domain API account.
-- The homepage currently demonstrates the coverage experience with seeded fictional data; deployment and the roadmap's demo GIF/blog post remain packaging work.
+- The homepage retains a seeded recruiter demo; authenticated routes provide live intake, uploads, posture checks, coverage, risks, monitoring evidence, questionnaire review, framework drift, policy exports, and expiring audit shares.
+- Deployment and the roadmap's demo GIF/blog post remain packaging work.
 
 ## Repository map
 

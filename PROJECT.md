@@ -82,7 +82,7 @@ plan → retrieve → generate → verify_citations (deterministic) → verify_f
 │           ├── security/   ← ssrf_guard.py, crypto.py (envelope encryption), redaction.py
 │           ├── uploads/    ← validation, sandboxed parsing worker
 │           ├── retention/  ← sweeper job, delete_engagement cascade
-│           ├── monitoring/ ← ControlTest protocol, one connector per file (github.py, aws.py), scheduler
+│           ├── monitoring/ ← ControlTest connectors, encrypted credentials, evidence runner
 │           ├── questionnaires/ ← question extraction, statement retrieval, answer generation + verification
 │           └── db/         ← SQLAlchemy models, alembic migrations, rls_policies.sql
 ├── packages/shared-types/  ← generated from OpenAPI; NEVER edit by hand
@@ -127,7 +127,7 @@ plan → retrieve → generate → verify_citations (deterministic) → verify_f
   JSON, verdict, timestamp, test version, control IDs. Append-only — a
   correction is a NEW row, never an UPDATE or DELETE (except retention sweep).
 - **Drift** — a control's ControlTest transitioning pass → fail between runs.
-  Drift creates an alert and an audit_event.
+  Drift is persisted on the immutable evidence row and highlighted in the UI.
 - **Answer** — a questionnaire response citing ≥1 statement ID from this org's
   approved statements. Same verification rule as statements: cited IDs must
   exist in the retrieval set.
@@ -224,9 +224,9 @@ determinations(id, org_id, engagement_id, regulation_id, rule_id, rule_version, 
 policies(id, org_id, engagement_id, policy_type, status)
 statements(id, org_id, policy_id, seq, text, control_ids text[], verified bool)
 osint_cache(id, org_id, domain, check_name, result jsonb, fetched_at, expires_at)
-connections(id, org_id, provider, enc_credentials_ref, scopes, status, created_at)   -- provider: 'github'|'aws'
+monitoring_connections(id, org_id, provider, ciphertext, nonce, wrapped_key, key_nonce, scopes, created_at)
 control_tests(id, org_id, connection_id, test_id, test_version, control_ids text[], schedule, enabled)
-evidence(id, org_id, connection_id, test_id, test_version, control_ids text[], verdict, raw_response jsonb, tested_at)  -- APPEND-ONLY
+control_evidence(id, org_id, test_id, control_ids text[], status, drift, observed jsonb, raw_response jsonb, tested_at)  -- APPEND-ONLY
 questionnaires(id, org_id, engagement_id, upload_id, status, created_at)
 questions(id, org_id, questionnaire_id, seq, text)
 answers(id, org_id, question_id, text, statement_ids uuid[], verified bool, review_status)  -- 'proposed'|'approved'|'rejected'
