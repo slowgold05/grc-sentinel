@@ -1,8 +1,40 @@
 from uuid import UUID
 
+from pydantic import BaseModel
 from sqlalchemy import Engine, text
 
 from ruleset.coverage_verifier import CoverageVerification
+
+
+class CoverageRow(BaseModel):
+    control: str
+    title: str
+    frameworks: list[str]
+    status: str
+    evidence: str
+    gap: str
+
+
+def list_coverage_results(
+    engine: Engine, org_id: UUID, engagement_id: UUID
+) -> list[CoverageRow]:
+    """Return the newest stored result for each control in one engagement."""
+    with engine.begin() as connection:
+        connection.execute(
+            text("SELECT set_config('app.org_id', :org_id, true)"), {"org_id": str(org_id)}
+        )
+        rows = connection.execute(
+            text(
+                "SELECT DISTINCT ON (r.control_id) c.control_code AS control, c.title, "
+                "ARRAY[f.name] AS frameworks, r.status, r.evidence_quote AS evidence, r.gap "
+                "FROM coverage_results r JOIN controls c ON c.id = r.control_id "
+                "JOIN frameworks f ON f.id = c.framework_id "
+                "WHERE r.engagement_id = :engagement_id "
+                "ORDER BY r.control_id, r.created_at DESC"
+            ),
+            {"engagement_id": engagement_id},
+        ).mappings()
+    return [CoverageRow.model_validate(row) for row in rows]
 
 
 def store_coverage_results(

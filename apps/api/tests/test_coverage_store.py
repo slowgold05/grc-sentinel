@@ -4,7 +4,7 @@ from uuid import uuid4
 from sqlalchemy import create_engine, text
 
 from ruleset.config import settings
-from ruleset.coverage_store import store_coverage_results
+from ruleset.coverage_store import list_coverage_results, store_coverage_results
 from ruleset.coverage_verifier import CoverageClaim, verify_evidence_quote
 
 
@@ -39,6 +39,10 @@ def test_stores_only_verified_coverage_results() -> None:
     result = verify_evidence_quote(claim, None)
     try:
         assert store_coverage_results(engine, org_id, engagement_id, upload_id, [result]) == 1
+        rows = list_coverage_results(engine, org_id, engagement_id)
+        assert len(rows) == 1
+        assert rows[0].status == "missing"
+        assert rows[0].control
     finally:
         with engine.begin() as connection:
             connection.execute(text("SELECT set_config('app.org_id', :id, true)"), {"id": str(org_id)})

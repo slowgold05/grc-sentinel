@@ -7,6 +7,7 @@ from starlette.concurrency import run_in_threadpool
 from ruleset.audit_hub import AuditShare, resolve_share
 from ruleset.auth import CurrentTenant, TenantIdentity
 from ruleset.config import settings
+from ruleset.coverage_store import CoverageRow, list_coverage_results
 from ruleset.database import engine
 from ruleset.document_ingestion import IngestedDocument, ingest_document
 from ruleset.engagements import (
@@ -77,6 +78,11 @@ def post_engagement(payload: EngagementCreate, identity: CurrentTenant) -> Engag
 @app.get("/api/engagements", response_model=list[EngagementSummary])
 def get_engagements(identity: CurrentTenant) -> list[EngagementSummary]:
     return list_engagements(engine, identity.org_id)
+
+
+@app.get("/api/engagements/{engagement_id}/coverage", response_model=list[CoverageRow])
+def get_coverage(engagement_id: UUID, identity: CurrentTenant) -> list[CoverageRow]:
+    return list_coverage_results(engine, identity.org_id, engagement_id)
 
 
 @app.delete("/api/engagements/{engagement_id}", status_code=status.HTTP_204_NO_CONTENT)
