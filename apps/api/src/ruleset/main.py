@@ -1,4 +1,5 @@
 from uuid import UUID
+from typing import Literal
 
 from fastapi import FastAPI, Header, HTTPException, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -18,6 +19,12 @@ from ruleset.engagements import (
     list_engagements,
 )
 from ruleset.logging import configure_logging
+from ruleset.monitoring.connections import (
+    AwsCredentials,
+    GitHubCredentials,
+    delete_connection,
+    save_connection,
+)
 from ruleset.osint.snapshot import SecurityPostureSnapshot
 from ruleset.posture_service import collect_posture
 from ruleset.risk_register import (
@@ -64,6 +71,31 @@ def open_audit_share(token: str) -> AuditShare:
 def current_tenant(identity: CurrentTenant) -> TenantIdentity:
     """Prove the verified Clerk organization-to-RLS tenant mapping."""
     return identity
+
+
+@app.post("/api/connections", status_code=status.HTTP_201_CREATED)
+def post_connection(
+    payload: GitHubCredentials | AwsCredentials, identity: CurrentTenant
+) -> dict[str, str | UUID]:
+    """Store tenant-bound encrypted read-only connector credentials."""
+    if settings.upload_master_key_base64 is None:
+        raise HTTPException(status_code=503, detail="credential encryption is not configured")
+    connection_id = save_connection(
+        engine,
+        identity.org_id,
+        payload,
+        decode_master_key(settings.upload_master_key_base64.get_secret_value()),
+    )
+    return {"id": connection_id, "provider": payload.provider}
+
+
+@app.delete("/api/connections/{provider}", status_code=status.HTTP_204_NO_CONTENT)
+def remove_connection(
+    provider: Literal["github", "aws"], identity: CurrentTenant
+) -> Response:
+    if not delete_connection(engine, identity.org_id, provider):
+        raise HTTPException(status_code=404, detail="connection not found")
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @app.post(

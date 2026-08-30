@@ -16,7 +16,7 @@ Ruleset is a security-first GRC prototype that maps company facts and policy evi
 - Passive OSINT for DNS, certificate transparency, and public website posture
 - Structured Anthropic generation with citation, faithfulness, concurrency, retry, and token-budget guardrails
 - DOCX policy export with a control traceability appendix
-- Interactive coverage matrix, framework drift detection, and a public trust page
+- Interactive tenant coverage matrix, framework drift detection, and a public trust page
 - Read-only GitHub/AWS control monitoring with immutable evidence and pass-to-fail drift detection
 - Grounded questionnaire answering, a risk register heatmap, and expiring Audit Hub shares
 - Clerk-managed authentication with signed organization-to-RLS tenant mapping
