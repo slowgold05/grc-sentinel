@@ -1,4 +1,5 @@
 from datetime import UTC, datetime, timedelta
+from functools import partial
 from uuid import UUID
 from typing import Literal
 
@@ -42,6 +43,7 @@ from ruleset.framework_drift import (
     list_frameworks,
 )
 from ruleset.logging import configure_logging
+from ruleset.kb.embed_controls import ollama_embed
 from ruleset.monitoring.connections import (
     AwsCredentials,
     GitHubCredentials,
@@ -320,6 +322,11 @@ async def post_upload(
             x_filename,
             bytes(content),
             decode_master_key(settings.upload_master_key_base64.get_secret_value()),
+            partial(
+                ollama_embed,
+                base_url=settings.ollama_base_url,
+                model=settings.ollama_embedding_model,
+            ),
         )
     except LookupError as error:
         raise HTTPException(status_code=404, detail=str(error)) from error

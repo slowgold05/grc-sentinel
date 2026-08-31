@@ -58,6 +58,8 @@ Edit `.env` and replace both database passwords. Set `UPLOAD_MASTER_KEY_BASE64` 
 ```powershell
 ollama pull qwen3:14b
 ollama pull mxbai-embed-large
+Set-Location apps/api
+python -m uv run python -m ruleset.kb.embed_controls
 ```
 
 Generation defaults to Ollama. To demonstrate hosted reasoning instead, set

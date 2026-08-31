@@ -1,10 +1,14 @@
 from collections.abc import Callable
+from functools import partial
 import json
 from uuid import UUID
 
 import httpx
 from pydantic import BaseModel
 from sqlalchemy import Engine, bindparam, text
+
+from ruleset.config import settings
+from ruleset.database import engine
 
 
 class OllamaEmbedding(BaseModel):
@@ -96,3 +100,19 @@ def embed_controls(
                 ],
             )
     return len(rows)
+
+
+def main() -> None:
+    """Embed every control that is not already indexed by local Ollama."""
+    embed_controls(
+        engine,
+        partial(
+            ollama_embed,
+            base_url=settings.ollama_base_url,
+            model=settings.ollama_embedding_model,
+        ),
+    )
+
+
+if __name__ == "__main__":
+    main()

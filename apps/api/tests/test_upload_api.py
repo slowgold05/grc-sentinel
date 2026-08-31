@@ -7,6 +7,7 @@ from zipfile import ZipFile
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from fastapi.testclient import TestClient
 from pydantic import SecretStr
+from pytest import MonkeyPatch
 from sqlalchemy import text
 
 from ruleset.auth import TenantIdentity, require_tenant
@@ -15,7 +16,9 @@ from ruleset.database import engine
 from ruleset.main import app
 
 
-def test_upload_api_validates_parses_and_encrypts_docx() -> None:
+def test_upload_api_validates_parses_encrypts_and_embeds_docx(
+    monkeypatch: MonkeyPatch,
+) -> None:
     org_id, engagement_id = uuid4(), uuid4()
     payload = BytesIO()
     with ZipFile(payload, "w") as archive:
@@ -42,6 +45,10 @@ def test_upload_api_validates_parses_and_encrypts_docx() -> None:
     settings.upload_master_key_base64 = SecretStr(
         urlsafe_b64encode(AESGCM.generate_key(bit_length=256)).decode()
     )
+    monkeypatch.setattr(
+        "ruleset.main.ollama_embed",
+        lambda texts, **_: [[0.0] * 1024 for _ in texts],
+    )
     try:
         response = TestClient(app).post(
             f"/api/engagements/{engagement_id}/uploads",
@@ -50,6 +57,7 @@ def test_upload_api_validates_parses_and_encrypts_docx() -> None:
         )
         assert response.status_code == 201
         assert response.json()["sections"] == 1
+        assert response.json()["embedded_sections"] == 1
     finally:
         settings.upload_master_key_base64 = original_key
         app.dependency_overrides.clear()

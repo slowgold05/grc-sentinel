@@ -1,9 +1,11 @@
+from collections.abc import Callable
 from uuid import UUID
 
 from pydantic import BaseModel
 from sqlalchemy import Engine, text
 
 from ruleset.uploads.chunks import store_sections
+from ruleset.uploads.embed_chunks import embed_sections
 from ruleset.uploads.parse_worker import parse_document
 from ruleset.uploads.store import store_upload
 from ruleset.uploads.validation import validate_upload
@@ -12,6 +14,7 @@ from ruleset.uploads.validation import validate_upload
 class IngestedDocument(BaseModel):
     id: UUID
     sections: int
+    embedded_sections: int
     sha256: str
 
 
@@ -22,6 +25,7 @@ def ingest_document(
     filename: str,
     content: bytes,
     master_key: bytes,
+    embed: Callable[[list[str]], list[list[float]]],
 ) -> IngestedDocument:
     """Validate, parse, encrypt, and store one tenant document."""
     metadata = validate_upload(filename, content)
@@ -36,4 +40,10 @@ def ingest_document(
             raise LookupError("engagement not found")
     upload_id = store_upload(engine, org_id, engagement_id, metadata, content, master_key)
     sections = store_sections(engine, org_id, upload_id, document)
-    return IngestedDocument(id=upload_id, sections=sections, sha256=metadata.sha256)
+    embedded_sections = embed_sections(engine, org_id, upload_id, embed)
+    return IngestedDocument(
+        id=upload_id,
+        sections=sections,
+        embedded_sections=embedded_sections,
+        sha256=metadata.sha256,
+    )

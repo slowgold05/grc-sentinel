@@ -111,7 +111,7 @@ export function LiveIntake() {
       });
       if (!response.ok) return setError("Upload rejected; use a valid PDF or DOCX under 20 MiB");
       const payload = await response.json();
-      setResult(`Encrypted upload stored with ${payload.sections} parsed section(s)`);
+      setResult(`Encrypted upload stored with ${payload.embedded_sections} searchable section(s)`);
     } catch {
       setError("Could not reach the upload API");
     }
