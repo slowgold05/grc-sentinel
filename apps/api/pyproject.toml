@@ -26,6 +26,7 @@ dev = [
     "hypothesis==6.165.10",
     "pytest==8.4.1",
     "ruff==0.12.7",
+    "selenium==4.48.0",
 ]
 
 [tool.pytest.ini_options]

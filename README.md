@@ -14,7 +14,23 @@ The public homepage contains a fictional fintech engagement for **LedgerPeak Pay
 
 The complete local build adds private document processing and local AI through Ollama. This split keeps the public portfolio inexpensive and prevents real policy text from being sent to a hosted model.
 
-Current walkthrough captures are tracked in [`screenshots/`](screenshots/README.md). The previous homepage image is retained there until the refreshed black-and-red sequence is captured from the deployed application.
+The completed black-and-red reviewer walkthrough is documented in [`screenshots/`](screenshots/README.md). It covers intake, control evidence, risks, monitoring, questionnaires, framework drift, policies, the trust center, and an expiring Audit Hub share.
+
+To repeat the browser smoke test and authenticated screenshot walkthrough:
+
+```powershell
+Set-Location apps/api
+python -m uv run python scripts/selenium_portfolio.py --headless
+python -m uv run python scripts/selenium_portfolio.py --capture
+```
+
+The capture command opens an isolated Chrome session, pauses for Clerk sign-in and organization selection, uses only fictional LedgerPeak Payments data, and writes the ten reviewer images under `screenshots/`. The deployed Vercel-to-Railway flow passed this complete walkthrough on 1 September 2026.
+
+| Intake and applicability | Evidence-backed coverage |
+| --- | --- |
+| ![Fintech intake](screenshots/02-intake.png) | ![Control coverage](screenshots/03-coverage.png) |
+| **Risk register** | **Expiring Audit Hub share** |
+| ![Risk register](screenshots/04-risks.png) | ![Audit Hub share](screenshots/10-audit-share.png) |
 
 | Capability | What GRC Sentinel does | Why it matters |
 | --- | --- | --- |
@@ -104,7 +120,7 @@ flowchart TB
 
 ## Framework and regulation coverage
 
-The current knowledge base contains **6 framework records, 4,233 controls, 4,354 sourced crosswalk mappings, and 4,233 embeddings**.
+The current knowledge base contains **6 framework records, 4,233 controls, 4,354 sourced crosswalk mappings, and 4,233 embeddings**. The production portfolio database was populated from the official SCF 2026.2 workbook using the same validated, idempotent importer; its import processed 1,534 SCF controls and 4,354 selected mappings.
 
 - NIST SP 800-53 Rev. 5 controls come from official [NIST OSCAL content](https://github.com/usnistgov/oscal-content).
 - Cross-framework identifiers come from the [Secure Controls Framework](https://securecontrolsframework.com/).

@@ -1,6 +1,6 @@
 # Reviewer walkthrough captures
 
-Capture the deployed app at a consistent desktop viewport and replace `frontpage.png` with the current black-and-red interface.
+These images were captured from the deployed application by the authenticated Selenium walkthrough on 1 September 2026. The run used only the fictional LedgerPeak Payments tenant and passed all public-route, engagement-creation, and Audit Hub checks.
 
 | Order | File | Stage to show |
 | --- | --- | --- |
@@ -16,3 +16,5 @@ Capture the deployed app at a consistent desktop viewport and replace `frontpage
 | 10 | `10-audit-share.png` | Expiring read-only Audit Hub evidence view |
 
 Do not include credentials, tokens, browser profiles, real company data, or unrelated desktop applications in captures. Use only the fictional demonstration tenant.
+
+Reproduce the public smoke test with `python -m uv run python scripts/selenium_portfolio.py --headless` from `apps/api`, or add `--capture` for the authenticated ten-stage walkthrough.
