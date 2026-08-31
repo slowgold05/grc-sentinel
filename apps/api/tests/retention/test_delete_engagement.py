@@ -22,6 +22,9 @@ def test_hard_delete_leaves_no_engagement_artifacts() -> None:
         connection.execute(
             text("SELECT set_config('app.org_id', :org_id, true)"), {"org_id": str(org_id)}
         )
+        framework_id = connection.execute(
+            text("SELECT id FROM frameworks WHERE name = 'ISO 27001'")
+        ).scalar_one()
         connection.execute(text("INSERT INTO orgs (id, name) VALUES (:id, 'test')"), {"id": org_id})
         connection.execute(
             text(
@@ -33,6 +36,14 @@ def test_hard_delete_leaves_no_engagement_artifacts() -> None:
                 "org_id": org_id,
                 "expires_at": datetime.now(UTC) + timedelta(days=1),
             },
+        )
+        connection.execute(
+            text(
+                "INSERT INTO assurance_objectives "
+                "(org_id, engagement_id, framework_id, basis, selected_by) "
+                "VALUES (:org_id, :engagement_id, :framework_id, 'company_strategy', 'test-user')"
+            ),
+            {"org_id": org_id, "engagement_id": engagement_id, "framework_id": framework_id},
         )
     determination = Determination(
         rule_id="hipaa-covered-entity-v2",
@@ -67,11 +78,12 @@ def test_hard_delete_leaves_no_engagement_artifacts() -> None:
                     "SELECT (SELECT count(*) FROM engagements WHERE org_id = :org_id), "
                     "(SELECT count(*) FROM determinations WHERE org_id = :org_id), "
                     "(SELECT count(*) FROM uploads WHERE org_id = :org_id), "
-                    "(SELECT count(*) FROM upload_chunks WHERE org_id = :org_id)"
+                    "(SELECT count(*) FROM upload_chunks WHERE org_id = :org_id), "
+                    "(SELECT count(*) FROM assurance_objectives WHERE org_id = :org_id)"
                 ),
                 {"org_id": org_id},
             ).one()
-        assert tuple(counts) == (0, 0, 0, 0)
+        assert tuple(counts) == (0, 0, 0, 0, 0)
     finally:
         with engine.begin() as connection:
             connection.execute(

@@ -20,10 +20,12 @@ from ruleset.coverage_store import CoverageRow, list_coverage_results
 from ruleset.database import engine
 from ruleset.document_ingestion import IngestedDocument, ingest_document
 from ruleset.engagements import (
+    AssuranceReadiness,
     EngagementCreate,
     EngagementCreated,
     EngagementSummary,
     create_engagement,
+    get_assurance_readiness,
     list_engagements,
 )
 from ruleset.generation.store import (
@@ -248,12 +250,22 @@ async def post_aws_run(identity: CurrentTenant) -> list[EvidenceRun]:
     status_code=status.HTTP_201_CREATED,
 )
 def post_engagement(payload: EngagementCreate, identity: CurrentTenant) -> EngagementCreated:
-    return create_engagement(engine, identity.org_id, payload)
+    return create_engagement(engine, identity.org_id, identity.user_id, payload)
 
 
 @app.get("/api/engagements", response_model=list[EngagementSummary])
 def get_engagements(identity: CurrentTenant) -> list[EngagementSummary]:
     return list_engagements(engine, identity.org_id)
+
+
+@app.get(
+    "/api/engagements/{engagement_id}/assurance-readiness",
+    response_model=list[AssuranceReadiness],
+)
+def get_engagement_assurance_readiness(
+    engagement_id: UUID, identity: CurrentTenant
+) -> list[AssuranceReadiness]:
+    return get_assurance_readiness(engine, identity.org_id, engagement_id)
 
 
 @app.get("/api/engagements/{engagement_id}/coverage", response_model=list[CoverageRow])

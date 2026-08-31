@@ -11,6 +11,7 @@ Ruleset is a security-first GRC prototype that maps company facts and policy evi
 - 6 framework records, 4,233 controls, and 4,354 sourced crosswalk mappings
 - NIST OSCAL and Secure Controls Framework ingestion with versioned controls
 - Declarative HIPAA applicability rules with an auditable facts snapshot
+- Contractual and voluntary assurance objectives for SOC 2, ISO 27001, and NIST SP 800-53
 - Encrypted uploads, constrained PDF/DOCX parsing, retention, and hard deletion
 - Policy-to-control gap analysis with evidence-quote verification
 - Passive OSINT for DNS, certificate transparency, and public website posture
@@ -124,6 +125,7 @@ ISO standards text is not copied; only allowed identifiers and sourced mappings 
 
 - Clerk auth is wired but requires your Clerk application keys and one organization link before protected tenant APIs can be used.
 - The rules catalog currently implements HIPAA applicability only.
+- SOC 2, ISO 27001, and NIST are selected assurance objectives, not represented as laws that automatically apply.
 - Live Anthropic generation and Voyage embeddings require API keys and have not been claimed as offline test results.
 - Have I Been Pwned domain exposure is omitted because it requires a verified-domain API account.
 - The homepage retains a seeded recruiter demo; authenticated routes provide live intake, uploads, posture checks, coverage, risks, monitoring evidence, questionnaire review, framework drift, policy exports, and expiring audit shares.

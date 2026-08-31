@@ -28,13 +28,38 @@ def test_intake_creates_engagement_and_hipaa_determination() -> None:
                     "employee_count": 20,
                     "geos": ["US"],
                     "data_types": ["PHI"],
-                }
+                },
+                "assurance_objectives": [
+                    {
+                        "framework": "SOC 2 TSC",
+                        "basis": "customer_contract",
+                        "scope": "Security criteria for enterprise procurement",
+                    },
+                    {
+                        "framework": "ISO 27001",
+                        "basis": "company_strategy",
+                    },
+                ],
             },
         )
         assert response.status_code == 201
         assert response.json()["determinations"][0]["regulation"] == "HIPAA"
+        assert [item["framework"] for item in response.json()["assurance_objectives"]] == [
+            "SOC 2 TSC",
+            "ISO 27001",
+        ]
         engagement_id = response.json()["id"]
-        assert TestClient(app).get("/api/engagements").json()[0]["regulations"] == ["HIPAA"]
+        summary = TestClient(app).get("/api/engagements").json()[0]
+        assert summary["regulations"] == ["HIPAA"]
+        assert {item["framework"] for item in summary["assurance_objectives"]} == {
+            "ISO 27001",
+            "SOC 2 TSC",
+        }
+        readiness = TestClient(app).get(
+            f"/api/engagements/{engagement_id}/assurance-readiness"
+        ).json()
+        assert {item["framework"] for item in readiness} == {"ISO 27001", "SOC 2 TSC"}
+        assert all(item["total"] > 0 and item["not_assessed"] == item["total"] for item in readiness)
         assert TestClient(app).delete(f"/api/engagements/{engagement_id}").status_code == 204
     finally:
         app.dependency_overrides.clear()

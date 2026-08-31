@@ -1,6 +1,7 @@
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 import json
 from pathlib import Path
+from typing import Literal
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -15,15 +16,43 @@ from ruleset.rules.store import insert_determinations
 _HIPAA_RULES = Path(__file__).parent / "rules" / "rulesets" / "hipaa-v2.json"
 
 
+class AssuranceObjectiveCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    framework: Literal["ISO 27001", "SOC 2 TSC", "NIST SP 800-53"]
+    basis: Literal["customer_contract", "company_strategy", "regulator_request"]
+    target_date: date | None = None
+    scope: str = Field(default="", max_length=500)
+
+
 class EngagementCreate(BaseModel):
     model_config = ConfigDict(extra="forbid")
     company: CompanyIntake
     retention_days: int = Field(default=90, ge=1, le=365)
+    assurance_objectives: list[AssuranceObjectiveCreate] = Field(default_factory=list, max_length=3)
+
+
+class AssuranceObjective(BaseModel):
+    framework: str
+    version: str
+    basis: str
+    target_date: date | None
+    scope: str
+
+
+class AssuranceReadiness(BaseModel):
+    framework: str
+    version: str
+    total: int
+    covered: int
+    partial: int
+    missing: int
+    not_assessed: int
 
 
 class EngagementCreated(BaseModel):
     id: UUID
     determinations: list[Determination]
+    assurance_objectives: list[AssuranceObjective]
 
 
 class EngagementSummary(BaseModel):
@@ -32,10 +61,11 @@ class EngagementSummary(BaseModel):
     created_at: datetime
     expires_at: datetime
     regulations: list[str]
+    assurance_objectives: list[AssuranceObjective]
 
 
 def create_engagement(
-    engine: Engine, org_id: UUID, request: EngagementCreate
+    engine: Engine, org_id: UUID, selected_by: str, request: EngagementCreate
 ) -> EngagementCreated:
     """Create an engagement and persist deterministic applicability evidence."""
     facts = CompanyFacts(
@@ -64,7 +94,42 @@ def create_engagement(
             },
         ).scalar_one()
         insert_determinations(connection, org_id, engagement_id, determinations)
-    return EngagementCreated(id=engagement_id, determinations=determinations)
+        objectives = []
+        for objective in request.assurance_objectives:
+            framework = connection.execute(
+                text("SELECT id, version FROM frameworks WHERE name = :name"),
+                {"name": objective.framework},
+            ).mappings().one_or_none()
+            if framework is None:
+                raise ValueError(f"framework is not installed: {objective.framework}")
+            connection.execute(
+                text(
+                    "INSERT INTO assurance_objectives "
+                    "(org_id, engagement_id, framework_id, basis, target_date, scope, selected_by) "
+                    "VALUES (:org_id, :engagement_id, :framework_id, :basis, :target_date, :scope, :selected_by)"
+                ),
+                {
+                    "org_id": org_id,
+                    "engagement_id": engagement_id,
+                    "framework_id": framework["id"],
+                    "basis": objective.basis,
+                    "target_date": objective.target_date,
+                    "scope": objective.scope,
+                    "selected_by": selected_by,
+                },
+            )
+            objectives.append(
+                AssuranceObjective(
+                    framework=objective.framework,
+                    version=framework["version"],
+                    basis=objective.basis,
+                    target_date=objective.target_date,
+                    scope=objective.scope,
+                )
+            )
+    return EngagementCreated(
+        id=engagement_id, determinations=determinations, assurance_objectives=objectives
+    )
 
 
 def list_engagements(engine: Engine, org_id: UUID) -> list[EngagementSummary]:
@@ -81,4 +146,56 @@ def list_engagements(engine: Engine, org_id: UUID) -> list[EngagementSummary]:
                 "GROUP BY e.id ORDER BY e.created_at DESC"
             )
         ).mappings()
-        return [EngagementSummary.model_validate(row) for row in rows]
+        engagements = [EngagementSummary.model_validate({**row, "assurance_objectives": []}) for row in rows]
+        objective_rows = connection.execute(
+            text(
+                "SELECT o.engagement_id, f.name AS framework, f.version, o.basis, "
+                "o.target_date, o.scope FROM assurance_objectives o "
+                "JOIN frameworks f ON f.id = o.framework_id ORDER BY f.name"
+            )
+        ).mappings()
+        by_id = {engagement.id: engagement for engagement in engagements}
+        for row in objective_rows:
+            if row["engagement_id"] in by_id:
+                by_id[row["engagement_id"]].assurance_objectives.append(
+                    AssuranceObjective.model_validate(row)
+                )
+        return engagements
+
+
+def get_assurance_readiness(
+    engine: Engine, org_id: UUID, engagement_id: UUID
+) -> list[AssuranceReadiness]:
+    """Summarize direct or strongly equivalent evidence for selected frameworks."""
+    with engine.begin() as connection:
+        connection.execute(
+            text("SELECT set_config('app.org_id', :org_id, true)"), {"org_id": str(org_id)}
+        )
+        rows = connection.execute(
+            text(
+                "WITH objective_controls AS ("
+                "SELECT f.name AS framework, f.version, c.id AS control_id "
+                "FROM assurance_objectives o JOIN frameworks f ON f.id = o.framework_id "
+                "JOIN controls c ON c.framework_id = f.id WHERE o.engagement_id = :engagement_id"
+                "), latest_results AS ("
+                "SELECT DISTINCT ON (control_id) control_id, status FROM coverage_results "
+                "WHERE engagement_id = :engagement_id ORDER BY control_id, created_at DESC"
+                "), ranked AS ("
+                "SELECT oc.framework, oc.version, oc.control_id, "
+                "COALESCE(max(CASE lr.status WHEN 'covered' THEN 3 WHEN 'partial' THEN 2 "
+                "WHEN 'missing' THEN 1 ELSE 0 END), 0) AS rank FROM objective_controls oc "
+                "LEFT JOIN latest_results lr ON lr.control_id = oc.control_id OR EXISTS ("
+                "SELECT 1 FROM crosswalks x WHERE x.relation = 'equivalent' AND x.strength >= 0.9 "
+                "AND ((x.control_a = oc.control_id AND x.control_b = lr.control_id) "
+                "OR (x.control_b = oc.control_id AND x.control_a = lr.control_id))) "
+                "GROUP BY oc.framework, oc.version, oc.control_id"
+                ") SELECT framework, version, count(*) AS total, "
+                "count(*) FILTER (WHERE rank = 3) AS covered, "
+                "count(*) FILTER (WHERE rank = 2) AS partial, "
+                "count(*) FILTER (WHERE rank = 1) AS missing, "
+                "count(*) FILTER (WHERE rank = 0) AS not_assessed "
+                "FROM ranked GROUP BY framework, version ORDER BY framework"
+            ),
+            {"engagement_id": engagement_id},
+        ).mappings()
+    return [AssuranceReadiness.model_validate(row) for row in rows]

@@ -10,8 +10,10 @@ type Engagement = {
   id: string;
   company: { company_name: string; domain: string };
   regulations: string[];
+  assurance_objectives: { framework: string; version: string; basis: string }[];
   expires_at: string;
 };
+type Readiness = { framework: string; version: string; total: number; covered: number; partial: number; missing: number; not_assessed: number };
 
 export function LiveIntake() {
   const { getToken, userId } = useAuth();
@@ -20,6 +22,7 @@ export function LiveIntake() {
   const [engagements, setEngagements] = useState<Engagement[]>([]);
   const [coverage, setCoverage] = useState<CoverageRow[] | null>(null);
   const [auditShare, setAuditShare] = useState<{ url: string; token: string } | null>(null);
+  const [readiness, setReadiness] = useState<Readiness[]>([]);
 
   const refresh = useCallback(async () => {
     const token = await getToken();
@@ -54,15 +57,23 @@ export function LiveIntake() {
             data_types: form.get("phi") ? ["phi"] : [],
             sends_external_email: form.get("email") === "on",
           },
+          assurance_objectives: [
+            ["iso", "ISO 27001"],
+            ["soc2", "SOC 2 TSC"],
+            ["nist", "NIST SP 800-53"],
+          ].filter(([field]) => form.get(field)).map(([, framework]) => ({
+            framework,
+            basis: form.get("assurance_basis"),
+            target_date: form.get("target_date") || null,
+            scope: form.get("assurance_scope") || "",
+          })),
         }),
       });
       if (!response.ok) return setError("Could not create engagement");
       const payload = await response.json();
-      setResult(
-        payload.determinations.length
-          ? `${payload.determinations.map((item: { regulation: string }) => item.regulation).join(", ")} applies`
-          : "No current rule matched",
-      );
+      const regulations = payload.determinations.map((item: { regulation: string }) => item.regulation);
+      const objectives = payload.assurance_objectives.map((item: { framework: string }) => item.framework);
+      setResult([...regulations.map((item: string) => `${item} applies`), ...objectives.map((item: string) => `${item} selected`)].join(" · ") || "No current rule or assurance objective matched");
       await refresh();
     } catch {
       setError("Could not reach the intake API");
@@ -159,6 +170,20 @@ export function LiveIntake() {
     }
   }
 
+  async function inspectReadiness(engagementId: string) {
+    const token = await getToken();
+    if (!token) return;
+    try {
+      const response = await fetch(`${apiUrl}/api/engagements/${engagementId}/assurance-readiness`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) return setError("Could not load assurance readiness");
+      setReadiness(await response.json());
+    } catch {
+      setError("Could not reach the assurance-readiness API");
+    }
+  }
+
   async function revokeAuditShare() {
     if (!auditShare) return;
     const token = await getToken();
@@ -188,13 +213,15 @@ export function LiveIntake() {
         <label className="flex items-center gap-2 text-sm"><input name="us" type="checkbox" /> Operates in the US</label>
         <label className="flex items-center gap-2 text-sm"><input name="phi" type="checkbox" /> Handles PHI</label>
         <label className="flex items-center gap-2 text-sm"><input name="email" type="checkbox" /> Sends external email</label>
+        <fieldset className="grid gap-2 rounded-lg border border-slate-700 p-3 sm:col-span-3"><legend className="px-2 text-sm font-semibold text-cyan-300">Contract and assurance objectives</legend><div className="flex flex-wrap gap-5"><label className="flex items-center gap-2 text-sm"><input name="soc2" type="checkbox" /> SOC 2 readiness</label><label className="flex items-center gap-2 text-sm"><input name="iso" type="checkbox" /> ISO 27001 readiness</label><label className="flex items-center gap-2 text-sm"><input name="nist" type="checkbox" /> NIST SP 800-53 alignment</label></div><div className="mt-2 grid gap-3 sm:grid-cols-3"><select name="assurance_basis" defaultValue="customer_contract" className="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2"><option value="customer_contract">Customer or contract</option><option value="company_strategy">Company strategy</option><option value="regulator_request">Regulator request</option></select><input name="target_date" type="date" aria-label="Target completion date" className="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2" /><input name="assurance_scope" maxLength={500} placeholder="Scope, e.g. Security criteria" className="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2" /></div></fieldset>
         <button className="rounded-lg bg-cyan-300 px-4 py-2 font-semibold text-slate-950 hover:bg-cyan-200 sm:col-span-3">Create and evaluate</button>
       </form>
       {result && <p className="mt-4 text-sm font-medium text-emerald-300">{result}</p>}
       {error && <p role="alert" className="mt-4 text-sm text-rose-300">{error}</p>}
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
-        {engagements.map((engagement) => <article key={engagement.id} className="rounded-xl border border-slate-800 bg-slate-950/70 p-4"><h3 className="font-semibold">{engagement.company.company_name}</h3><p className="mt-2 text-sm text-slate-400">{engagement.company.domain} · {engagement.regulations.join(", ") || "No matched regulation"}</p><label className="mt-3 block cursor-pointer text-sm font-medium text-cyan-300">Attach PDF or DOCX<input type="file" accept=".pdf,.docx" className="sr-only" onChange={(event) => { const file = event.target.files?.[0]; if (file) upload(engagement.id, file); }} /></label><button onClick={() => inspectPosture(engagement.id)} className="mt-3 block text-sm font-medium text-cyan-300 hover:text-cyan-200">Run passive posture check</button><button onClick={() => inspectCoverage(engagement.id)} className="mt-3 block text-sm font-medium text-cyan-300 hover:text-cyan-200">View coverage matrix</button><button onClick={() => createAuditShare(engagement.id)} className="mt-3 block text-sm font-medium text-cyan-300 hover:text-cyan-200">Create 24-hour audit link</button><button onClick={() => remove(engagement.id)} className="mt-3 text-sm font-medium text-rose-300 hover:text-rose-200">Delete engagement</button></article>)}
+        {engagements.map((engagement) => <article key={engagement.id} className="rounded-xl border border-slate-800 bg-slate-950/70 p-4"><h3 className="font-semibold">{engagement.company.company_name}</h3><p className="mt-2 text-sm text-slate-400">{engagement.company.domain} · {engagement.regulations.join(", ") || "No matched regulation"}</p>{engagement.assurance_objectives.length > 0 && <div className="mt-3 flex flex-wrap gap-2">{engagement.assurance_objectives.map((objective) => <span key={objective.framework} className="rounded-full bg-violet-400/10 px-2 py-1 text-xs text-violet-300">{objective.framework} · {objective.basis.replaceAll("_", " ")}</span>)}</div>}<label className="mt-3 block cursor-pointer text-sm font-medium text-cyan-300">Attach PDF or DOCX<input type="file" accept=".pdf,.docx" className="sr-only" onChange={(event) => { const file = event.target.files?.[0]; if (file) upload(engagement.id, file); }} /></label><button onClick={() => inspectPosture(engagement.id)} className="mt-3 block text-sm font-medium text-cyan-300 hover:text-cyan-200">Run passive posture check</button><button onClick={() => inspectCoverage(engagement.id)} className="mt-3 block text-sm font-medium text-cyan-300 hover:text-cyan-200">View coverage matrix</button><button onClick={() => inspectReadiness(engagement.id)} className="mt-3 block text-sm font-medium text-violet-300 hover:text-violet-200">View assurance readiness</button><button onClick={() => createAuditShare(engagement.id)} className="mt-3 block text-sm font-medium text-cyan-300 hover:text-cyan-200">Create 24-hour audit link</button><button onClick={() => remove(engagement.id)} className="mt-3 text-sm font-medium text-rose-300 hover:text-rose-200">Delete engagement</button></article>)}
       </div>
+      {readiness.length > 0 && <section className="mt-8 grid gap-3 sm:grid-cols-3" aria-label="Assurance readiness">{readiness.map((item) => <article key={item.framework} className="rounded-xl border border-violet-400/20 bg-violet-400/[0.05] p-4"><h3 className="font-semibold text-violet-200">{item.framework} {item.version}</h3><p className="mt-3 text-2xl font-semibold">{item.total ? Math.round(((item.covered + item.partial * 0.5) / item.total) * 100) : 0}%</p><p className="mt-2 text-xs text-slate-400">{item.covered} covered · {item.partial} partial · {item.missing} missing · {item.not_assessed} not assessed</p></article>)}</section>}
       {auditShare && <div className="mt-5 break-all rounded-lg border border-emerald-400/20 p-3 text-sm text-emerald-300">Audit link: <a className="underline" href={auditShare.url}>{auditShare.url}</a><button type="button" onClick={revokeAuditShare} className="ml-4 text-rose-300">Revoke</button></div>}
       {coverage && coverage.length > 0 && <div className="mt-8"><CoverageMatrix rows={coverage} /></div>}
     </section>

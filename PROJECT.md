@@ -116,6 +116,9 @@ plan → retrieve → generate → verify_citations (deterministic) → verify_f
   (`AC-2` ↔ `SOC2 CC6.2`). Table: `crosswalks`. Source of truth: SCF import.
 - **Determination** — output of the rules engine: one applicable regulation +
   the rule that fired + input-facts snapshot. Immutable once written.
+- **Assurance objective** — a framework selected because of a customer contract,
+  company strategy, or regulator request; never presented as an automatically
+  applicable law.
 - **Engagement** — one company's end-to-end run (intake → policies).
 - **Statement** — one numbered policy requirement, citing ≥1 control ID.
 - **Retrieval context** — the exact set of controls handed to the generator.
@@ -218,6 +221,7 @@ control_embeddings(control_id, embedding vector(1024), chunk_text)
 orgs(id, name, created_at)
 users(id, org_id, auth_provider_id, role)            -- role: 'owner'|'member'
 engagements(id, org_id, company jsonb, created_at, expires_at)
+assurance_objectives(id, org_id, engagement_id, framework_id, basis, target_date, scope, selected_by)
 uploads(id, org_id, engagement_id, filename, sha256, enc_blob_ref, created_at)
 upload_chunks(id, org_id, upload_id, seq, text, embedding vector(1024))
 determinations(id, org_id, engagement_id, regulation_id, rule_id, rule_version, facts jsonb, created_at)
@@ -270,10 +274,10 @@ a provider. The sweeper in `retention/` enforces `expires_at`.
 
 ## 9. Rebuild status
 
-The repository has been rebuilt through roadmap Part 7.5. Alembic head `0019`
+The repository has been rebuilt through roadmap Part 7.5. Alembic head `0020`
 includes the knowledge base, tenancy, uploads, coverage, OSINT, generated
 policies, monitoring evidence, questionnaire answers, risks, audit shares, and
-retention enforcement, Clerk organization authentication, and encrypted connector credentials. The backend suite contains 67 passing tests; the web
+retention enforcement, Clerk organization authentication, encrypted connector credentials, and separately modeled assurance objectives. The backend suite contains 67 passing tests; the web
 app exposes the coverage demo, trust page, and risk heatmap.
 
 Remaining external inputs are Clerk application keys, live provider credentials,
