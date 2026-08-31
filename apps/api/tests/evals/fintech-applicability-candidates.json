@@ -1,0 +1,14 @@
+[
+  {"case_id":"fintech-none","facts":{},"expected_regulations":[]},
+  {"case_id":"glba-positive","facts":{"ftc_financial_institution":true,"handles_customer_financial_information":true},"expected_regulations":["GLBA Safeguards Rule"]},
+  {"case_id":"glba-missing-jurisdiction","facts":{"ftc_financial_institution":false,"handles_customer_financial_information":true},"expected_regulations":[]},
+  {"case_id":"pci-positive","facts":{"handles_cardholder_data":true},"expected_regulations":["PCI DSS 4.0.1"]},
+  {"case_id":"reg-sp-positive","facts":{"reg_sp_covered_institution":true},"expected_regulations":["SEC Regulation S-P"]},
+  {"case_id":"finra-positive","facts":{"finra_member":true},"expected_regulations":["FINRA Rule 4370"]},
+  {"case_id":"nydfs-positive","facts":{"nydfs_licensed":true},"expected_regulations":["23 NYCRR Part 500"]},
+  {"case_id":"sox-positive","facts":{"exchange_act_reporting_company":true},"expected_regulations":["SOX Section 404"]},
+  {"case_id":"ccpa-positive","facts":{"ccpa_covered_business":true,"california_consumer_data":true},"expected_regulations":["CCPA/CPRA"]},
+  {"case_id":"ccpa-missing-threshold","facts":{"ccpa_covered_business":false,"california_consumer_data":true},"expected_regulations":[]},
+  {"case_id":"dora-positive","facts":{"eu_financial_entity":true},"expected_regulations":["DORA"]},
+  {"case_id":"mas-trm-positive","facts":{"mas_trm_notice_subject":true},"expected_regulations":["MAS TRM Notice"]}
+]
