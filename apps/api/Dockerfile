@@ -6,7 +6,8 @@ RUN uv sync --frozen --no-dev
 COPY apps/api/alembic.ini ./
 COPY apps/api/alembic ./alembic
 COPY apps/api/src ./src
+COPY apps/api/deploy.py ./
 
 ENV PATH="/app/.venv/bin:$PATH" PYTHONPATH=/app/src
 EXPOSE 8000
-CMD ["sh", "-c", "uvicorn ruleset.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+CMD ["python", "deploy.py"]

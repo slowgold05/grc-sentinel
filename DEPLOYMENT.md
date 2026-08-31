@@ -7,6 +7,11 @@ Recommended split:
 - Ollama: local private workflow. A hosted API may use the existing OpenAI-compatible provider;
   never send real customer policy data from the portfolio demo.
 
+Live services:
+
+- Frontend: https://web-slowgold05s-projects.vercel.app
+- API health: https://api-production-3fd2d.up.railway.app/health
+
 ## Railway
 
 Create PostgreSQL and API services from this repository. Set the API Dockerfile path to
@@ -15,6 +20,7 @@ Create PostgreSQL and API services from this repository. Set the API Dockerfile 
 ```text
 DATABASE_URL
 MIGRATION_DATABASE_URL
+APP_DATABASE_PASSWORD
 UPLOAD_MASTER_KEY_BASE64
 CLERK_SECRET_KEY
 CLERK_AUTHORIZED_PARTIES
@@ -26,9 +32,9 @@ OLLAMA_BASE_URL
 OLLAMA_EMBEDDING_MODEL
 ```
 
-Use Railway's private PostgreSQL URL for `DATABASE_URL`. Use an owner connection only for
-`MIGRATION_DATABASE_URL`, run `alembic upgrade head`, then keep API traffic on the restricted
-application role. Generate a public API domain after `/health` passes.
+Use Railway's private PostgreSQL host for `DATABASE_URL`. `deploy.py` creates the restricted
+application role, runs migrations through `MIGRATION_DATABASE_URL`, grants application access,
+and then starts the API as that restricted role.
 
 ## Vercel
 

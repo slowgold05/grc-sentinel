@@ -6,6 +6,8 @@ Ruleset is a security-first GRC prototype that maps company facts and policy evi
 
 **Live recruiter demo:** https://web-slowgold05s-projects.vercel.app
 
+**API health:** https://api-production-3fd2d.up.railway.app/health
+
 ![Ruleset coverage matrix](screenshots/frontpage.png)
 
 ## Current build
