@@ -5,8 +5,13 @@ import "./globals.css";
 export const metadata: Metadata = { title: "Ruleset", description: "AI GRC policy platform" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const document = <html lang="en"><body>{children}</body></html>;
-  return process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
-    ? <ClerkProvider>{document}</ClerkProvider>
-    : document;
+  return (
+    <html lang="en">
+      <body>
+        {process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+          ? <ClerkProvider>{children}</ClerkProvider>
+          : children}
+      </body>
+    </html>
+  );
 }

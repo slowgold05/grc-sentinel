@@ -3,10 +3,22 @@ from uuid import uuid4
 from clerk_backend_api import AuthenticateRequestOptions
 from clerk_backend_api.security.types import AuthStatus, RequestState
 from fastapi import Request
+from pydantic import SecretStr
 from sqlalchemy import create_engine, text
 
-from ruleset.auth import authenticate_tenant
+from ruleset.auth import authenticate_tenant, clerk_options
 from ruleset.config import settings
+
+
+def test_clerk_options_accepts_cli_secret_without_manual_jwt_key() -> None:
+    original_secret, original_jwt = settings.clerk_secret_key, settings.clerk_jwt_key
+    try:
+        settings.clerk_secret_key, settings.clerk_jwt_key = SecretStr("test"), None
+        options = clerk_options()
+        assert options.secret_key == "test"
+        assert options.jwt_key is None
+    finally:
+        settings.clerk_secret_key, settings.clerk_jwt_key = original_secret, original_jwt
 
 
 def test_verified_clerk_org_maps_to_internal_tenant() -> None:

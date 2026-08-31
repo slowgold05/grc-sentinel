@@ -23,7 +23,10 @@ class Settings(BaseSettings):
     )
 
     model_config = SettingsConfigDict(
-        env_file=Path(__file__).resolve().parents[4] / ".env",
+        env_file=(
+            Path(__file__).resolve().parents[4] / ".env",
+            Path(__file__).resolve().parents[4] / "apps" / "web" / ".env.local",
+        ),
         env_file_encoding="utf-8",
         extra="ignore",
     )

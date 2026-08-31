@@ -277,10 +277,10 @@ a provider. The sweeper in `retention/` enforces `expires_at`.
 The repository has been rebuilt through roadmap Part 7.5. Alembic head `0020`
 includes the knowledge base, tenancy, uploads, coverage, OSINT, generated
 policies, monitoring evidence, questionnaire answers, risks, audit shares, and
-retention enforcement, Clerk organization authentication, encrypted connector credentials, and separately modeled assurance objectives. The backend suite contains 68 passing tests; the web
+retention enforcement, Clerk organization authentication, encrypted connector credentials, and separately modeled assurance objectives. The backend suite contains 69 passing tests; the web
 app exposes the coverage demo, trust page, and risk heatmap. The default model
 provider is local Ollama, with an optional OpenAI-compatible hosted generation endpoint.
 
-Remaining external inputs are Clerk application keys, downloaded Ollama models,
-hosting, and portfolio publishing. Protected tenant APIs verify Clerk sessions and
+Remaining external inputs are a Clerk organization-to-tenant link, hosting, and portfolio
+publishing. Protected tenant APIs verify Clerk sessions and
 map the active organization to an internal UUID before setting `app.org_id`.

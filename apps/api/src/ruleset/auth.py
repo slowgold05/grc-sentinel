@@ -43,11 +43,15 @@ def authenticate_tenant(
 
 
 def clerk_options() -> AuthenticateRequestOptions:
-    if settings.clerk_secret_key is None or settings.clerk_jwt_key is None:
+    if settings.clerk_secret_key is None:
         raise HTTPException(status_code=503, detail="authentication is not configured")
     return AuthenticateRequestOptions(
         secret_key=settings.clerk_secret_key.get_secret_value(),
-        jwt_key=settings.clerk_jwt_key.get_secret_value().replace("\\n", "\n"),
+        jwt_key=(
+            settings.clerk_jwt_key.get_secret_value().replace("\\n", "\n")
+            if settings.clerk_jwt_key
+            else None
+        ),
         authorized_parties=settings.clerk_authorized_parties,
         accepts_token=["session_token"],
     )

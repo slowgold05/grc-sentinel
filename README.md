@@ -22,7 +22,7 @@ Ruleset is a security-first GRC prototype that maps company facts and policy evi
 - Grounded questionnaire answering, a risk register heatmap, and expiring Audit Hub shares
 - Clerk-managed authentication with signed organization-to-RLS tenant mapping
 - Authenticated intake and risk-management APIs with live Clerk-enabled UI modes
-- 30-profile applicability evaluation set and 68 automated backend tests
+- 30-profile applicability evaluation set and 69 automated backend tests
 
 The current golden set scores HIPAA applicability at 1.00 precision and 1.00 recall. Citation validity is structurally gated: a generated control ID must be present in the retrieved context before output can be stored.
 
@@ -84,18 +84,27 @@ Open `http://localhost:3000`. The API health endpoint is `http://localhost:8000/
 
 ### Enable managed authentication
 
-Create a Clerk application with Organizations enabled. Copy `apps/web/.env.example` to
-`apps/web/.env.local`, then add the publishable and secret keys. In the root `.env`, add
-the Clerk secret key, PEM JWT public key, and authorized frontend origins. Link a local
-tenant once with the migration database role:
+Link the existing Clerk application from the Next.js app directory. The CLI writes its
+development keys to the ignored `apps/web/.env.local`; FastAPI reads the same private file
+locally, so keys do not need to be copied:
+
+```powershell
+Set-Location apps/web
+clerk auth login
+clerk init --app app_3IfQoM1pXe4hwChImmzYNgNVqha
+clerk doctor
+```
+
+Enable Organizations plus email, Google, and GitHub sign-in in the Clerk dashboard. Link
+a local tenant once with the migration database role:
 
 ```sql
 UPDATE orgs SET auth_provider_id = 'org_your_clerk_id' WHERE id = 'your-internal-org-uuid';
 ```
 
-The API accepts session tokens only, verifies the JWT locally, checks its authorized
-party, resolves the active Clerk organization through the database, and uses only the
-resolved internal UUID for RLS. The public demo remains available when Clerk is unset.
+The API accepts session tokens only, verifies them through Clerk's backend SDK, checks the
+authorized party, resolves the active Clerk organization through the database, and uses
+only the resolved internal UUID for RLS. The public demo remains available when Clerk is unset.
 
 ## Verify
 
@@ -132,7 +141,7 @@ ISO standards text is not copied; only allowed identifiers and sourced mappings 
 
 ## Known limits
 
-- Clerk auth is wired but requires your Clerk application keys and one organization link before protected tenant APIs can be used.
+- Clerk development auth is linked; protected tenant APIs require one Clerk organization-to-local-tenant link.
 - The rules catalog currently implements HIPAA applicability only.
 - SOC 2, ISO 27001, and NIST are selected assurance objectives, not represented as laws that automatically apply.
 - Local Ollama generation and embeddings require the configured models to be downloaded and Ollama to be running. Optional OpenRouter generation sends prompt content to its provider.
