@@ -97,12 +97,9 @@ clerk init --app app_3IfQoM1pXe4hwChImmzYNgNVqha
 clerk doctor
 ```
 
-Enable Organizations plus email, Google, and GitHub sign-in in the Clerk dashboard. Link
-a local tenant once with the migration database role:
-
-```sql
-UPDATE orgs SET auth_provider_id = 'org_your_clerk_id' WHERE id = 'your-internal-org-uuid';
-```
+Enable Organizations plus email, Google, and GitHub sign-in in the Clerk dashboard. A
+verified Clerk organization is provisioned as an isolated local tenant on its first API
+request; no manual database link is required.
 
 The API accepts session tokens only, verifies them through Clerk's backend SDK, checks the
 authorized party, resolves the active Clerk organization through the database, and uses
@@ -143,7 +140,7 @@ ISO standards text is not copied; only allowed identifiers and sourced mappings 
 
 ## Known limits
 
-- Clerk development auth is linked; protected tenant APIs require one Clerk organization-to-local-tenant link.
+- Clerk development auth is linked; sign in and create or select an organization to use protected tenant APIs.
 - The rules catalog currently implements HIPAA applicability only.
 - SOC 2, ISO 27001, and NIST are selected assurance objectives, not represented as laws that automatically apply.
 - Local Ollama generation and embeddings require the configured models to be downloaded and Ollama to be running. Optional OpenRouter generation sends prompt content to its provider.

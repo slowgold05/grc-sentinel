@@ -21,26 +21,19 @@ def test_clerk_options_accepts_cli_secret_without_manual_jwt_key() -> None:
         settings.clerk_secret_key, settings.clerk_jwt_key = original_secret, original_jwt
 
 
-def test_verified_clerk_org_maps_to_internal_tenant() -> None:
+def test_verified_clerk_org_is_provisioned_and_reused() -> None:
     engine = create_engine(str(settings.database_url))
-    org_id = uuid4()
     provider_org_id = f"org_{uuid4().hex}"
-    with engine.begin() as connection:
-        connection.execute(text("SELECT set_config('app.org_id', :id, true)"), {"id": str(org_id)})
-        connection.execute(
-            text("INSERT INTO orgs (id, name, auth_provider_id) VALUES (:id, 'auth test', :provider)"),
-            {"id": org_id, "provider": provider_org_id},
-        )
 
     def verified(request: Request, options: AuthenticateRequestOptions) -> RequestState:
         assert options.accepts_token == ["session_token"]
         return RequestState(
             status=AuthStatus.SIGNED_IN,
-            payload={"sub": "user_test", "org_id": provider_org_id},
+            payload={"sub": "user_test", "org_id": provider_org_id, "org_name": "Auth test"},
         )
 
-    try:
-        identity = authenticate_tenant(
+    def authenticate():
+        return authenticate_tenant(
             Request({"type": "http", "headers": []}),
             engine,
             AuthenticateRequestOptions(
@@ -48,9 +41,12 @@ def test_verified_clerk_org_maps_to_internal_tenant() -> None:
             ),
             authenticate=verified,
         )
-        assert identity.org_id == org_id
+
+    try:
+        identity = authenticate()
+        assert authenticate().org_id == identity.org_id
         assert identity.user_id == "user_test"
     finally:
         with engine.begin() as connection:
-            connection.execute(text("SELECT set_config('app.org_id', :id, true)"), {"id": str(org_id)})
-            connection.execute(text("DELETE FROM orgs WHERE id = :id"), {"id": org_id})
+            connection.execute(text("SELECT set_config('app.org_id', :id, true)"), {"id": str(identity.org_id)})
+            connection.execute(text("DELETE FROM orgs WHERE id = :id"), {"id": identity.org_id})

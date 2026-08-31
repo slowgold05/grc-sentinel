@@ -281,6 +281,6 @@ retention enforcement, Clerk organization authentication, encrypted connector cr
 app exposes the coverage demo, trust page, and risk heatmap. The default model
 provider is local Ollama, with an optional OpenAI-compatible hosted generation endpoint.
 
-Remaining external inputs are a Clerk organization-to-tenant link, hosting, and portfolio
-publishing. Protected tenant APIs verify Clerk sessions and
-map the active organization to an internal UUID before setting `app.org_id`.
+Remaining external inputs are hosting and portfolio publishing. Protected tenant APIs verify
+Clerk sessions, provision a newly selected organization as an isolated tenant, and map the
+active organization to an internal UUID before setting `app.org_id`.

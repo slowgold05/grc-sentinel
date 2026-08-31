@@ -32,13 +32,15 @@ def authenticate_tenant(
     user_id = payload.get("sub")
     if state.status != AuthStatus.SIGNED_IN or not isinstance(provider_org_id, str) or not isinstance(user_id, str):
         raise HTTPException(status_code=401, detail="signed-in organization required")
-    with engine.connect() as connection:
+    org_name = payload.get("org_name")
+    with engine.begin() as connection:
         org_id = connection.execute(
-            text("SELECT resolve_auth_org(:provider_org_id)"),
-            {"provider_org_id": provider_org_id},
-        ).scalar_one_or_none()
-    if org_id is None:
-        raise HTTPException(status_code=403, detail="organization is not provisioned")
+            text("SELECT provision_auth_org(:provider_org_id, :org_name)"),
+            {
+                "provider_org_id": provider_org_id,
+                "org_name": org_name if isinstance(org_name, str) else provider_org_id,
+            },
+        ).scalar_one()
     return TenantIdentity(org_id=org_id, user_id=user_id, provider_org_id=provider_org_id)
 
 
