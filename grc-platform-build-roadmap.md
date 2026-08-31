@@ -28,7 +28,7 @@ This constraint is secretly your resume story: *"I designed the system so that c
 - **Backend:** FastAPI (Python 3.12) with Pydantic v2 models on every boundary
 - **Database:** PostgreSQL 16 + pgvector (one database for relational data AND embeddings — one fewer moving part)
 - **Queue:** Just Postgres `SELECT ... FOR UPDATE SKIP LOCKED` for job polling, or Celery if you want the keyword. Don't add Redis until you need it.
-- **LLM:** Anthropic API (Claude Sonnet class for generation, Haiku class for validation passes — cost story for the resume)
+- **LLM:** Ollama local API (Qwen for generation and validation — private, offline, and free for the portfolio demo)
 - **Infra:** Docker Compose locally; deploy on Fly.io/Railway; GitHub Actions CI from day one
 
 **Steps:**
@@ -56,7 +56,7 @@ These are miserable to retrofit and cheap to do now. Each one is also a resume l
 
 - No secret ever enters the repo. `.env` locally (gitignored), platform secret store in deployment (Fly/Railway secrets), and **gitleaks in CI** so the weak model can't accidentally commit a key.
 - One `config.py` module loads and validates all secrets at boot (fail fast with a clear error). The model references `settings.anthropic_api_key` — it never sees or handles raw env vars.
-- Rotate the Anthropic key if it ever appears in a log or error message. Which brings us to:
+- Keep local model endpoints and any optional remote-provider keys out of logs. Which brings us to:
 
 ### 1.5.3 Data protection & retention (design it as a policy, then implement it)
 
@@ -115,7 +115,7 @@ Each of these is a small, testable script — ideal to delegate:
 
 1. `ingest_oscal.py` — parse the OSCAL JSON catalog into `controls`. Test: "AC-2 exists, has 13 enhancements, params extracted."
 2. `ingest_scf.py` — parse the SCF xlsx into `crosswalks`. Test with 10 known mappings.
-3. `embed_controls.py` — chunk (one control per chunk, title + description + discussion), embed (Voyage AI or any embedding API), upsert into pgvector.
+3. `embed_controls.py` — chunk (one control per chunk, title + description + discussion), embed with Ollama, upsert into pgvector.
 4. `validate_kb.py` — integrity checks: no orphan crosswalks, every SOC 2 criterion reachable from ≥1 NIST control, etc. **Run in CI.** A data quality gate on your knowledge base is another interview story.
 
 ### 2.4 Versioning (advanced)
@@ -215,7 +215,7 @@ Because every step is a small pure-ish function with typed inputs/outputs, a wea
 
 **Securing the LLM boundary itself:**
 
-7. **Concurrency + cost guardrails:** a semaphore capping concurrent Anthropic calls (start at 3–5), retry-with-exponential-backoff on 429/529, and a per-engagement token budget that aborts the run with a clear error rather than silently burning money. Track cost per engagement in the DB — that's your "~$X per policy suite" resume metric and your runaway-loop alarm in one.
+7. **Concurrency + resource guardrails:** a semaphore capping concurrent Ollama calls (start at 1 for a laptop), retry-with-exponential-backoff on transient failures, and a per-engagement token budget that aborts runaway generation. Track tokens and local model identity per engagement for reproducibility.
 8. **Injection discipline everywhere user text meets a prompt:** company names, uploaded excerpts, and OSINT-derived strings are all interpolated into prompts. Delimit them explicitly as data, keep instructions and data in separate labeled blocks, and never let user text define the output schema. The structured-output + deterministic-verification design already means an injected instruction can't produce an unverified citation — say that out loud in interviews.
 9. **Treat LLM output as untrusted too:** it's parsed against a Pydantic schema (never `eval`'d, never rendered as raw HTML in the UI — escape or render as text to avoid stored XSS via a "policy" containing script tags), and length-capped before storage.
 

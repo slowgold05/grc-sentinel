@@ -1,9 +1,25 @@
 from uuid import uuid4
 
+import httpx
 from sqlalchemy import create_engine, text
 
 from ruleset.config import settings
-from ruleset.kb.embed_controls import embed_controls
+from ruleset.kb.embed_controls import embed_controls, ollama_embed
+
+
+def test_ollama_embed_uses_local_openai_endpoint() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        assert str(request.url) == "http://localhost:11434/v1/embeddings"
+        assert request.headers.get("authorization") is None
+        return httpx.Response(200, json={"data": [{"index": 0, "embedding": [0.0] * 1024}]})
+
+    vectors = ollama_embed(
+        ["control"],
+        base_url="http://localhost:11434/v1",
+        model="mxbai-embed-large",
+        transport=httpx.MockTransport(handler),
+    )
+    assert len(vectors[0]) == 1024
 
 
 def test_embeds_one_control_idempotently() -> None:

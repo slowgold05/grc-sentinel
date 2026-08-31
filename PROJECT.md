@@ -47,7 +47,7 @@ apps/web (Next.js) ──HTTP──▶ apps/api (FastAPI) ──▶ Postgres 16 
                                     ├─ questionnaires (answers grounded in statements table, verified)
                                     └─ genpipeline    (retrieve → generate → verify → assemble)
                                             │
-                                            └──▶ Anthropic API (Sonnet = generate, Haiku = verify;
+                                            └──▶ Ollama (local generation + verification;
                                                  semaphore-capped, per-engagement token budget)
 ```
 
@@ -100,7 +100,7 @@ plan → retrieve → generate → verify_citations (deterministic) → verify_f
 | DB | Postgres 16 + pgvector | one DB for relational + embeddings |
 | Migrations | alembic | never edit an applied migration |
 | Tests | pytest, hypothesis, vitest | tests define "done" |
-| LLM | Anthropic API | model IDs live in `config.py`, never inline |
+| LLM | Ollama local API | model IDs live in `config.py`, never inline |
 | Auth | managed provider (Clerk/Auth0/Supabase) | never hand-rolled |
 | Tenancy | Postgres RLS, `org_id` on every tenant table | DB enforces isolation, not app code |
 | Secrets | `.env` local / platform store deployed | loaded only via `config.py::settings` |
@@ -277,9 +277,10 @@ a provider. The sweeper in `retention/` enforces `expires_at`.
 The repository has been rebuilt through roadmap Part 7.5. Alembic head `0020`
 includes the knowledge base, tenancy, uploads, coverage, OSINT, generated
 policies, monitoring evidence, questionnaire answers, risks, audit shares, and
-retention enforcement, Clerk organization authentication, encrypted connector credentials, and separately modeled assurance objectives. The backend suite contains 67 passing tests; the web
-app exposes the coverage demo, trust page, and risk heatmap.
+retention enforcement, Clerk organization authentication, encrypted connector credentials, and separately modeled assurance objectives. The backend suite contains 68 passing tests; the web
+app exposes the coverage demo, trust page, and risk heatmap. The default model
+provider is local Ollama, with an optional OpenAI-compatible hosted generation endpoint.
 
-Remaining external inputs are Clerk application keys, live provider credentials,
+Remaining external inputs are Clerk application keys, downloaded Ollama models,
 hosting, and portfolio publishing. Protected tenant APIs verify Clerk sessions and
 map the active organization to an internal UUID before setting `app.org_id`.

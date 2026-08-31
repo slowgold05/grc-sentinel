@@ -7,37 +7,42 @@ from pydantic import BaseModel
 from sqlalchemy import Engine, bindparam, text
 
 
-class VoyageEmbedding(BaseModel):
-    """One indexed vector returned by Voyage."""
+class OllamaEmbedding(BaseModel):
+    """One indexed vector returned by Ollama."""
 
     index: int
     embedding: list[float]
 
 
-class VoyageResponse(BaseModel):
-    """Validated subset of a Voyage embeddings response."""
+class OllamaEmbeddingResponse(BaseModel):
+    """Validated subset of an OpenAI-compatible embeddings response."""
 
-    data: list[VoyageEmbedding]
+    data: list[OllamaEmbedding]
 
 
-def voyage_embed(texts: list[str], *, api_key: str, model: str) -> list[list[float]]:
-    """Create 1,024-dimensional document embeddings through Voyage."""
+def ollama_embed(
+    texts: list[str],
+    *,
+    base_url: str,
+    model: str,
+    transport: httpx.BaseTransport | None = None,
+) -> list[list[float]]:
+    """Create 1,024-dimensional embeddings through local Ollama."""
     payload = json.dumps(
         {
             "input": texts,
             "model": model,
-            "input_type": "document",
-            "output_dimension": 1024,
+            "dimensions": 1024,
         }
     ).encode()
-    response = httpx.post(
-        "https://api.voyageai.com/v1/embeddings",
-        content=payload,
-        headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
-        timeout=60,
-    )
+    with httpx.Client(base_url=base_url, transport=transport, timeout=120) as client:
+        response = client.post(
+            "/embeddings",
+            content=payload,
+            headers={"Content-Type": "application/json"},
+        )
     response.raise_for_status()
-    result = VoyageResponse.model_validate_json(response.content)
+    result = OllamaEmbeddingResponse.model_validate_json(response.content)
     return [item.embedding for item in sorted(result.data, key=lambda item: item.index)]
 
 

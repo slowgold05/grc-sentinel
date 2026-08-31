@@ -15,14 +15,14 @@ Ruleset is a security-first GRC prototype that maps company facts and policy evi
 - Encrypted uploads, constrained PDF/DOCX parsing, retention, and hard deletion
 - Policy-to-control gap analysis with evidence-quote verification
 - Passive OSINT for DNS, certificate transparency, and public website posture
-- Structured Anthropic generation with citation, faithfulness, concurrency, retry, and token-budget guardrails
+- Local Ollama generation with citation, faithfulness, concurrency, retry, and token-budget guardrails
 - DOCX policy export with a control traceability appendix
 - Interactive tenant coverage matrix, framework drift detection, and a public trust page
 - Read-only GitHub/AWS control monitoring with immutable evidence and pass-to-fail drift detection
 - Grounded questionnaire answering, a risk register heatmap, and expiring Audit Hub shares
 - Clerk-managed authentication with signed organization-to-RLS tenant mapping
 - Authenticated intake and risk-management APIs with live Clerk-enabled UI modes
-- 30-profile applicability evaluation set and 67 automated backend tests
+- 30-profile applicability evaluation set and 68 automated backend tests
 
 The current golden set scores HIPAA applicability at 1.00 precision and 1.00 recall. Citation validity is structurally gated: a generated control ID must be present in the retrieved context before output can be stored.
 
@@ -53,7 +53,16 @@ Prerequisites: Docker Desktop, Python 3.12, Node.js 22+, `uv`, and Corepack/pnpm
 Copy-Item .env.example .env
 ```
 
-Edit `.env` and replace both database passwords. Set `UPLOAD_MASTER_KEY_BASE64` to a securely generated 32-byte base64 key. `ANTHROPIC_API_KEY` and `VOYAGE_API_KEY` are optional until live generation or embeddings are used.
+Edit `.env` and replace both database passwords. Set `UPLOAD_MASTER_KEY_BASE64` to a securely generated 32-byte base64 key. Install Ollama, then download the two local models:
+
+```powershell
+ollama pull qwen3:14b
+ollama pull mxbai-embed-large
+```
+
+Generation defaults to Ollama. To demonstrate hosted reasoning instead, set
+`LLM_BASE_URL=https://openrouter.ai/api/v1`, add `LLM_API_KEY`, and set both LLM model
+variables to `z-ai/glm-5.3-flash`. Embeddings remain local through Ollama.
 
 ```powershell
 docker compose up -d
@@ -126,7 +135,7 @@ ISO standards text is not copied; only allowed identifiers and sourced mappings 
 - Clerk auth is wired but requires your Clerk application keys and one organization link before protected tenant APIs can be used.
 - The rules catalog currently implements HIPAA applicability only.
 - SOC 2, ISO 27001, and NIST are selected assurance objectives, not represented as laws that automatically apply.
-- Live Anthropic generation and Voyage embeddings require API keys and have not been claimed as offline test results.
+- Local Ollama generation and embeddings require the configured models to be downloaded and Ollama to be running. Optional OpenRouter generation sends prompt content to its provider.
 - Have I Been Pwned domain exposure is omitted because it requires a verified-domain API account.
 - The homepage retains a seeded recruiter demo; authenticated routes provide live intake, uploads, posture checks, coverage, risks, monitoring evidence, questionnaire review, framework drift, policy exports, and expiring audit shares.
 - Deployment and the roadmap's demo GIF/blog post remain packaging work.

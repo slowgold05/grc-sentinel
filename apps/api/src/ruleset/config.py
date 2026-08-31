@@ -9,12 +9,13 @@ class Settings(BaseSettings):
 
     database_url: PostgresDsn
     migration_database_url: PostgresDsn
-    voyage_api_key: SecretStr | None = None
-    voyage_embedding_model: str = "voyage-4-lite"
+    ollama_base_url: str = "http://localhost:11434/v1"
+    llm_base_url: str = "http://localhost:11434/v1"
+    llm_api_key: SecretStr | None = None
+    llm_generation_model: str = "qwen3:14b"
+    llm_verifier_model: str = "qwen3:14b"
+    ollama_embedding_model: str = "mxbai-embed-large"
     upload_master_key_base64: SecretStr | None = None
-    anthropic_api_key: SecretStr | None = None
-    anthropic_generation_model: str = "claude-sonnet-5"
-    anthropic_verifier_model: str = "claude-haiku-4-5-20251001"
     clerk_secret_key: SecretStr | None = None
     clerk_jwt_key: SecretStr | None = None
     clerk_authorized_parties: list[str] = Field(
