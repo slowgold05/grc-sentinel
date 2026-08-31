@@ -9,4 +9,4 @@ COPY apps/api/src ./src
 
 ENV PATH="/app/.venv/bin:$PATH" PYTHONPATH=/app/src
 EXPOSE 8000
-CMD ["uvicorn", "ruleset.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "uvicorn ruleset.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

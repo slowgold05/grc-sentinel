@@ -4,6 +4,8 @@ Ruleset is a security-first GRC prototype that maps company facts and policy evi
 
 > Draft compliance material only. Outputs require review by qualified legal, privacy, and security professionals.
 
+**Live recruiter demo:** https://web-slowgold05s-projects.vercel.app
+
 ![Ruleset coverage matrix](screenshots/frontpage.png)
 
 ## Current build
@@ -134,6 +136,8 @@ Run `alembic upgrade head` as the API release command with `MIGRATION_DATABASE_U
 the API container with its runtime secrets. Next.js public variables are build arguments because
 they are embedded in the browser bundle. A hosted API can use an OpenAI-compatible provider;
 the local portfolio setup keeps policy text on-device through Ollama.
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for the Vercel, Railway, Clerk, migration, and smoke-test checklist.
 
 ## Security design
 
