@@ -8,7 +8,7 @@ Ruleset is a security-first GRC prototype that maps company facts and policy evi
 
 ## Current build
 
-- 6 framework records, 4,233 controls, and 4,354 sourced crosswalk mappings
+- 6 framework records, 4,233 controls, 4,354 sourced crosswalk mappings, and 4,233 embeddings
 - NIST OSCAL and Secure Controls Framework ingestion with versioned controls
 - Declarative HIPAA applicability rules with an auditable facts snapshot
 - Contractual and voluntary assurance objectives for SOC 2, ISO 27001, and NIST SP 800-53
@@ -22,9 +22,10 @@ Ruleset is a security-first GRC prototype that maps company facts and policy evi
 - Grounded questionnaire answering, a risk register heatmap, and expiring Audit Hub shares
 - Clerk-managed authentication with signed organization-to-RLS tenant mapping
 - Authenticated intake and risk-management APIs with live Clerk-enabled UI modes
-- 30-profile applicability evaluation set and 69 automated backend tests
+- Project-local agent guardrails plus a source-first control-building skill
+- 30-profile applicability evaluation set and 71 automated backend tests
 
-The current golden set scores HIPAA applicability at 1.00 precision and 1.00 recall. Citation validity is structurally gated: a generated control ID must be present in the retrieved context before output can be stored.
+The current golden set scores HIPAA applicability at 1.00 precision and 1.00 recall. Citation validity is structurally gated: a generated control ID must be present in the retrieved context before output can be stored. The knowledge-base integrity check finds zero orphaned crosswalks; SCF currently provides no NIST path for two SOC privacy criteria (`P6.0`, `P6.4`).
 
 ## Architecture
 
@@ -158,3 +159,5 @@ docker/                Local database initialization
 ```
 
 The implementation roadmap is [grc-platform-build-roadmap.md](grc-platform-build-roadmap.md). `PROJECT.md` records the rebuilt repository state and conventions, not proof that a roadmap item is complete.
+
+For a concise walkthrough, use the [90-second demo script](DEMO.md).
