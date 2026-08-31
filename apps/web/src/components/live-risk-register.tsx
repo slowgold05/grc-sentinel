@@ -66,20 +66,20 @@ export function LiveRiskRegister() {
   if (!userId) return <p className="text-sm text-slate-400">Sign in and select an organization to manage live tenant risks.</p>;
 
   return (
-    <section className="mt-8 rounded-2xl border border-cyan-400/20 bg-cyan-400/[0.04] p-6" aria-labelledby="live-risks">
+    <section className="mt-8 rounded-2xl border border-red-500/20 bg-red-500/[0.04] p-6" aria-labelledby="live-risks">
       <h2 id="live-risks" className="text-xl font-semibold">Live tenant risks</h2>
       <p className="mt-2 text-sm text-slate-400">Authenticated records from the RLS-protected API.</p>
       <form onSubmit={submit} className="mt-5 grid gap-3 sm:grid-cols-2">
-        <input required name="title" maxLength={200} placeholder="Risk title" className="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2" />
-        <input required name="description" maxLength={10000} placeholder="Description" className="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2" />
-        <select name="likelihood" aria-label="Likelihood" className="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2">{[1, 2, 3, 4, 5].map((value) => <option key={value}>{value}</option>)}</select>
-        <select name="impact" aria-label="Impact" className="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2">{[1, 2, 3, 4, 5].map((value) => <option key={value}>{value}</option>)}</select>
-        <input name="control_ids" placeholder="Controls: IA-2, AC-2" className="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2" />
-        <button className="rounded-lg bg-cyan-300 px-4 py-2 font-semibold text-slate-950 hover:bg-cyan-200">Add risk</button>
+        <input required name="title" maxLength={200} placeholder="Risk title" className="rounded-lg border border-zinc-700 bg-black px-3 py-2" />
+        <input required name="description" maxLength={10000} placeholder="Description" className="rounded-lg border border-zinc-700 bg-black px-3 py-2" />
+        <select name="likelihood" aria-label="Likelihood" className="rounded-lg border border-zinc-700 bg-black px-3 py-2">{[1, 2, 3, 4, 5].map((value) => <option key={value}>{value}</option>)}</select>
+        <select name="impact" aria-label="Impact" className="rounded-lg border border-zinc-700 bg-black px-3 py-2">{[1, 2, 3, 4, 5].map((value) => <option key={value}>{value}</option>)}</select>
+        <input name="control_ids" placeholder="Controls: IA-2, AC-2" className="rounded-lg border border-zinc-700 bg-black px-3 py-2" />
+        <button className="rounded-lg bg-red-400 px-4 py-2 font-semibold text-slate-950 hover:bg-red-300">Add risk</button>
       </form>
       {error && <p role="alert" className="mt-3 text-sm text-rose-300">{error}</p>}
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
-        {risks.map((risk) => <article key={risk.id} className="rounded-xl border border-slate-800 bg-slate-950/70 p-4"><h3 className="font-semibold">{risk.title}</h3><p className="mt-2 text-sm text-slate-400">Score {risk.score} · {risk.status} · {risk.control_ids.join(", ") || "No mapped controls"}</p></article>)}
+        {risks.map((risk) => <article key={risk.id} className="rounded-xl border border-zinc-800 bg-black/70 p-4"><h3 className="font-semibold">{risk.title}</h3><p className="mt-2 text-sm text-slate-400">Score {risk.score} · {risk.status} · {risk.control_ids.join(", ") || "No mapped controls"}</p></article>)}
       </div>
     </section>
   );

@@ -14,23 +14,23 @@ const rows = [
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100">
-      <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8 lg:py-12">
-        <header className="mb-10 flex flex-col gap-6 border-b border-slate-800 pb-8 lg:flex-row lg:items-end lg:justify-between">
+    <main className="min-h-screen bg-black text-slate-100">
+      <div className="mx-auto max-w-[1600px] px-5 py-8 sm:px-8 lg:py-12">
+        <header className="mb-10 flex flex-col gap-6 border-b border-zinc-800 pb-8 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-cyan-400">Ruleset / Demo engagement</p>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-red-500">Ruleset / Demo engagement</p>
             <h1 className="text-3xl font-semibold tracking-tight sm:text-5xl">Control coverage, with proof.</h1>
             <p className="mt-4 max-w-2xl text-base leading-7 text-slate-400">A deterministic gap analysis for Northstar Health. Every coverage claim links to an exact quote from the reviewed policy.</p>
           </div>
-          <div className="flex gap-3 text-sm">
+          <div className="flex flex-wrap gap-3 text-sm lg:justify-end">
             <AuthControls />
-            <Link href="/risks" className="rounded-full border border-cyan-400/30 px-4 py-2 font-medium text-cyan-300 hover:bg-cyan-400/10">Risk register</Link>
-            <Link href="/monitoring" className="rounded-full border border-cyan-400/30 px-4 py-2 font-medium text-cyan-300 hover:bg-cyan-400/10">Monitoring</Link>
-            <Link href="/questionnaires" className="rounded-full border border-cyan-400/30 px-4 py-2 font-medium text-cyan-300 hover:bg-cyan-400/10">Questionnaires</Link>
-            <Link href="/framework-drift" className="rounded-full border border-cyan-400/30 px-4 py-2 font-medium text-cyan-300 hover:bg-cyan-400/10">Framework drift</Link>
-            <Link href="/policies" className="rounded-full border border-cyan-400/30 px-4 py-2 font-medium text-cyan-300 hover:bg-cyan-400/10">Policies</Link>
-            <Link href="/trust" className="rounded-full border border-cyan-400/30 px-4 py-2 font-medium text-cyan-300 hover:bg-cyan-400/10">Trust center</Link>
-            <span className="rounded-full border border-slate-700 px-4 py-2 text-slate-300">HIPAA + SOC 2</span>
+            <Link href="/risks" className="rounded-full border border-red-500/30 px-4 py-2 font-medium text-red-400 hover:bg-red-500/10">Risk register</Link>
+            <Link href="/monitoring" className="rounded-full border border-red-500/30 px-4 py-2 font-medium text-red-400 hover:bg-red-500/10">Monitoring</Link>
+            <Link href="/questionnaires" className="rounded-full border border-red-500/30 px-4 py-2 font-medium text-red-400 hover:bg-red-500/10">Questionnaires</Link>
+            <Link href="/framework-drift" className="rounded-full border border-red-500/30 px-4 py-2 font-medium text-red-400 hover:bg-red-500/10">Framework drift</Link>
+            <Link href="/policies" className="rounded-full border border-red-500/30 px-4 py-2 font-medium text-red-400 hover:bg-red-500/10">Policies</Link>
+            <Link href="/trust" className="rounded-full border border-red-500/30 px-4 py-2 font-medium text-red-400 hover:bg-red-500/10">Trust center</Link>
+            <span className="rounded-full border border-zinc-700 px-4 py-2 text-slate-300">HIPAA + SOC 2</span>
             <span className="rounded-full bg-emerald-400/10 px-4 py-2 font-medium text-emerald-300">Analysis complete</span>
           </div>
         </header>

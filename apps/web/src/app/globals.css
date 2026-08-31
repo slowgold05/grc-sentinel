@@ -8,5 +8,10 @@ html {
 
 body {
   margin: 0;
-  background: #020617;
+  background: #000;
+}
+
+::selection {
+  background: #ef4444;
+  color: #fff;
 }

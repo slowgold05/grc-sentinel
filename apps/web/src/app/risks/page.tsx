@@ -18,11 +18,11 @@ function severity(score: number) {
 
 export default function RisksPage() {
   return (
-    <main className="min-h-screen bg-slate-950 px-5 py-10 text-slate-100 sm:px-8 lg:py-16">
-      <div className="mx-auto max-w-6xl">
-        <Link href="/" className="text-sm font-medium text-cyan-300 hover:text-cyan-200">&larr; Coverage demo</Link>
-        <header className="mt-8 border-b border-slate-800 pb-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-400">Northstar Health / Risk register</p>
+    <main className="min-h-screen bg-black px-5 py-10 text-slate-100 sm:px-8 lg:py-16">
+      <div className="mx-auto max-w-[1600px]">
+        <Link href="/" className="text-sm font-medium text-red-400 hover:text-red-300">&larr; Coverage demo</Link>
+        <header className="mt-8 border-b border-zinc-800 pb-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-red-500">Northstar Health / Risk register</p>
           <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">Risk, linked to controls.</h1>
           <p className="mt-4 max-w-2xl leading-7 text-slate-400">Scores are likelihood × impact. Select a populated cell to review the treatment and mapped controls.</p>
         </header>
@@ -49,7 +49,7 @@ export default function RisksPage() {
           </div>
 
           <aside aria-label="Risk details" className="space-y-3">
-            {risks.map((risk) => <article key={risk.title} className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5"><div className="flex items-start justify-between gap-3"><h2 className="font-semibold">{risk.title}</h2><span className="rounded-full bg-slate-800 px-2.5 py-1 text-xs text-slate-300">{risk.status}</span></div><p className="mt-4 text-sm text-slate-400">Score {risk.likelihood * risk.impact} · {risk.controls.join(", ")}</p></article>)}
+            {risks.map((risk) => <article key={risk.title} className="rounded-2xl border border-zinc-800 bg-zinc-950 p-5"><div className="flex items-start justify-between gap-3"><h2 className="font-semibold">{risk.title}</h2><span className="rounded-full bg-slate-800 px-2.5 py-1 text-xs text-slate-300">{risk.status}</span></div><p className="mt-4 text-sm text-slate-400">Score {risk.likelihood * risk.impact} · {risk.controls.join(", ")}</p></article>)}
           </aside>
         </section>
         <p className="text-sm text-slate-500">Fictional demonstration data. Production records remain tenant-scoped under PostgreSQL RLS.</p>
