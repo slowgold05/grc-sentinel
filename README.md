@@ -131,7 +131,7 @@ The current knowledge base contains **6 framework records, 4,233 controls, 4,354
 
 The current applicability golden set scores **1.00 precision and 1.00 recall**. The integrity check reports zero orphaned crosswalks. SCF does not currently provide a NIST path for SOC privacy criteria `P6.0` and `P6.4`; GRC Sentinel records those source-level gaps rather than inventing mappings.
 
-The source-backed candidate conditions and their activation checklist are documented in the [fintech applicability review package](docs/fintech-applicability-review.md). They remain deliberately inactive until human review approves the legal scope, exclusions, and golden profiles.
+The source-backed candidate conditions and their activation checklist are documented in the [fintech applicability review package](docs/fintech-applicability-review.md). The [full fintech implementation roadmap](docs/fintech-full-implementation-roadmap.md) defines the work required to activate each regime end to end. They remain deliberately inactive until human review approves the legal scope, exclusions, and golden profiles.
 
 ### Fintech regulatory perimeter
 

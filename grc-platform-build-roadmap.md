@@ -288,11 +288,21 @@ A read-only, expiring, tokenized share link scoped to one engagement: policies, 
 ## Part 8 — Packaging It for the Resume
 
 - **README** with: architecture diagram (excalidraw/mermaid), the coverage-matrix screenshot, a 90-second demo GIF, and a "Design decisions" section (OSCAL ingestion, deterministic citation verification, property-based rule testing, eval harness).
+
 - **Metrics beat adjectives.** "Ingests 1,100+ NIST controls with 3,400 crosswalk mappings; 100% citation validity enforced by deterministic verification; applicability engine at 0.97 precision on a 30-profile golden set" — numbers you can actually generate from your own eval harness.
 - **A short technical blog post**: "Designing an LLM system where hallucinated citations are structurally impossible." Link it from the resume.
 - **Deploy a live demo** with a pre-seeded fictional company so recruiters can click through in 2 minutes without signing up.
 - **Honest framing everywhere:** output is draft material requiring professional review; OSINT is passive/public-records only. Showing you understood the liability surface is itself senior-signal.
 - **Commit the security artifacts:** `THREAT_MODEL.md`, the data handling policy, and the trust page. A "Security design" README section — RLS tenant isolation, SSRF-hardened OSINT, prompt-injection-resistant pipeline, encrypted uploads with hard deletion, CI security gates — reads like a security engineer's project, because it is one.
+
+## Part 9 — Full Fintech Regime Activation
+
+The implementation sequence, legal-review gates, source requirements, evaluation criteria, and
+per-regime definitions of done are maintained in
+[`docs/fintech-full-implementation-roadmap.md`](docs/fintech-full-implementation-roadmap.md).
+Scope-capture demo cards do not count as implementation; each activated regime must have reviewed
+deterministic classification, sourced requirements and mappings, full workflow integration, and
+boundary-focused golden evaluations.
 
 ---
 
