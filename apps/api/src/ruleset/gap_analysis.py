@@ -15,6 +15,36 @@ class CoverageMatch(BaseModel):
     status: Literal["candidate", "missing"]
 
 
+class RequiredControl(BaseModel):
+    id: UUID
+    code: str
+    title: str
+    description: str
+
+
+def list_required_controls(
+    engine: Engine, org_id: UUID, engagement_id: UUID
+) -> list[RequiredControl]:
+    """Return controls required by applicable regulations or selected assurance frameworks."""
+    with engine.begin() as connection:
+        connection.execute(
+            text("SELECT set_config('app.org_id', :org_id, true)"), {"org_id": str(org_id)}
+        )
+        rows = connection.execute(
+            text(
+                "SELECT DISTINCT c.id, c.control_code AS code, c.title, c.description "
+                "FROM controls c WHERE c.id IN ("
+                " SELECT rc.control_id FROM determinations d JOIN regulation_controls rc "
+                " ON rc.regulation_id = d.regulation_id WHERE d.engagement_id = :engagement_id"
+                ") OR c.framework_id IN ("
+                " SELECT framework_id FROM assurance_objectives WHERE engagement_id = :engagement_id"
+                ") ORDER BY c.control_code"
+            ),
+            {"engagement_id": engagement_id},
+        ).mappings()
+    return [RequiredControl.model_validate(row) for row in rows]
+
+
 def find_coverage_candidates(
     engine: Engine,
     org_id: UUID,
@@ -53,4 +83,3 @@ def find_coverage_candidates(
             )
             for row in rows
         ]
-
