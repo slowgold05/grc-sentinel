@@ -17,6 +17,7 @@ from ruleset.audit_hub import (
 )
 from ruleset.auth import CurrentTenant, TenantIdentity
 from ruleset.config import settings
+from ruleset.coverage_analysis import analyze_upload_coverage
 from ruleset.coverage_store import CoverageRow, list_coverage_results
 from ruleset.database import engine
 from ruleset.document_ingestion import IngestedDocument, ingest_document
@@ -36,6 +37,7 @@ from ruleset.generation.store import (
     list_policies,
     summarize_usage,
 )
+from ruleset.generation.openai_compatible_client import call_model_json
 from ruleset.framework_drift import (
     FrameworkImpact,
     FrameworkOption,
@@ -130,9 +132,7 @@ def get_frameworks(identity: CurrentTenant) -> list[FrameworkOption]:
 
 
 @app.get("/api/framework-drift", response_model=FrameworkImpact)
-def get_framework_drift(
-    old: UUID, new: UUID, identity: CurrentTenant
-) -> FrameworkImpact:
+def get_framework_drift(old: UUID, new: UUID, identity: CurrentTenant) -> FrameworkImpact:
     try:
         return framework_impact(engine, identity.org_id, old, new)
     except ValueError as error:
@@ -156,9 +156,7 @@ def post_connection(
 
 
 @app.delete("/api/connections/{provider}", status_code=status.HTTP_204_NO_CONTENT)
-def remove_connection(
-    provider: Literal["github", "aws"], identity: CurrentTenant
-) -> Response:
+def remove_connection(provider: Literal["github", "aws"], identity: CurrentTenant) -> Response:
     if not delete_connection(engine, identity.org_id, provider):
         raise HTTPException(status_code=404, detail="connection not found")
     return Response(status_code=status.HTTP_204_NO_CONTENT)
@@ -275,6 +273,31 @@ def get_coverage(engagement_id: UUID, identity: CurrentTenant) -> list[CoverageR
     return list_coverage_results(engine, identity.org_id, engagement_id)
 
 
+@app.post("/api/engagements/{engagement_id}/uploads/{upload_id}/analyze")
+async def post_coverage_analysis(
+    engagement_id: UUID, upload_id: UUID, identity: CurrentTenant
+) -> dict[str, int]:
+    async def call(prompt: str, schema: dict[str, object]):
+        return await call_model_json(
+            prompt,
+            schema,
+            base_url=settings.llm_base_url,
+            model=settings.llm_verifier_model,
+            max_tokens=500,
+            api_key=settings.llm_api_key.get_secret_value() if settings.llm_api_key else None,
+        )
+
+    try:
+        analyzed = await analyze_upload_coverage(
+            engine, identity.org_id, engagement_id, upload_id, call
+        )
+    except LookupError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+    return {"analyzed_controls": analyzed}
+
+
 @app.delete("/api/engagements/{engagement_id}", status_code=status.HTTP_204_NO_CONTENT)
 def remove_engagement(engagement_id: UUID, identity: CurrentTenant) -> Response:
     if not delete_engagement(engine, identity.org_id, engagement_id):
@@ -286,9 +309,7 @@ def remove_engagement(engagement_id: UUID, identity: CurrentTenant) -> Response:
     "/api/engagements/{engagement_id}/posture",
     response_model=SecurityPostureSnapshot,
 )
-async def get_posture(
-    engagement_id: UUID, identity: CurrentTenant
-) -> SecurityPostureSnapshot:
+async def get_posture(engagement_id: UUID, identity: CurrentTenant) -> SecurityPostureSnapshot:
     try:
         return await run_in_threadpool(collect_posture, engine, identity.org_id, engagement_id)
     except LookupError as error:

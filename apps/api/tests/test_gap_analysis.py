@@ -53,7 +53,13 @@ def test_finds_best_matching_section() -> None:
                 "ciphertext, nonce, wrapped_key, key_nonce, expires_at) VALUES (:id, :org_id, "
                 ":engagement_id, 'test.pdf', 'application/pdf', :sha, '', '', '', '', :expires)"
             ),
-            {"id": upload_id, "org_id": org_id, "engagement_id": engagement_id, "sha": "1" * 64, "expires": expires},
+            {
+                "id": upload_id,
+                "org_id": org_id,
+                "engagement_id": engagement_id,
+                "sha": "1" * 64,
+                "expires": expires,
+            },
         )
         connection.execute(
             text(
@@ -66,6 +72,7 @@ def test_finds_best_matching_section() -> None:
     try:
         match = find_coverage_candidates(engine, org_id, upload_id, [control_id])[0]
         assert (match.chunk_id, match.similarity, match.status) == (chunk_id, 1.0, "candidate")
+        assert (match.control_text, match.document_text) == ("Test: Test", "Test")
     finally:
         with engine.begin() as connection:
             connection.execute(

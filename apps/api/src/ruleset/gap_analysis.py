@@ -10,7 +10,9 @@ class CoverageMatch(BaseModel):
 
     control_id: UUID
     control_code: str
+    control_text: str
     chunk_id: UUID | None
+    document_text: str | None
     similarity: float | None
     status: Literal["candidate", "missing"]
 
@@ -59,10 +61,13 @@ def find_coverage_candidates(
     if not control_ids:
         return []
     statement = text(
-        "SELECT c.id AS control_id, c.control_code, match.chunk_id, match.similarity "
+        "SELECT c.id AS control_id, c.control_code, "
+        "concat_ws(': ', c.title, c.description) AS control_text, "
+        "match.chunk_id, match.document_text, match.similarity "
         "FROM controls c JOIN control_embeddings ce ON ce.control_id = c.id "
         "LEFT JOIN LATERAL ("
-        " SELECT uc.id AS chunk_id, 1 - (uc.embedding <=> ce.embedding) AS similarity"
+        " SELECT uc.id AS chunk_id, uc.text AS document_text, "
+        "1 - (uc.embedding <=> ce.embedding) AS similarity"
         " FROM upload_chunks uc WHERE uc.upload_id = :upload_id AND uc.embedding IS NOT NULL"
         " ORDER BY uc.embedding <=> ce.embedding LIMIT 1"
         ") match ON TRUE WHERE c.id IN :control_ids ORDER BY c.control_code"
