@@ -1,85 +1,181 @@
 # Ruleset
 
-Ruleset is a security-first GRC prototype that maps company facts and policy evidence to compliance controls, then generates traceable draft policies. The LLM is treated as untrusted: deterministic rules decide applicability, retrieval bounds citations, and verification rejects unsupported output.
+Ruleset is an AI-assisted governance, risk, and compliance (GRC) platform prototype. It turns a company profile and its existing policy evidence into an auditable compliance workspace: applicable requirements, control coverage, evidence gaps, risks, draft policies, monitoring results, and auditor-ready exports.
 
-> Draft compliance material only. Outputs require review by qualified legal, privacy, and security professionals.
+The key design decision is that the language model never decides what legally applies and is never trusted to invent evidence. Deterministic rules establish applicability, retrieval limits the model's context, and verification rejects unsupported citations before output can be stored.
 
-**Live recruiter demo:** https://web-slowgold05s-projects.vercel.app
+> Portfolio prototype—not legal advice, a certification, or an audit opinion. Generated compliance material requires qualified human review.
 
-**API health:** https://api-production-3fd2d.up.railway.app/health
+**[Open the live recruiter demo](https://web-slowgold05s-projects.vercel.app)** · **[Check API health](https://api-production-3fd2d.up.railway.app/health)** · **[Read the 90-second demo script](DEMO.md)**
 
-![Ruleset coverage matrix](screenshots/frontpage.png)
+## What a reviewer can see
 
-## Current build
+The public homepage contains a fictional healthcare engagement and an interactive control-coverage matrix. Select a control to inspect its exact policy evidence and remediation gap. The navigation demonstrates the risk register, continuous monitoring, questionnaire review, framework drift, policy library, and trust center.
 
-- 6 framework records, 4,233 controls, 4,354 sourced crosswalk mappings, and 4,233 embeddings
-- NIST OSCAL and Secure Controls Framework ingestion with versioned controls
-- Declarative HIPAA applicability rules with an auditable facts snapshot
-- Contractual and voluntary assurance objectives for SOC 2, ISO 27001, and NIST SP 800-53
-- Encrypted uploads, constrained PDF/DOCX parsing, retention, and hard deletion
-- Policy-to-control gap analysis with evidence-quote verification
-- Passive OSINT for DNS, certificate transparency, and public website posture
-- Local Ollama generation with citation, faithfulness, concurrency, retry, and token-budget guardrails
-- DOCX policy export with a control traceability appendix
-- Interactive tenant coverage matrix, framework drift detection, and a public trust page
-- Read-only GitHub/AWS control monitoring with immutable evidence and pass-to-fail drift detection
-- Grounded questionnaire answering, a risk register heatmap, and expiring Audit Hub shares
-- Clerk-managed authentication with signed organization-to-RLS tenant mapping
-- Authenticated intake and risk-management APIs with live Clerk-enabled UI modes
-- Project-local agent guardrails plus a source-first control-building skill
-- 30-profile applicability evaluation set and 71 automated backend tests
+The complete local build adds private document processing and local AI through Ollama. This split keeps the public portfolio inexpensive and prevents real policy text from being sent to a hosted model.
 
-The current golden set scores HIPAA applicability at 1.00 precision and 1.00 recall. Citation validity is structurally gated: a generated control ID must be present in the retrieved context before output can be stored. The knowledge-base integrity check finds zero orphaned crosswalks; SCF currently provides no NIST path for two SOC privacy criteria (`P6.0`, `P6.4`).
+Current walkthrough captures are tracked in [`screenshots/`](screenshots/README.md). The previous homepage image is retained there until the refreshed black-and-red sequence is captured from the deployed application.
+
+| Capability | What Ruleset does | Why it matters |
+| --- | --- | --- |
+| Company intake | Captures industry, geography, data types, company facts, and contractual assurance goals | Gives every decision a reproducible facts snapshot |
+| Applicability | Evaluates declarative rules for regulations such as HIPAA | Keeps legal applicability deterministic and testable |
+| Assurance planning | Tracks SOC 2, ISO 27001, and NIST alignment separately from mandatory regulations | Avoids falsely presenting voluntary frameworks as laws |
+| Control knowledge base | Ingests versioned NIST OSCAL and Secure Controls Framework records | Provides traceable control identifiers and mappings |
+| Secure evidence upload | Validates, encrypts, parses, retains, and hard-deletes PDF/DOCX policies | Treats customer documents as hostile and sensitive input |
+| RAG coverage analysis | Retrieves relevant policy sections and maps exact quotes to controls | Makes every coverage claim inspectable |
+| Gap analysis | Classifies controls as covered, partial, or missing and recommends next steps | Turns policy evidence into an actionable remediation plan |
+| Policy generation | Produces grounded drafts with control citations and DOCX traceability appendices | Speeds drafting without hiding the source controls |
+| Questionnaire review | Generates evidence-backed answers that must be approved, edited, or rejected | Keeps a human in the decision loop |
+| Risk register | Stores likelihood, impact, treatment state, and mapped controls in a heatmap | Connects compliance gaps to operational risk |
+| Continuous monitoring | Runs read-only GitHub and AWS checks and stores immutable results | Detects when implemented safeguards drift from policy claims |
+| Framework drift | Compares framework versions and identifies affected policy statements | Shows what must be reviewed when standards change |
+| Audit Hub | Creates expiring read-only evidence shares and records access events | Supports scoped auditor collaboration |
+| Trust center | Publishes implemented and planned safeguards with evidence | Demonstrates that the platform follows its own advice |
+| Multi-tenancy | Maps Clerk organizations to internal tenant UUIDs protected by PostgreSQL RLS | Makes database isolation the final security boundary |
+
+## End-to-end workflow
+
+1. A user signs in through Clerk and creates or selects an organization.
+2. Ruleset provisions a tenant and stores only the resolved internal tenant UUID in database context.
+3. The user describes the company and selects contractual or voluntary assurance objectives.
+4. The deterministic rules engine evaluates which regulations apply and records the facts used.
+5. The user uploads existing PDF or DOCX policies; Ruleset validates, encrypts, and parses them into tenant-scoped sections.
+6. Retrieval finds relevant policy sections for each required control.
+7. Coverage analysis records exact supporting quotes and marks controls covered, partial, or missing.
+8. The user reviews risks, remediation work, draft policies, and questionnaire answers.
+9. Monitoring checks can create immutable evidence and flag pass-to-fail drift.
+10. Approved material can be exported or shared through an expiring Audit Hub link.
+
+## How the AI is constrained
+
+Ruleset uses retrieval-augmented generation (RAG), but deterministic software surrounds the model:
+
+```mermaid
+flowchart LR
+    F[Company facts] --> R[Applicability rules]
+    R --> C[Required controls]
+    D[Encrypted policies] --> P[Hardened parser]
+    P --> E[(Tenant evidence)]
+    C --> Q[pgvector retrieval]
+    E --> Q
+    Q --> L[Local Ollama model]
+    L --> V[Schema, citation, quote, and faithfulness checks]
+    V --> H[Human review]
+    H --> X[Stored result or DOCX export]
+```
+
+- Applicability is decided by declarative rules, not an LLM.
+- Retrieved controls and policy sections bound the generation context.
+- Pydantic schemas reject malformed output.
+- Every generated control ID must exist in the retrieved context.
+- Evidence quotes are checked against the source text.
+- Unsupported or unfaithful output is rejected instead of silently stored.
+- Generation has token budgets, retry limits, and concurrency controls.
+- The default models run locally: `qwen3:14b` for generation and `mxbai-embed-large` for embeddings.
+
+The reasoning behind this design is covered in [How Ruleset rejects hallucinated citations](docs/hallucinated-citations.md).
 
 ## Architecture
 
 ```mermaid
-flowchart LR
-    U[Next.js UI] --> A[FastAPI services]
-    A --> R[Deterministic rules]
-    A --> K[(PostgreSQL + pgvector)]
+flowchart TB
+    U[Next.js 15 UI] -->|Clerk session token| A[FastAPI API]
+    A --> R[Deterministic rules engine]
+    A --> K[(PostgreSQL + pgvector + RLS)]
     A --> O[Passive OSINT]
-    A --> G[Generation pipeline]
-    D[Uploaded policies] --> P[Hardened parser]
-    P --> A
+    A --> M[Monitoring adapters]
+    A --> G[Generation and verification]
+    G --> L[Ollama / OpenAI-compatible endpoint]
+    D[PDF and DOCX uploads] --> P[Constrained parser]
+    P --> K
     K --> G
-    G --> V[Schema + citation + faithfulness checks]
-    V --> K
-    V --> X[DOCX + traceability appendix]
+    G --> X[DOCX export]
 ```
 
-PostgreSQL row-level security is the tenant-isolation backstop. Uploaded content, OSINT responses, and model output are all untrusted boundaries.
+| Layer | Technology | Responsibility |
+| --- | --- | --- |
+| Web | Next.js 15, React 19, Tailwind CSS | Responsive dashboard, Clerk UI, review workflows |
+| API | FastAPI, Pydantic, SQLAlchemy | Validation, business rules, tenant APIs, generation orchestration |
+| Data | PostgreSQL, pgvector, Alembic | Controls, evidence, vectors, audit history, RLS isolation |
+| Identity | Clerk Organizations | Sign-in, organization membership, session verification |
+| AI | Ollama with OpenAI-compatible APIs | Local generation and embeddings |
+| Infrastructure | Docker Compose, Railway, Vercel | Reproducible local stack and public portfolio deployment |
 
-## Run locally
+## Framework and regulation coverage
 
-Prerequisites: Docker Desktop, Python 3.12, Node.js 22+, `uv`, and Corepack/pnpm.
+The current knowledge base contains **6 framework records, 4,233 controls, 4,354 sourced crosswalk mappings, and 4,233 embeddings**.
+
+- NIST SP 800-53 Rev. 5 controls come from official [NIST OSCAL content](https://github.com/usnistgov/oscal-content).
+- Cross-framework identifiers come from the [Secure Controls Framework](https://securecontrolsframework.com/).
+- HIPAA has executable applicability rules and a 30-profile evaluation set.
+- SOC 2, ISO 27001, and NIST are modeled as contractual or voluntary assurance objectives.
+- ISO standards text is not copied; the repository stores permitted identifiers and sourced mappings only.
+
+The HIPAA golden set currently scores **1.00 precision and 1.00 recall**. The integrity check reports zero orphaned crosswalks. SCF does not currently provide a NIST path for SOC privacy criteria `P6.0` and `P6.4`; Ruleset records those source-level gaps rather than inventing mappings.
+
+## Security model
+
+- Every tenant-owned row carries `org_id` and is protected by forced PostgreSQL row-level security.
+- The runtime API uses a restricted database role; an owner connection is reserved for migrations.
+- Clerk session tokens are verified server-side, including authorized-party checks.
+- Clerk organization IDs are resolved to internal UUIDs before database access.
+- Uploads are size- and magic-byte-validated, encrypted per tenant, and parsed with resource limits.
+- URL fetching blocks private, loopback, link-local, and cloud-metadata destinations and revalidates redirects.
+- Prompts clearly delimit user-controlled text and model output is length-capped and schema-validated.
+- Audit evidence is append-only; audit-share links expire and can be revoked.
+- Logs redact sensitive fields, and secrets remain in ignored local files or hosting secret stores.
+- CI runs tests, migration checks, Bandit, Semgrep, Gitleaks, dependency audits, and frontend checks.
+
+See [DATA_POLICY.md](DATA_POLICY.md), [THREAT_MODEL.md](THREAT_MODEL.md), and the live `/trust` page for the detailed boundaries.
+
+## Tests and measurable checks
+
+- 71 automated backend tests
+- 30 HIPAA applicability evaluation profiles
+- Property-based rules-engine tests
+- Migration head checks
+- Knowledge-base crosswalk integrity checks
+- Frontend ESLint, TypeScript, and production-build validation
+- Static analysis and secret/dependency scanning in CI
+
+```powershell
+Set-Location apps/api
+python -m uv run pytest
+python -m uv run ruff check .
+
+Set-Location ../web
+npm run lint
+$env:VERCEL='1'; npm run build
+```
+
+## Run the full stack locally
+
+Prerequisites: Docker Desktop, Python 3.12, Node.js 22+, `uv`, Corepack/pnpm, and Ollama.
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-Edit `.env` and replace both database passwords. Set `UPLOAD_MASTER_KEY_BASE64` to a securely generated 32-byte base64 key. Install Ollama, then download the two local models:
+Replace the example database passwords and generate a 32-byte base64 `UPLOAD_MASTER_KEY_BASE64`. Then install the local models and start the database:
 
 ```powershell
 ollama pull qwen3:14b
 ollama pull mxbai-embed-large
-Set-Location apps/api
-python -m uv run python -m ruleset.kb.embed_controls
+docker compose up -d
 ```
 
-Generation defaults to Ollama. To demonstrate hosted reasoning instead, set
-`LLM_BASE_URL=https://openrouter.ai/api/v1`, add `LLM_API_KEY`, and set both LLM model
-variables to `z-ai/glm-5.3-flash`. Embeddings remain local through Ollama.
+Prepare and start the API:
 
 ```powershell
-docker compose up -d
 Set-Location apps/api
 python -m uv sync
 python -m uv run alembic upgrade head
+python -m uv run python -m ruleset.kb.embed_controls
 python -m uv run uvicorn ruleset.main:app --reload
 ```
 
-In another terminal:
+Start the web app in another terminal:
 
 ```powershell
 corepack enable
@@ -87,98 +183,53 @@ pnpm install --frozen-lockfile
 pnpm dev:web
 ```
 
-Open `http://localhost:3000`. The API health endpoint is `http://localhost:8000/health`.
+Open `http://localhost:3000`; API health is at `http://localhost:8000/health`.
 
-### Enable managed authentication
+### Authentication
 
-Link the existing Clerk application from the Next.js app directory. The CLI writes its
-development keys to the ignored `apps/web/.env.local`; FastAPI reads the same private file
-locally, so keys do not need to be copied:
+The hosted demo already uses the linked Clerk development instance. For a new local setup:
 
 ```powershell
 Set-Location apps/web
 clerk auth login
 clerk init --app app_3IfQoM1pXe4hwChImmzYNgNVqha
+clerk enable orgs --app app_3IfQoM1pXe4hwChImmzYNgNVqha --instance dev --force-selection --auto-create --max-members 5 --yes
 clerk doctor
 ```
 
-Enable Organizations plus email, Google, and GitHub sign-in in the Clerk dashboard. A
-verified Clerk organization is provisioned as an isolated local tenant on its first API
-request; no manual database link is required.
+Email authentication is sufficient. Google and GitHub are optional sign-in conveniences and require provider configuration for a production Clerk instance.
 
-The API accepts session tokens only, verifies them through Clerk's backend SDK, checks the
-authorized party, resolves the active Clerk organization through the database, and uses
-only the resolved internal UUID for RLS. The public demo remains available when Clerk is unset.
+## Deployment
 
-## Verify
+The portfolio deployment uses:
 
-```powershell
-Set-Location apps/api
-python -m uv run pytest
-python -m uv run ruff check .
+- **Vercel:** public Next.js interface
+- **Railway:** FastAPI and PostgreSQL/pgvector
+- **Clerk:** development authentication and Organizations
+- **Local laptop:** Ollama inference for the private full-stack demonstration
 
-Set-Location ../..
-pnpm lint
-pnpm typecheck
-pnpm --filter web build
-```
+The public homepage is seeded so reviewers can explore the product without uploading data. Authenticated tenant workflows use the hosted API, while local Ollama-dependent generation remains a local demonstration to avoid GPU hosting cost and third-party policy disclosure.
 
-CI additionally runs migration checks, Bandit, Semgrep, Gitleaks, pip-audit, and pnpm audit.
-
-## Deploy
-
-Production Dockerfiles are provided for both apps and use the repository root as build context:
-
-```powershell
-docker build -f apps/api/Dockerfile -t ruleset-api .
-docker build -f apps/web/Dockerfile -t ruleset-web .
-```
-
-Run `alembic upgrade head` as the API release command with `MIGRATION_DATABASE_URL`, then start
-the API container with its runtime secrets. Next.js public variables are build arguments because
-they are embedded in the browser bundle. A hosted API can use an OpenAI-compatible provider;
-the local portfolio setup keeps policy text on-device through Ollama.
-
-See [DEPLOYMENT.md](DEPLOYMENT.md) for the Vercel, Railway, Clerk, migration, and smoke-test checklist.
-
-## Security design
-
-- Tenant-owned data carries `org_id` and is protected by PostgreSQL RLS.
-- Uploads are magic-byte and size validated, encrypted per organization, parsed with resource limits, and hard-deleted with their engagement.
-- OSINT is passive and public-records-only; URL fetching blocks private, loopback, link-local, and cloud-metadata destinations and revalidates redirects.
-- Prompts delimit user-controlled data. Model output is length-capped and parsed with strict Pydantic schemas.
-- Citation IDs and evidence quotes are checked deterministically instead of trusted to a model.
-- Logs redact sensitive fields; secrets stay in environment/platform secret stores and are scanned in CI.
-
-See [DATA_POLICY.md](DATA_POLICY.md), [THREAT_MODEL.md](THREAT_MODEL.md), and the in-app `/trust` page.
-
-## Knowledge-base sources
-
-- [NIST OSCAL content](https://github.com/usnistgov/oscal-content), including SP 800-53 Rev. 5
-- [Secure Controls Framework](https://securecontrolsframework.com/), used for framework crosswalk identifiers
-
-ISO standards text is not copied; only allowed identifiers and sourced mappings are stored.
-
-## Known limits
-
-- Clerk development auth is linked; sign in and create or select an organization to use protected tenant APIs.
-- The rules catalog currently implements HIPAA applicability only.
-- SOC 2, ISO 27001, and NIST are selected assurance objectives, not represented as laws that automatically apply.
-- Local Ollama generation and embeddings require the configured models to be downloaded and Ollama to be running. Optional OpenRouter generation sends prompt content to its provider.
-- Have I Been Pwned domain exposure is omitted because it requires a verified-domain API account.
-- The homepage retains a seeded recruiter demo; authenticated routes provide live intake, uploads, posture checks, coverage, risks, monitoring evidence, questionnaire review, framework drift, policy exports, and expiring audit shares.
-- Deployment and the roadmap's demo GIF/blog post remain packaging work.
+See [DEPLOYMENT.md](DEPLOYMENT.md) for configuration, migration, and smoke-test details. Production Dockerfiles are included for both applications.
 
 ## Repository map
 
 ```text
-apps/api/              FastAPI services, migrations, and tests
-apps/web/              Next.js coverage UI and trust page
-packages/shared-types/ OpenAPI-derived contract destination
-docker/                Local database initialization
+apps/api/                 FastAPI source, migrations, ingestion, and tests
+apps/web/                 Next.js dashboard and Clerk-authenticated workflows
+docker/                   Least-privilege local PostgreSQL initialization
+docs/                     Technical design notes
+packages/shared-types/    OpenAPI-derived contract destination
+screenshots/              Reviewer walkthrough images
 ```
 
-The implementation roadmap is [grc-platform-build-roadmap.md](grc-platform-build-roadmap.md). `PROJECT.md` records the rebuilt repository state and conventions, not proof that a roadmap item is complete.
+The implementation plan is documented in [grc-platform-build-roadmap.md](grc-platform-build-roadmap.md). `PROJECT.md` records repository conventions and rebuilt state.
 
-For a concise walkthrough, use the [90-second demo script](DEMO.md).
-The accompanying article explains [how unsupported citations are structurally rejected](docs/hallucinated-citations.md).
+## Current limitations
+
+- This is a portfolio prototype, not a compliance determination service.
+- Executable applicability rules currently cover HIPAA; additional regulations require sourced rules and evaluation sets.
+- The public deployment does not host Ollama. Run locally for private generation and embeddings.
+- GitHub and AWS monitoring require explicitly scoped, read-only credentials.
+- Have I Been Pwned domain exposure is omitted because it requires a verified-domain API account.
+- Human approval remains mandatory for generated policies and questionnaire answers.
