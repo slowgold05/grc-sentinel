@@ -1,4 +1,4 @@
-# Ruleset agent instructions
+# GRC Sentinel agent instructions
 
 Read `PROJECT.md`, `CONVENTIONS.md`, and the relevant roadmap section before changing code.
 The repository and tests are the source of truth: a status claim in `PROJECT.md` does not prove

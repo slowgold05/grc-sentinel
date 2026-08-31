@@ -1,6 +1,6 @@
-# Ruleset Data Policy
+# GRC Sentinel Data Policy
 
-Ruleset minimizes stored customer data and hard-deletes it when its purpose expires. These periods are maximums; an organization may choose shorter retention.
+GRC Sentinel minimizes stored customer data and hard-deletes it when its purpose expires. These periods are maximums; an organization may choose shorter retention.
 
 | Data class | Examples | Protection | Retention |
 |---|---|---|---|

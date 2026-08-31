@@ -18,7 +18,7 @@ export default function Home() {
       <div className="mx-auto max-w-[1600px] px-5 py-8 sm:px-8 lg:py-12">
         <header className="mb-10 flex flex-col gap-6 border-b border-zinc-800 pb-8 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-red-500">Ruleset / Demo engagement</p>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-red-500">GRC Sentinel / Demo engagement</p>
             <h1 className="text-3xl font-semibold tracking-tight sm:text-5xl">Control coverage, with proof.</h1>
             <p className="mt-4 max-w-2xl text-base leading-7 text-slate-400">A deterministic gap analysis for Northstar Health. Every coverage claim links to an exact quote from the reviewed policy.</p>
           </div>

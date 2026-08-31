@@ -1,4 +1,4 @@
-# PROJECT.md — Ruleset (AI GRC Policy Platform)
+# PROJECT.md — GRC Sentinel (AI GRC Policy Platform)
 
 > **Instructions to the AI assistant:** Read this entire file before writing any code.
 > You implement exactly ONE task per session (see CURRENT TASK at the bottom).
@@ -11,7 +11,7 @@
 
 ## 1. What this project is
 
-Ruleset generates audit-ready information-security policies. A deterministic
+GRC Sentinel generates audit-ready information-security policies. A deterministic
 rules engine decides which regulations (HIPAA, PCI DSS, SOC 2, GDPR, PDPA…)
 apply to a company; a retrieval-bounded LLM pipeline drafts policies that cite
 security controls (NIST 800-53, mapped via crosswalks to SOC 2 / ISO 27001 IDs);

@@ -72,7 +72,7 @@ from ruleset.uploads.crypto import decode_master_key
 from ruleset.uploads.validation import MAX_UPLOAD_BYTES
 
 configure_logging()
-app = FastAPI(title="Ruleset API")
+app = FastAPI(title="GRC Sentinel API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.clerk_authorized_parties,

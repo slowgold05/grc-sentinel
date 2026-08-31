@@ -147,7 +147,7 @@ def export_policy_docx(
 
     footer = section.footer.paragraphs[0]
     footer.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    footer.add_run("Generated draft | Ruleset GRC Platform").font.size = Pt(9)
+    footer.add_run("Generated draft | GRC Sentinel").font.size = Pt(9)
     output = BytesIO()
     document.save(output)
     return output.getvalue()

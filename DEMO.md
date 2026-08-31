@@ -1,4 +1,4 @@
-# Ruleset 90-second demo
+# GRC Sentinel 90-second demo
 
 ## Setup
 
@@ -9,7 +9,7 @@ the public flow and a Clerk organization for live tenant actions.
 
 **0–15 seconds — The problem**
 
-Open the coverage matrix. Explain that Ruleset maps company facts and policy evidence to
+Open the coverage matrix. Explain that GRC Sentinel maps company facts and policy evidence to
 compliance controls without trusting the language model to decide applicability.
 
 **15–35 seconds — Evidence-backed gap analysis**

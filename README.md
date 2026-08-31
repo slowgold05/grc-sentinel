@@ -1,6 +1,6 @@
-# Ruleset
+# GRC Sentinel
 
-Ruleset is an AI-assisted governance, risk, and compliance (GRC) platform prototype. It turns a company profile and its existing policy evidence into an auditable compliance workspace: applicable requirements, control coverage, evidence gaps, risks, draft policies, monitoring results, and auditor-ready exports.
+GRC Sentinel is an AI-assisted governance, risk, and compliance (GRC) platform prototype. It turns a company profile and its existing policy evidence into an auditable compliance workspace: applicable requirements, control coverage, evidence gaps, risks, draft policies, monitoring results, and auditor-ready exports.
 
 The key design decision is that the language model never decides what legally applies and is never trusted to invent evidence. Deterministic rules establish applicability, retrieval limits the model's context, and verification rejects unsupported citations before output can be stored.
 
@@ -16,7 +16,7 @@ The complete local build adds private document processing and local AI through O
 
 Current walkthrough captures are tracked in [`screenshots/`](screenshots/README.md). The previous homepage image is retained there until the refreshed black-and-red sequence is captured from the deployed application.
 
-| Capability | What Ruleset does | Why it matters |
+| Capability | What GRC Sentinel does | Why it matters |
 | --- | --- | --- |
 | Company intake | Captures industry, geography, data types, company facts, and contractual assurance goals | Gives every decision a reproducible facts snapshot |
 | Applicability | Evaluates declarative rules for regulations such as HIPAA | Keeps legal applicability deterministic and testable |
@@ -37,10 +37,10 @@ Current walkthrough captures are tracked in [`screenshots/`](screenshots/README.
 ## End-to-end workflow
 
 1. A user signs in through Clerk and creates or selects an organization.
-2. Ruleset provisions a tenant and stores only the resolved internal tenant UUID in database context.
+2. GRC Sentinel provisions a tenant and stores only the resolved internal tenant UUID in database context.
 3. The user describes the company and selects contractual or voluntary assurance objectives.
 4. The deterministic rules engine evaluates which regulations apply and records the facts used.
-5. The user uploads existing PDF or DOCX policies; Ruleset validates, encrypts, and parses them into tenant-scoped sections.
+5. The user uploads existing PDF or DOCX policies; GRC Sentinel validates, encrypts, and parses them into tenant-scoped sections.
 6. Retrieval finds relevant policy sections for each required control.
 7. Coverage analysis records exact supporting quotes and marks controls covered, partial, or missing.
 8. The user reviews risks, remediation work, draft policies, and questionnaire answers.
@@ -49,7 +49,7 @@ Current walkthrough captures are tracked in [`screenshots/`](screenshots/README.
 
 ## How the AI is constrained
 
-Ruleset uses retrieval-augmented generation (RAG), but deterministic software surrounds the model:
+GRC Sentinel uses retrieval-augmented generation (RAG), but deterministic software surrounds the model:
 
 ```mermaid
 flowchart LR
@@ -74,7 +74,7 @@ flowchart LR
 - Generation has token budgets, retry limits, and concurrency controls.
 - The default models run locally: `qwen3:14b` for generation and `mxbai-embed-large` for embeddings.
 
-The reasoning behind this design is covered in [How Ruleset rejects hallucinated citations](docs/hallucinated-citations.md).
+The reasoning behind this design is covered in [How GRC Sentinel rejects hallucinated citations](docs/hallucinated-citations.md).
 
 ## Architecture
 
@@ -112,7 +112,7 @@ The current knowledge base contains **6 framework records, 4,233 controls, 4,354
 - SOC 2, ISO 27001, and NIST are modeled as contractual or voluntary assurance objectives.
 - ISO standards text is not copied; the repository stores permitted identifiers and sourced mappings only.
 
-The HIPAA golden set currently scores **1.00 precision and 1.00 recall**. The integrity check reports zero orphaned crosswalks. SCF does not currently provide a NIST path for SOC privacy criteria `P6.0` and `P6.4`; Ruleset records those source-level gaps rather than inventing mappings.
+The HIPAA golden set currently scores **1.00 precision and 1.00 recall**. The integrity check reports zero orphaned crosswalks. SCF does not currently provide a NIST path for SOC privacy criteria `P6.0` and `P6.4`; GRC Sentinel records those source-level gaps rather than inventing mappings.
 
 ## Security model
 

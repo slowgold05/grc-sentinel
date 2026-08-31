@@ -211,6 +211,63 @@ wheels = [
 ]
 
 [[package]]
+name = "grc-sentinel-api"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "alembic" },
+    { name = "boto3" },
+    { name = "clerk-backend-api" },
+    { name = "cryptography" },
+    { name = "defusedxml" },
+    { name = "dnspython" },
+    { name = "fastapi" },
+    { name = "httpx" },
+    { name = "openpyxl" },
+    { name = "psycopg", extra = ["binary"] },
+    { name = "pydantic" },
+    { name = "pydantic-settings" },
+    { name = "pypdf" },
+    { name = "python-docx" },
+    { name = "sqlalchemy" },
+    { name = "uvicorn", extra = ["standard"] },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "hypothesis" },
+    { name = "pytest" },
+    { name = "ruff" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "alembic", specifier = "==1.16.4" },
+    { name = "boto3", specifier = "==1.43.83" },
+    { name = "clerk-backend-api", specifier = "==7.0.0" },
+    { name = "cryptography", specifier = "==50.0.1" },
+    { name = "defusedxml", specifier = "==0.7.1" },
+    { name = "dnspython", specifier = "==2.7.0" },
+    { name = "fastapi", specifier = "==0.116.1" },
+    { name = "httpx", specifier = "==0.28.1" },
+    { name = "openpyxl", specifier = "==3.1.5" },
+    { name = "psycopg", extras = ["binary"], specifier = "==3.2.9" },
+    { name = "pydantic", specifier = "==2.11.7" },
+    { name = "pydantic-settings", specifier = "==2.10.1" },
+    { name = "pypdf", specifier = "==6.16.2" },
+    { name = "python-docx", specifier = "==1.2.0" },
+    { name = "sqlalchemy", specifier = "==2.0.42" },
+    { name = "uvicorn", extras = ["standard"], specifier = "==0.35.0" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "hypothesis", specifier = "==6.165.10" },
+    { name = "pytest", specifier = "==8.4.1" },
+    { name = "ruff", specifier = "==0.12.7" },
+]
+
+[[package]]
 name = "greenlet"
 version = "3.5.5"
 source = { registry = "https://pypi.org/simple" }
@@ -659,63 +716,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/77/ab/aca2e756ad7b09b3d662a41773f3edcbd262872a4fc81f920dc1ffa44541/ruff-0.12.7-py3-none-win32.whl", hash = "sha256:c928f1b2ec59fb77dfdf70e0419408898b63998789cc98197e15f560b9e77f77", size = 11756687, upload-time = "2025-07-29T22:32:29.381Z" },
     { url = "https://files.pythonhosted.org/packages/b4/71/26d45a5042bc71db22ddd8252ca9d01e9ca454f230e2996bb04f16d72799/ruff-0.12.7-py3-none-win_amd64.whl", hash = "sha256:9c18f3d707ee9edf89da76131956aba1270c6348bfee8f6c647de841eac7194f", size = 12912365, upload-time = "2025-07-29T22:32:31.517Z" },
     { url = "https://files.pythonhosted.org/packages/4c/9b/0b8aa09817b63e78d94b4977f18b1fcaead3165a5ee49251c5d5c245bb2d/ruff-0.12.7-py3-none-win_arm64.whl", hash = "sha256:dfce05101dbd11833a0776716d5d1578641b7fddb537fe7fa956ab85d1769b69", size = 11982083, upload-time = "2025-07-29T22:32:33.881Z" },
-]
-
-[[package]]
-name = "ruleset-api"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "alembic" },
-    { name = "boto3" },
-    { name = "clerk-backend-api" },
-    { name = "cryptography" },
-    { name = "defusedxml" },
-    { name = "dnspython" },
-    { name = "fastapi" },
-    { name = "httpx" },
-    { name = "openpyxl" },
-    { name = "psycopg", extra = ["binary"] },
-    { name = "pydantic" },
-    { name = "pydantic-settings" },
-    { name = "pypdf" },
-    { name = "python-docx" },
-    { name = "sqlalchemy" },
-    { name = "uvicorn", extra = ["standard"] },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "hypothesis" },
-    { name = "pytest" },
-    { name = "ruff" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "alembic", specifier = "==1.16.4" },
-    { name = "boto3", specifier = "==1.43.83" },
-    { name = "clerk-backend-api", specifier = "==7.0.0" },
-    { name = "cryptography", specifier = "==50.0.1" },
-    { name = "defusedxml", specifier = "==0.7.1" },
-    { name = "dnspython", specifier = "==2.7.0" },
-    { name = "fastapi", specifier = "==0.116.1" },
-    { name = "httpx", specifier = "==0.28.1" },
-    { name = "openpyxl", specifier = "==3.1.5" },
-    { name = "psycopg", extras = ["binary"], specifier = "==3.2.9" },
-    { name = "pydantic", specifier = "==2.11.7" },
-    { name = "pydantic-settings", specifier = "==2.10.1" },
-    { name = "pypdf", specifier = "==6.16.2" },
-    { name = "python-docx", specifier = "==1.2.0" },
-    { name = "sqlalchemy", specifier = "==2.0.42" },
-    { name = "uvicorn", extras = ["standard"], specifier = "==0.35.0" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "hypothesis", specifier = "==6.165.10" },
-    { name = "pytest", specifier = "==8.4.1" },
-    { name = "ruff", specifier = "==0.12.7" },
 ]
 
 [[package]]

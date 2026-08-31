@@ -1,4 +1,4 @@
-# Ruleset Threat Model
+# GRC Sentinel Threat Model
 
 ## Assets
 

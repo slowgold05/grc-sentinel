@@ -16,7 +16,7 @@ export default function TrustPage() {
       <div className="mx-auto max-w-[1600px]">
         <Link href="/" className="text-sm font-medium text-red-400 hover:text-red-300">← Coverage demo</Link>
         <header className="mt-10 border-b border-zinc-800 pb-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-red-500">Ruleset trust center</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-red-500">GRC Sentinel trust center</p>
           <h1 className="mt-4 max-w-3xl text-4xl font-semibold tracking-tight sm:text-6xl">The platform follows the controls it recommends.</h1>
           <p className="mt-5 max-w-2xl text-base leading-7 text-slate-400">This page distinguishes implemented safeguards from planned work. Claims link to evidence in the repository and automated test suite.</p>
           <div className="mt-8 inline-flex items-baseline gap-3 rounded-xl border border-emerald-400/20 bg-emerald-400/[0.06] px-5 py-4"><span className="text-3xl font-semibold text-emerald-300">{implemented}/{controls.length}</span><span className="text-sm text-emerald-100/70">controls implemented</span></div>
