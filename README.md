@@ -161,3 +161,4 @@ docker/                Local database initialization
 The implementation roadmap is [grc-platform-build-roadmap.md](grc-platform-build-roadmap.md). `PROJECT.md` records the rebuilt repository state and conventions, not proof that a roadmap item is complete.
 
 For a concise walkthrough, use the [90-second demo script](DEMO.md).
+The accompanying article explains [how unsupported citations are structurally rejected](docs/hallucinated-citations.md).
