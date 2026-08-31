@@ -9,13 +9,14 @@ demo for the public flow and a Clerk organization for live tenant actions.
 
 **0–15 seconds — The problem**
 
-Open the coverage matrix. Explain that GRC Sentinel maps company facts and policy evidence to
-PCI DSS 4.0.1 and SOC 2 controls without trusting the language model to establish obligations
-or decide applicability.
+Open the fintech regulatory perimeter. Show how GLBA, Regulation S-P, FINRA, NYDFS, SOX,
+CCPA/CPRA, DORA, MAS notices, and PCI DSS are classified separately and linked to primary
+sources. Explain that intake facts are not themselves legal determinations.
 
 **15–35 seconds — Evidence-backed gap analysis**
 
-Select a covered, partial, and missing control. Show that every accepted coverage claim includes
+Open the PCI DSS 4.0.1/SOC 2 coverage matrix. Select a covered, partial, and missing control.
+Show that every accepted coverage claim includes
 an exact quote from the uploaded policy; unsupported model claims are rejected in code.
 
 **35–55 seconds — Local AI with bounded authority**
@@ -32,5 +33,5 @@ drift detection, and risks linked back to controls.
 **75–90 seconds — Trust and auditability**
 
 Open the trust page or an expiring Audit Hub link. Close with: applicability comes from versioned
-rules, the displayed PCI DSS and SOC 2 crosswalks come from SCF, tenant isolation comes from
+human-reviewed versioned rules, the displayed PCI DSS and SOC 2 crosswalks come from SCF, tenant isolation comes from
 PostgreSQL RLS, and AI output always requires human review.

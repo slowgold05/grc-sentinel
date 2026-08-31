@@ -10,7 +10,7 @@ The key design decision is that the language model never decides what legally ap
 
 ## What a reviewer can see
 
-The public homepage contains a fictional fintech engagement for **LedgerPeak Payments** and an interactive PCI DSS 4.0.1/SOC 2 control-coverage matrix. Select a control to inspect its exact policy evidence and remediation gap. The navigation demonstrates the risk register, continuous monitoring, questionnaire review, framework drift, policy library, and trust center.
+The public homepage contains a fictional fintech engagement for **LedgerPeak Payments**, a source-linked US/EU/Singapore regulatory-perimeter view, and an interactive PCI DSS 4.0.1/SOC 2 control-coverage matrix. Select a control to inspect its exact policy evidence and remediation gap. The navigation demonstrates the risk register, continuous monitoring, questionnaire review, framework drift, policy library, and trust center.
 
 The complete local build adds private document processing and local AI through Ollama. This split keeps the public portfolio inexpensive and prevents real policy text from being sent to a hosted model.
 
@@ -18,7 +18,7 @@ Current walkthrough captures are tracked in [`screenshots/`](screenshots/README.
 
 | Capability | What GRC Sentinel does | Why it matters |
 | --- | --- | --- |
-| Company intake | Captures industry, geography, data types, company facts, and contractual assurance goals | Gives every decision a reproducible facts snapshot |
+| Company intake | Captures financial-data handling and confirmed regulator/status facts across the US, EU, and Singapore | Gives every decision a reproducible facts snapshot without asking AI to interpret legal status |
 | Applicability | Evaluates versioned, declarative regulation rules and stores the facts used | Keeps legal applicability deterministic and testable |
 | Assurance planning | Tracks SOC 2, ISO 27001, and NIST alignment separately from mandatory regulations | Avoids falsely presenting voluntary frameworks as laws |
 | Control knowledge base | Ingests versioned NIST OSCAL and Secure Controls Framework records | Provides traceable control identifiers and mappings |
@@ -109,11 +109,29 @@ The current knowledge base contains **6 framework records, 4,233 controls, 4,354
 - NIST SP 800-53 Rev. 5 controls come from official [NIST OSCAL content](https://github.com/usnistgov/oscal-content).
 - Cross-framework identifiers come from the [Secure Controls Framework](https://securecontrolsframework.com/).
 - PCI DSS 4.0.1 and SOC 2 provide the sourced cross-framework view used by the fintech demo.
-- A HIPAA ruleset currently provides the executable applicability proof-of-concept and 30-profile evaluation set.
+- A HIPAA ruleset currently provides the executable applicability proof-of-concept and 30-profile evaluation set; new legal rules remain inactive until their source review and golden evaluation set are approved.
 - SOC 2, ISO 27001, and NIST are modeled as contractual or voluntary assurance objectives.
 - ISO standards text is not copied; the repository stores permitted identifiers and sourced mappings only.
 
 The current applicability golden set scores **1.00 precision and 1.00 recall**. The integrity check reports zero orphaned crosswalks. SCF does not currently provide a NIST path for SOC privacy criteria `P6.0` and `P6.4`; GRC Sentinel records those source-level gaps rather than inventing mappings.
+
+### Fintech regulatory perimeter
+
+These are not treated as interchangeable frameworks. The intake stores explicit scope facts, the UI links to the issuing authority, and the product distinguishes a regulation from a contractual standard, an SRO rule, or an audit obligation.
+
+| Regime | Classification | Deterministic scope signal captured | Product status | Primary source |
+| --- | --- | --- | --- | --- |
+| GLBA Safeguards Rule, 16 CFR Part 314 | US federal regulation | FTC-covered financial institution + customer information | Scope captured; executable rule awaiting human review | [FTC rule and coverage guidance](https://www.ftc.gov/business-guidance/resources/ftc-safeguards-rule-what-your-business-needs-know) |
+| PCI DSS 4.0.1 | Contractual industry standard | Payment account data stored, processed, or transmitted | Installed control catalog, sourced crosswalks, demo readiness objective | [PCI SSC document library](https://www.pcisecuritystandards.org/document_library/) |
+| SEC Regulation S-P | US federal securities rule | Covered broker-dealer, investment company/adviser, funding portal, or transfer agent | Scope captured; executable rule awaiting human review | [SEC final rule](https://www.sec.gov/rules-regulations/2024/06/s7-05-23) |
+| FINRA Rule 4370 | SRO rule | FINRA member firm | Scope captured; executable rule awaiting human review | [FINRA BCP guidance](https://www.finra.org/rules-guidance/key-topics/business-continuity-planning) |
+| 23 NYCRR Part 500 | New York regulation | Entity operating under a covered NYDFS authorization | Scope captured; exemptions require separate review | [NYDFS Cybersecurity Resource Center](https://www.dfs.ny.gov/industry_guidance/cybersecurity) |
+| SOX Section 404 | Reporting and audit requirement | Company subject to Exchange Act periodic reporting | Scope captured as an ICFR/audit objective | [SEC Section 404 rule](https://www.sec.gov/rules-regulations/2003/03/managements-report-internal-control-over-financial-reporting-certification-disclosure-exchange-act) |
+| CCPA / CPRA | California privacy law | Business confirms it meets current statutory threshold(s) and processes California personal information | Scope captured; thresholds/exemptions require review | [California Privacy Protection Agency FAQ](https://cppa.ca.gov/faq) |
+| DORA, Regulation (EU) 2022/2554 | EU regulation | Entity confirms it is a covered EU financial entity | Scope captured; executable rule awaiting human review | [EUR-Lex summary and text](https://eur-lex.europa.eu/legal-content/EN/LSU/?uri=CELEX:32022R2554) |
+| MAS Technology Risk Management Notices | Singapore regulatory notices | Institution confirms its category is named in an applicable MAS Notice | Scope captured by notice status; control obligations awaiting source ingestion | [MAS Notice on TRM FAQ](https://www.mas.gov.sg/-/media/mas-media-library/regulation/faqs/trpd/faqs---notice-on-technology-risk-management/faqs---notice-on-trm/faq---notice-on-technology-risk-management.pdf) |
+
+Two timing details are intentionally precise: the FTC's 30-day notice applies to qualifying notification events involving at least 500 consumers' unencrypted customer information, not every breach; and 31 March 2025 was when PCI DSS v4.x future-dated requirements became effective, not when the entire standard first became mandatory.
 
 ## Security model
 
@@ -229,7 +247,7 @@ The implementation plan is documented in [grc-platform-build-roadmap.md](grc-pla
 ## Current limitations
 
 - This is a portfolio prototype, not a compliance determination service.
-- Executable legal-applicability rules currently use HIPAA as the proof-of-concept; the fintech demo focuses on sourced PCI DSS and SOC 2 assurance coverage. Additional regulations require sourced rules and evaluation sets.
+- Executable legal-applicability rules currently use HIPAA as the proof-of-concept. The fintech intake captures GLBA, Regulation S-P, FINRA, NYDFS, SOX, CCPA/CPRA, DORA, and MAS scope facts, but does not claim they apply until a human-reviewed ruleset and evaluation set are approved.
 - The public deployment does not host Ollama. Run locally for private generation and embeddings.
 - GitHub and AWS monitoring require explicitly scoped, read-only credentials.
 - Have I Been Pwned domain exposure is omitted because it requires a verified-domain API account.

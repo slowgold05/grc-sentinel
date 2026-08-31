@@ -18,7 +18,7 @@ _HIPAA_RULES = Path(__file__).parent / "rules" / "rulesets" / "hipaa-v2.json"
 
 class AssuranceObjectiveCreate(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    framework: Literal["ISO 27001", "SOC 2 TSC", "NIST SP 800-53"]
+    framework: Literal["ISO 27001", "SOC 2 TSC", "NIST SP 800-53", "PCI DSS"]
     basis: Literal["customer_contract", "company_strategy", "regulator_request"]
     target_date: date | None = None
     scope: str = Field(default="", max_length=500)
@@ -28,7 +28,7 @@ class EngagementCreate(BaseModel):
     model_config = ConfigDict(extra="forbid")
     company: CompanyIntake
     retention_days: int = Field(default=90, ge=1, le=365)
-    assurance_objectives: list[AssuranceObjectiveCreate] = Field(default_factory=list, max_length=3)
+    assurance_objectives: list[AssuranceObjectiveCreate] = Field(default_factory=list, max_length=4)
 
 
 class AssuranceObjective(BaseModel):
@@ -75,6 +75,24 @@ def create_engagement(
             "data_types": request.company.data_types,
             "sends_external_email": request.company.sends_external_email,
             "cloud_providers": request.company.cloud_providers,
+            "financial_services": request.company.financial_services,
+            "ftc_financial_institution": request.company.ftc_financial_institution,
+            "handles_customer_financial_information": (
+                request.company.handles_customer_financial_information
+            ),
+            "handles_cardholder_data": request.company.handles_cardholder_data,
+            "sec_regulated": request.company.sec_regulated,
+            "reg_sp_covered_institution": request.company.reg_sp_covered_institution,
+            "finra_member": request.company.finra_member,
+            "nydfs_licensed": request.company.nydfs_licensed,
+            "public_company": request.company.public_company,
+            "exchange_act_reporting_company": (
+                request.company.exchange_act_reporting_company
+            ),
+            "eu_financial_entity": request.company.eu_financial_entity,
+            "california_consumer_data": request.company.california_consumer_data,
+            "ccpa_covered_business": request.company.ccpa_covered_business,
+            "mas_trm_notice_subject": request.company.mas_trm_notice_subject,
         }
     )
     determinations = evaluate(facts, load_rules(_HIPAA_RULES))

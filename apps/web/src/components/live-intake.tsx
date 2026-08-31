@@ -54,13 +54,26 @@ export function LiveIntake() {
             domain: form.get("domain"),
             employee_count: Number(form.get("employee_count")),
             geos: form.get("us") ? ["us"] : [],
-            data_types: form.get("phi") ? ["phi"] : [],
+            data_types: form.get("cardholder_data") ? ["payment"] : [],
             sends_external_email: form.get("email") === "on",
+            financial_services: form.get("financial_services") === "on",
+            ftc_financial_institution: form.get("ftc_financial_institution") === "on",
+            handles_customer_financial_information: form.get("customer_financial_information") === "on",
+            handles_cardholder_data: form.get("cardholder_data") === "on",
+            reg_sp_covered_institution: form.get("reg_sp") === "on",
+            finra_member: form.get("finra") === "on",
+            nydfs_licensed: form.get("nydfs") === "on",
+            exchange_act_reporting_company: form.get("sox") === "on",
+            eu_financial_entity: form.get("dora") === "on",
+            ccpa_covered_business: form.get("ccpa") === "on",
+            california_consumer_data: form.get("ccpa") === "on",
+            mas_trm_notice_subject: form.get("mas_trm") === "on",
           },
           assurance_objectives: [
             ["iso", "ISO 27001"],
             ["soc2", "SOC 2 TSC"],
             ["nist", "NIST SP 800-53"],
+            ["pci", "PCI DSS"],
           ].filter(([field]) => form.get(field)).map(([, framework]) => ({
             framework,
             basis: form.get("assurance_basis"),
@@ -213,15 +226,16 @@ export function LiveIntake() {
   return (
     <section className="mb-10 rounded-2xl border border-red-500/20 bg-red-500/[0.04] p-6" aria-labelledby="new-engagement">
       <h2 id="new-engagement" className="text-xl font-semibold">Start a live engagement</h2>
-      <p className="mt-2 text-sm text-slate-400">Facts are evaluated by versioned rules, never by an LLM.</p>
+      <p className="mt-2 text-sm text-slate-400">Capture confirmed scope facts. Only human-reviewed versioned rules create legal determinations; an LLM never does.</p>
       <form onSubmit={submit} className="mt-5 grid gap-3 sm:grid-cols-3">
         <input required name="company_name" maxLength={200} placeholder="Company name" className="rounded-lg border border-zinc-700 bg-black px-3 py-2" />
         <input required name="domain" placeholder="example.com" className="rounded-lg border border-zinc-700 bg-black px-3 py-2" />
         <input required name="employee_count" type="number" min="1" placeholder="Employees" className="rounded-lg border border-zinc-700 bg-black px-3 py-2" />
         <label className="flex items-center gap-2 text-sm"><input name="us" type="checkbox" /> Operates in the US</label>
-        <label className="flex items-center gap-2 text-sm"><input name="phi" type="checkbox" /> Handles PHI</label>
+        <label className="flex items-center gap-2 text-sm"><input name="financial_services" type="checkbox" /> Provides financial services</label>
         <label className="flex items-center gap-2 text-sm"><input name="email" type="checkbox" /> Sends external email</label>
-        <fieldset className="grid gap-2 rounded-lg border border-zinc-700 p-3 sm:col-span-3"><legend className="px-2 text-sm font-semibold text-red-400">Contract and assurance objectives</legend><div className="flex flex-wrap gap-5"><label className="flex items-center gap-2 text-sm"><input name="soc2" type="checkbox" /> SOC 2 readiness</label><label className="flex items-center gap-2 text-sm"><input name="iso" type="checkbox" /> ISO 27001 readiness</label><label className="flex items-center gap-2 text-sm"><input name="nist" type="checkbox" /> NIST SP 800-53 alignment</label></div><div className="mt-2 grid gap-3 sm:grid-cols-3"><select name="assurance_basis" defaultValue="customer_contract" className="rounded-lg border border-zinc-700 bg-black px-3 py-2"><option value="customer_contract">Customer or contract</option><option value="company_strategy">Company strategy</option><option value="regulator_request">Regulator request</option></select><input name="target_date" type="date" aria-label="Target completion date" className="rounded-lg border border-zinc-700 bg-black px-3 py-2" /><input name="assurance_scope" maxLength={500} placeholder="Scope, e.g. Security criteria" className="rounded-lg border border-zinc-700 bg-black px-3 py-2" /></div></fieldset>
+        <fieldset className="grid gap-2 rounded-lg border border-zinc-700 p-3 sm:col-span-3"><legend className="px-2 text-sm font-semibold text-red-400">Confirmed regulatory scope facts</legend><div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3"><label className="flex items-center gap-2 text-sm"><input name="ftc_financial_institution" type="checkbox" /> FTC-covered financial institution</label><label className="flex items-center gap-2 text-sm"><input name="customer_financial_information" type="checkbox" /> Handles GLBA customer information</label><label className="flex items-center gap-2 text-sm"><input name="cardholder_data" type="checkbox" /> Stores, processes, or transmits account data</label><label className="flex items-center gap-2 text-sm"><input name="reg_sp" type="checkbox" /> Regulation S-P covered institution</label><label className="flex items-center gap-2 text-sm"><input name="finra" type="checkbox" /> FINRA member firm</label><label className="flex items-center gap-2 text-sm"><input name="nydfs" type="checkbox" /> NYDFS covered entity</label><label className="flex items-center gap-2 text-sm"><input name="sox" type="checkbox" /> Exchange Act reporting company</label><label className="flex items-center gap-2 text-sm"><input name="ccpa" type="checkbox" /> CCPA/CPRA covered business</label><label className="flex items-center gap-2 text-sm"><input name="dora" type="checkbox" /> DORA-covered EU financial entity</label><label className="flex items-center gap-2 text-sm"><input name="mas_trm" type="checkbox" /> Subject to an MAS TRM Notice</label></div></fieldset>
+        <fieldset className="grid gap-2 rounded-lg border border-zinc-700 p-3 sm:col-span-3"><legend className="px-2 text-sm font-semibold text-red-400">Contract and assurance objectives</legend><div className="flex flex-wrap gap-5"><label className="flex items-center gap-2 text-sm"><input name="pci" type="checkbox" /> PCI DSS 4.0.1</label><label className="flex items-center gap-2 text-sm"><input name="soc2" type="checkbox" /> SOC 2 readiness</label><label className="flex items-center gap-2 text-sm"><input name="iso" type="checkbox" /> ISO 27001 readiness</label><label className="flex items-center gap-2 text-sm"><input name="nist" type="checkbox" /> NIST SP 800-53 alignment</label></div><div className="mt-2 grid gap-3 sm:grid-cols-3"><select name="assurance_basis" defaultValue="customer_contract" className="rounded-lg border border-zinc-700 bg-black px-3 py-2"><option value="customer_contract">Customer or contract</option><option value="company_strategy">Company strategy</option><option value="regulator_request">Regulator request</option></select><input name="target_date" type="date" aria-label="Target completion date" className="rounded-lg border border-zinc-700 bg-black px-3 py-2" /><input name="assurance_scope" maxLength={500} placeholder="Scope, e.g. cardholder data environment" className="rounded-lg border border-zinc-700 bg-black px-3 py-2" /></div></fieldset>
         <button className="rounded-lg bg-red-400 px-4 py-2 font-semibold text-slate-950 hover:bg-red-300 sm:col-span-3">Create and evaluate</button>
       </form>
       {result && <p className="mt-4 text-sm font-medium text-emerald-300">{result}</p>}

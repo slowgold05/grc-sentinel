@@ -13,6 +13,20 @@ class CompanyIntake(BaseModel):
     data_types: list[str] = Field(default_factory=list)
     sends_external_email: bool | None = None
     cloud_providers: list[str] = Field(default_factory=list)
+    financial_services: bool = False
+    ftc_financial_institution: bool = False
+    handles_customer_financial_information: bool = False
+    handles_cardholder_data: bool = False
+    sec_regulated: bool = False
+    reg_sp_covered_institution: bool = False
+    finra_member: bool = False
+    nydfs_licensed: bool = False
+    public_company: bool = False
+    exchange_act_reporting_company: bool = False
+    eu_financial_entity: bool = False
+    california_consumer_data: bool = False
+    ccpa_covered_business: bool = False
+    mas_trm_notice_subject: bool = False
 
     @field_validator("domain")
     @classmethod

@@ -28,6 +28,16 @@ def test_intake_creates_engagement_and_hipaa_determination() -> None:
                     "employee_count": 20,
                     "geos": ["US"],
                     "data_types": ["PHI"],
+                    "ftc_financial_institution": True,
+                    "handles_customer_financial_information": True,
+                    "handles_cardholder_data": True,
+                    "reg_sp_covered_institution": True,
+                    "finra_member": True,
+                    "nydfs_licensed": True,
+                    "exchange_act_reporting_company": True,
+                    "eu_financial_entity": True,
+                    "ccpa_covered_business": True,
+                    "mas_trm_notice_subject": True,
                 },
                 "assurance_objectives": [
                     {
@@ -39,6 +49,11 @@ def test_intake_creates_engagement_and_hipaa_determination() -> None:
                         "framework": "ISO 27001",
                         "basis": "company_strategy",
                     },
+                    {
+                        "framework": "PCI DSS",
+                        "basis": "customer_contract",
+                        "scope": "Cardholder data environment",
+                    },
                 ],
             },
         )
@@ -47,18 +62,26 @@ def test_intake_creates_engagement_and_hipaa_determination() -> None:
         assert [item["framework"] for item in response.json()["assurance_objectives"]] == [
             "SOC 2 TSC",
             "ISO 27001",
+            "PCI DSS",
         ]
         engagement_id = response.json()["id"]
         summary = TestClient(app).get("/api/engagements").json()[0]
         assert summary["regulations"] == ["HIPAA"]
+        assert summary["company"]["mas_trm_notice_subject"] is True
+        assert summary["company"]["reg_sp_covered_institution"] is True
         assert {item["framework"] for item in summary["assurance_objectives"]} == {
             "ISO 27001",
+            "PCI DSS",
             "SOC 2 TSC",
         }
         readiness = TestClient(app).get(
             f"/api/engagements/{engagement_id}/assurance-readiness"
         ).json()
-        assert {item["framework"] for item in readiness} == {"ISO 27001", "SOC 2 TSC"}
+        assert {item["framework"] for item in readiness} == {
+            "ISO 27001",
+            "PCI DSS",
+            "SOC 2 TSC",
+        }
         assert all(item["total"] > 0 and item["not_assessed"] == item["total"] for item in readiness)
         assert TestClient(app).delete(f"/api/engagements/{engagement_id}").status_code == 204
     finally:
