@@ -121,6 +121,20 @@ pnpm --filter web build
 
 CI additionally runs migration checks, Bandit, Semgrep, Gitleaks, pip-audit, and pnpm audit.
 
+## Deploy
+
+Production Dockerfiles are provided for both apps and use the repository root as build context:
+
+```powershell
+docker build -f apps/api/Dockerfile -t ruleset-api .
+docker build -f apps/web/Dockerfile -t ruleset-web .
+```
+
+Run `alembic upgrade head` as the API release command with `MIGRATION_DATABASE_URL`, then start
+the API container with its runtime secrets. Next.js public variables are build arguments because
+they are embedded in the browser bundle. A hosted API can use an OpenAI-compatible provider;
+the local portfolio setup keeps policy text on-device through Ollama.
+
 ## Security design
 
 - Tenant-owned data carries `org_id` and is protected by PostgreSQL RLS.

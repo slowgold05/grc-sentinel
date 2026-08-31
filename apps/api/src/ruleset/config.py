@@ -3,6 +3,11 @@ from pathlib import Path
 from pydantic import Field, PostgresDsn, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+_SOURCE = Path(__file__).resolve()
+_PROJECT_ROOT = next(
+    (parent for parent in _SOURCE.parents if (parent / "apps").is_dir()), Path.cwd()
+)
+
 
 class Settings(BaseSettings):
     """Validated process configuration loaded from the repository .env file."""
@@ -24,8 +29,8 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(
         env_file=(
-            Path(__file__).resolve().parents[4] / ".env",
-            Path(__file__).resolve().parents[4] / "apps" / "web" / ".env.local",
+            _PROJECT_ROOT / ".env",
+            _PROJECT_ROOT / "apps" / "web" / ".env.local",
         ),
         env_file_encoding="utf-8",
         extra="ignore",
