@@ -2,15 +2,16 @@
 
 ## Setup
 
-Keep Docker, Ollama, FastAPI, and Next.js running. Use the seeded Northstar Health demo for
-the public flow and a Clerk organization for live tenant actions.
+Keep Docker, Ollama, FastAPI, and Next.js running. Use the seeded LedgerPeak Payments fintech
+demo for the public flow and a Clerk organization for live tenant actions.
 
 ## Walkthrough
 
 **0–15 seconds — The problem**
 
 Open the coverage matrix. Explain that GRC Sentinel maps company facts and policy evidence to
-compliance controls without trusting the language model to decide applicability.
+PCI DSS 4.0.1 and SOC 2 controls without trusting the language model to establish obligations
+or decide applicability.
 
 **15–35 seconds — Evidence-backed gap analysis**
 
@@ -31,5 +32,5 @@ drift detection, and risks linked back to controls.
 **75–90 seconds — Trust and auditability**
 
 Open the trust page or an expiring Audit Hub link. Close with: applicability comes from versioned
-rules, mappings come from OSCAL/SCF, tenant isolation comes from PostgreSQL RLS, and AI output
-always requires human review.
+rules, the displayed PCI DSS and SOC 2 crosswalks come from SCF, tenant isolation comes from
+PostgreSQL RLS, and AI output always requires human review.

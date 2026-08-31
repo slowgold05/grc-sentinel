@@ -10,7 +10,7 @@ The key design decision is that the language model never decides what legally ap
 
 ## What a reviewer can see
 
-The public homepage contains a fictional healthcare engagement and an interactive control-coverage matrix. Select a control to inspect its exact policy evidence and remediation gap. The navigation demonstrates the risk register, continuous monitoring, questionnaire review, framework drift, policy library, and trust center.
+The public homepage contains a fictional fintech engagement for **LedgerPeak Payments** and an interactive PCI DSS 4.0.1/SOC 2 control-coverage matrix. Select a control to inspect its exact policy evidence and remediation gap. The navigation demonstrates the risk register, continuous monitoring, questionnaire review, framework drift, policy library, and trust center.
 
 The complete local build adds private document processing and local AI through Ollama. This split keeps the public portfolio inexpensive and prevents real policy text from being sent to a hosted model.
 
@@ -19,7 +19,7 @@ Current walkthrough captures are tracked in [`screenshots/`](screenshots/README.
 | Capability | What GRC Sentinel does | Why it matters |
 | --- | --- | --- |
 | Company intake | Captures industry, geography, data types, company facts, and contractual assurance goals | Gives every decision a reproducible facts snapshot |
-| Applicability | Evaluates declarative rules for regulations such as HIPAA | Keeps legal applicability deterministic and testable |
+| Applicability | Evaluates versioned, declarative regulation rules and stores the facts used | Keeps legal applicability deterministic and testable |
 | Assurance planning | Tracks SOC 2, ISO 27001, and NIST alignment separately from mandatory regulations | Avoids falsely presenting voluntary frameworks as laws |
 | Control knowledge base | Ingests versioned NIST OSCAL and Secure Controls Framework records | Provides traceable control identifiers and mappings |
 | Secure evidence upload | Validates, encrypts, parses, retains, and hard-deletes PDF/DOCX policies | Treats customer documents as hostile and sensitive input |
@@ -108,11 +108,12 @@ The current knowledge base contains **6 framework records, 4,233 controls, 4,354
 
 - NIST SP 800-53 Rev. 5 controls come from official [NIST OSCAL content](https://github.com/usnistgov/oscal-content).
 - Cross-framework identifiers come from the [Secure Controls Framework](https://securecontrolsframework.com/).
-- HIPAA has executable applicability rules and a 30-profile evaluation set.
+- PCI DSS 4.0.1 and SOC 2 provide the sourced cross-framework view used by the fintech demo.
+- A HIPAA ruleset currently provides the executable applicability proof-of-concept and 30-profile evaluation set.
 - SOC 2, ISO 27001, and NIST are modeled as contractual or voluntary assurance objectives.
 - ISO standards text is not copied; the repository stores permitted identifiers and sourced mappings only.
 
-The HIPAA golden set currently scores **1.00 precision and 1.00 recall**. The integrity check reports zero orphaned crosswalks. SCF does not currently provide a NIST path for SOC privacy criteria `P6.0` and `P6.4`; GRC Sentinel records those source-level gaps rather than inventing mappings.
+The current applicability golden set scores **1.00 precision and 1.00 recall**. The integrity check reports zero orphaned crosswalks. SCF does not currently provide a NIST path for SOC privacy criteria `P6.0` and `P6.4`; GRC Sentinel records those source-level gaps rather than inventing mappings.
 
 ## Security model
 
@@ -132,7 +133,7 @@ See [DATA_POLICY.md](DATA_POLICY.md), [THREAT_MODEL.md](THREAT_MODEL.md), and th
 ## Tests and measurable checks
 
 - 71 automated backend tests
-- 30 HIPAA applicability evaluation profiles
+- 30 regulation-applicability evaluation profiles
 - Property-based rules-engine tests
 - Migration head checks
 - Knowledge-base crosswalk integrity checks
@@ -228,7 +229,7 @@ The implementation plan is documented in [grc-platform-build-roadmap.md](grc-pla
 ## Current limitations
 
 - This is a portfolio prototype, not a compliance determination service.
-- Executable applicability rules currently cover HIPAA; additional regulations require sourced rules and evaluation sets.
+- Executable legal-applicability rules currently use HIPAA as the proof-of-concept; the fintech demo focuses on sourced PCI DSS and SOC 2 assurance coverage. Additional regulations require sourced rules and evaluation sets.
 - The public deployment does not host Ollama. Run locally for private generation and embeddings.
 - GitHub and AWS monitoring require explicitly scoped, read-only credentials.
 - Have I Been Pwned domain exposure is omitted because it requires a verified-domain API account.

@@ -3,8 +3,8 @@ import { LiveRiskRegister } from "../../components/live-risk-register";
 
 const risks = [
   { title: "Administrator credential compromise", likelihood: 3, impact: 5, controls: ["IA-2"], status: "Mitigating" },
-  { title: "Delayed incident escalation", likelihood: 3, impact: 4, controls: ["IR-4"], status: "Open" },
-  { title: "Excessive log retention", likelihood: 2, impact: 3, controls: ["SI-12"], status: "Accepted" },
+  { title: "Delayed payment incident escalation", likelihood: 3, impact: 4, controls: ["IR-4"], status: "Open" },
+  { title: "Excessive payment-data retention", likelihood: 2, impact: 3, controls: ["SI-12"], status: "Accepted" },
 ] as const;
 
 const likelihoods = [5, 4, 3, 2, 1];
@@ -22,7 +22,7 @@ export default function RisksPage() {
       <div className="mx-auto max-w-[1600px]">
         <Link href="/" className="text-sm font-medium text-red-400 hover:text-red-300">&larr; Coverage demo</Link>
         <header className="mt-8 border-b border-zinc-800 pb-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-red-500">Northstar Health / Risk register</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-red-500">LedgerPeak Payments / Risk register</p>
           <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">Risk, linked to controls.</h1>
           <p className="mt-4 max-w-2xl leading-7 text-slate-400">Scores are likelihood × impact. Select a populated cell to review the treatment and mapped controls.</p>
         </header>
