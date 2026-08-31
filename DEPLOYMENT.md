@@ -9,7 +9,7 @@ Recommended split:
 
 Live services:
 
-- Frontend: https://web-slowgold05s-projects.vercel.app
+- Frontend: https://grc-sentinel-slowgold05s-projects.vercel.app
 - API health: https://api-production-3fd2d.up.railway.app/health
 
 ## Railway

@@ -6,7 +6,7 @@ The key design decision is that the language model never decides what legally ap
 
 > Portfolio prototype—not legal advice, a certification, or an audit opinion. Generated compliance material requires qualified human review.
 
-**[Open the live recruiter demo](https://web-slowgold05s-projects.vercel.app)** · **[Check API health](https://api-production-3fd2d.up.railway.app/health)** · **[Read the 90-second demo script](DEMO.md)**
+**[Open the live recruiter demo](https://grc-sentinel-slowgold05s-projects.vercel.app)** · **[Check API health](https://api-production-3fd2d.up.railway.app/health)** · **[Read the 90-second demo script](DEMO.md)**
 
 ## What a reviewer can see
 
