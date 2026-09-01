@@ -1,0 +1,92 @@
+[
+  {
+    "regime": "GLBA Safeguards Rule",
+    "classification": "regulation",
+    "source_review": "docs/glba-safeguards-source-review.md",
+    "candidate_profiles": "apps/api/tests/evals/glba-golden-candidates.json",
+    "minimum_profiles": 30,
+    "activation_status": "awaiting_human_review",
+    "required_approvals": ["scope", "exemptions", "citations", "requirements", "mappings", "golden_profiles"],
+    "browser_gate": "authenticated determination, coverage, policy export, and Audit Hub walkthrough"
+  },
+  {
+    "regime": "PCI DSS 4.0.1",
+    "classification": "contractual_standard",
+    "source_review": "docs/pci-dss-source-review.md",
+    "candidate_profiles": null,
+    "minimum_profiles": 30,
+    "activation_status": "awaiting_human_review",
+    "required_approvals": ["scope", "validation_method", "requirements", "mappings", "golden_profiles"],
+    "browser_gate": "confirmed assurance objective, coverage, policy export, and Audit Hub walkthrough"
+  },
+  {
+    "regime": "SEC Regulation S-P",
+    "classification": "regulation",
+    "source_review": "docs/us-finance-scope-review.md",
+    "candidate_profiles": null,
+    "minimum_profiles": 30,
+    "activation_status": "awaiting_human_review",
+    "required_approvals": ["scope", "size_cohort", "compliance_dates", "citations", "requirements", "mappings", "golden_profiles"],
+    "browser_gate": "authenticated determination, coverage, policy export, and Audit Hub walkthrough"
+  },
+  {
+    "regime": "FINRA Rule 4370",
+    "classification": "sro_rule",
+    "source_review": "docs/us-finance-scope-review.md",
+    "candidate_profiles": null,
+    "minimum_profiles": 30,
+    "activation_status": "awaiting_human_review",
+    "required_approvals": ["membership_scope", "bcp_scope", "citations", "requirements", "mappings", "golden_profiles"],
+    "browser_gate": "authenticated SRO determination, BCP evidence, and Audit Hub walkthrough"
+  },
+  {
+    "regime": "23 NYCRR Part 500",
+    "classification": "regulation",
+    "source_review": "docs/us-finance-scope-review.md",
+    "candidate_profiles": null,
+    "minimum_profiles": 30,
+    "activation_status": "awaiting_human_review",
+    "required_approvals": ["authorization", "exemptions", "class_a", "transitions", "citations", "requirements", "mappings", "golden_profiles"],
+    "browser_gate": "authenticated determination, exemption result, coverage, and Audit Hub walkthrough"
+  },
+  {
+    "regime": "CCPA/CPRA",
+    "classification": "regulation",
+    "source_review": "docs/ccpa-cpra-source-review.md",
+    "candidate_profiles": null,
+    "minimum_profiles": 30,
+    "activation_status": "awaiting_human_review",
+    "required_approvals": ["period_thresholds", "information_exemptions", "related_entities", "citations", "requirements", "mappings", "golden_profiles"],
+    "browser_gate": "authenticated period-specific determination, coverage, and Audit Hub walkthrough"
+  },
+  {
+    "regime": "DORA",
+    "classification": "regulation",
+    "source_review": "docs/dora-source-review.md",
+    "candidate_profiles": null,
+    "minimum_profiles": 30,
+    "activation_status": "awaiting_human_review",
+    "required_approvals": ["article_2_scope", "exclusions", "eu_nexus", "article_31_provider_treatment", "citations", "requirements", "mappings", "golden_profiles"],
+    "browser_gate": "financial-entity and ICT-provider profiles plus coverage and Audit Hub walkthrough"
+  },
+  {
+    "regime": "MAS TRM Notices",
+    "classification": "regulation",
+    "source_review": "docs/mas-trm-source-review.md",
+    "candidate_profiles": null,
+    "minimum_profiles": 30,
+    "activation_status": "awaiting_human_review",
+    "required_approvals": ["institution_category", "notice_version", "exceptions", "transitions", "citations", "requirements", "mappings", "golden_profiles"],
+    "browser_gate": "exact-notice determination, critical-system result, coverage, and Audit Hub walkthrough"
+  },
+  {
+    "regime": "SOX Section 404",
+    "classification": "reporting_objective",
+    "source_review": "docs/sox-404-source-review.md",
+    "candidate_profiles": null,
+    "minimum_profiles": 30,
+    "activation_status": "awaiting_human_review",
+    "required_approvals": ["filer_category", "transitions", "attestation_scope", "evidence_methodology", "mappings", "golden_profiles"],
+    "browser_gate": "ICFR objective, management/attestation result, evidence, and Audit Hub walkthrough"
+  }
+]

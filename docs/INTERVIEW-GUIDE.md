@@ -224,7 +224,7 @@ regime at a time: approved source version, executable rules, requirement import,
 
 ### How do you know the project works?
 
-The repository currently has 94 backend tests plus property-based rule tests, frontend lint and
+The repository currently has 95 backend tests plus property-based rule tests, frontend lint and
 type checks, knowledge-base integrity validation, Selenium browser coverage, migration checks,
 Bandit, Semgrep, Gitleaks, and Python/JavaScript dependency audits in CI.
 

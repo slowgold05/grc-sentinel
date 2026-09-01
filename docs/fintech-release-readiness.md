@@ -17,6 +17,10 @@ Audit date: 2026-09-01
 
 No item below may be activated from model recall or semantic similarity.
 
+The machine-validated activation contract for all nine regimes is in
+[`fintech-activation-manifest.json`](fintech-activation-manifest.json). It records classification,
+source-review artifact, mandatory approvals, minimum evaluation size, and browser acceptance gate.
+
 | Regime | Human approval required before activation |
 | --- | --- |
 | GLBA | FTC scope/exemptions, effective version, cited rules, 30+ golden profiles, requirement import, sourced mappings |
