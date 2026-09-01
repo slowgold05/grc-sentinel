@@ -8,6 +8,8 @@ The key design decision is that the language model never decides what legally ap
 
 **[Open the live recruiter demo](https://grc-sentinel-slowgold05s-projects.vercel.app)** · **[Check API health](https://api-production-3fd2d.up.railway.app/health)** · **[Read the 90-second demo script](DEMO.md)**
 
+Preparing for an interview? Use the [GRC Sentinel interview guide](docs/INTERVIEW-GUIDE.md) for a short pitch, architecture explanation, demo sequence, likely questions, and resume talking points.
+
 ## What a reviewer can see
 
 The public homepage contains a fictional fintech engagement for **LedgerPeak Payments**, a source-linked US/EU/Singapore regulatory-perimeter view, and an interactive PCI DSS 4.0.1/SOC 2 control-coverage matrix. Select a control to inspect its exact policy evidence and remediation gap. The navigation demonstrates the risk register, continuous monitoring, questionnaire review, framework drift, policy library, and trust center.
