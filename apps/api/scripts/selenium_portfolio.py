@@ -82,7 +82,6 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
     for name in (
         "us",
         "financial_services",
-        "sox",
         "pci",
         "soc2",
     ):
@@ -153,6 +152,17 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
         "mas_critical_system_framework_established",
         "mas_critical_systems_identified",
         "mas_scope_confirmed",
+    ):
+        Select(form.find_element(By.NAME, name)).select_by_value("yes")
+    Select(form.find_element(By.NAME, "sox_filer_category")).select_by_value("accelerated_filer")
+    form.find_element(By.NAME, "sox_reporting_period_end").send_keys("12/31/2025")
+    Select(form.find_element(By.NAME, "sox_management_assessment_status")).select_by_value("effective")
+    Select(form.find_element(By.NAME, "sox_attestation_status")).select_by_value("unqualified")
+    for name in (
+        "exchange_act_reporting_company",
+        "sox_management_icfr_assessment_required",
+        "sox_auditor_attestation_required",
+        "sox_scope_confirmed",
     ):
         Select(form.find_element(By.NAME, name)).select_by_value("yes")
     screenshot(driver, output / "02-intake.png")

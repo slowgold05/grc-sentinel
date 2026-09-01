@@ -58,6 +58,13 @@ def test_intake_creates_engagement_and_hipaa_determination() -> None:
                     "nydfs_class_a_company": False,
                     "nydfs_uses_affiliate_program": False,
                     "exchange_act_reporting_company": True,
+                    "sox_filer_category": "accelerated_filer",
+                    "sox_reporting_period_end": "2025-12-31",
+                    "sox_management_icfr_assessment_required": True,
+                    "sox_auditor_attestation_required": True,
+                    "sox_management_assessment_status": "effective",
+                    "sox_attestation_status": "unqualified",
+                    "sox_scope_confirmed": True,
                     "eu_financial_entity": True,
                     "dora_entity_type": "payment_institution",
                     "dora_eu_operating_nexus": True,
@@ -129,6 +136,8 @@ def test_intake_creates_engagement_and_hipaa_determination() -> None:
         assert summary["company"]["ccpa_threshold_year"] == 2025
         assert summary["company"]["ccpa_exemption"] == "none"
         assert summary["company"]["dora_entity_type"] == "payment_institution"
+        assert summary["company"]["sox_filer_category"] == "accelerated_filer"
+        assert summary["company"]["sox_reporting_period_end"] == "2025-12-31"
         assert summary["company"]["dora_critical_ict_provider_designated"] is False
         assert {item["framework"] for item in summary["assurance_objectives"]} == {
             "ISO 27001",

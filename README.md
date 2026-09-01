@@ -144,7 +144,7 @@ These are not treated as interchangeable frameworks. The intake stores explicit 
 | SEC Regulation S-P | US federal securities rule | Covered broker-dealer, investment company/adviser, funding portal, or transfer agent | Scope captured; executable rule awaiting human review | [SEC final rule](https://www.sec.gov/rules-regulations/2024/06/s7-05-23) |
 | FINRA Rule 4370 | SRO rule | FINRA member firm | Scope captured; executable rule awaiting human review | [FINRA BCP guidance](https://www.finra.org/rules-guidance/key-topics/business-continuity-planning) |
 | 23 NYCRR Part 500 | New York regulation | Entity operating under a covered NYDFS authorization | Scope captured; exemptions require separate review | [NYDFS Cybersecurity Resource Center](https://www.dfs.ny.gov/industry_guidance/cybersecurity) |
-| SOX Section 404 | Reporting and audit requirement | Company subject to Exchange Act periodic reporting | Scope captured as an ICFR/audit objective | [SEC Section 404 rule](https://www.sec.gov/rules-regulations/2003/03/managements-report-internal-control-over-financial-reporting-certification-disclosure-exchange-act) |
+| SOX Section 404 | Reporting and audit requirement | Reporting status, filer category, period, management assessment, and auditor-attestation scope | Detailed ICFR objective foundation; activation awaiting human review | [SEC Section 404 rule](https://www.sec.gov/files/rules/final/33-8238.htm) |
 | CCPA / CPRA | California privacy law | Business confirms it meets current statutory threshold(s) and processes California personal information | Scope captured; thresholds/exemptions require review | [California Privacy Protection Agency FAQ](https://cppa.ca.gov/faq) |
 | DORA, Regulation (EU) 2022/2554 | EU regulation | Article 2 category, exclusions, EU nexus, group context, ICT-provider role, and critical designation captured separately | Detailed scope foundation; executable rule awaiting human review | [EUR-Lex text](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32022R2554) |
 | MAS Technology Risk Management Notices | Singapore regulatory notices | Institution category, licence/approval, exact FSM notice, transition, and critical-system facts | Detailed scope foundation; executable rule awaiting human review | [MAS Notice on TRM FAQ](https://www.mas.gov.sg/-/media/mas-media-library/regulation/faqs/trpd/faqs---notice-on-technology-risk-management/faqs---notice-on-trm/faq---notice-on-technology-risk-management.pdf) |
@@ -168,7 +168,7 @@ See [DATA_POLICY.md](DATA_POLICY.md), [THREAT_MODEL.md](THREAT_MODEL.md), and th
 
 ## Tests and measurable checks
 
-- 89 automated backend tests
+- 92 automated backend tests
 - 30 regulation-applicability evaluation profiles
 - Property-based rules-engine tests
 - Migration head checks

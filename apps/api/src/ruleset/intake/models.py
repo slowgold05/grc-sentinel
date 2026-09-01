@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
@@ -86,7 +87,28 @@ class CompanyIntake(BaseModel):
     nydfs_class_a_company: bool | None = None
     nydfs_uses_affiliate_program: bool | None = None
     public_company: bool = False
-    exchange_act_reporting_company: bool = False
+    exchange_act_reporting_company: bool | None = None
+    sox_filer_category: Literal[
+        "large_accelerated_filer",
+        "accelerated_filer",
+        "non_accelerated_filer",
+        "emerging_growth_company",
+        "newly_public_transition",
+        "registered_investment_company",
+        "asset_backed_issuer",
+        "private_company",
+        "not_determined",
+    ] | None = None
+    sox_reporting_period_end: date | None = None
+    sox_management_icfr_assessment_required: bool | None = None
+    sox_auditor_attestation_required: bool | None = None
+    sox_management_assessment_status: Literal[
+        "effective", "ineffective", "not_completed", "not_determined"
+    ] | None = None
+    sox_attestation_status: Literal[
+        "unqualified", "adverse", "disclaimer", "not_required", "not_completed", "not_determined"
+    ] | None = None
+    sox_scope_confirmed: bool | None = None
     eu_financial_entity: bool | None = None
     dora_entity_type: Literal[
         "credit_institution",

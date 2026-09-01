@@ -198,6 +198,12 @@ Primary authority: [SEC Section 404 rule](https://www.sec.gov/rules-regulations/
 Runnable gate: SOX scope creates the correct ICFR objective and evidence plan without appearing
 as an automatically applicable cybersecurity law.
 
+Progress (2026-09-01): the intake now records Exchange Act reporting status, filer category,
+reporting-period end, management ICFR assessment requirement/result, auditor-attestation
+requirement/result, and reviewed objective scope independently. Candidate and API tests cover an
+accelerated filer, the EGC attestation distinction, and a private-company negative profile.
+Protected objective activation, evidence ingestion, and sourced ITGC mappings remain open.
+
 ## Phase 9.8 — end-to-end release gate
 
 - Merge the approved regime golden sets into the active evaluation harness and publish per-regime

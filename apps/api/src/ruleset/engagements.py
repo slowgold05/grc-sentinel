@@ -116,6 +116,23 @@ def create_engagement(
             "exchange_act_reporting_company": (
                 request.company.exchange_act_reporting_company
             ),
+            "sox_filer_category": request.company.sox_filer_category,
+            "sox_reporting_period_end": (
+                request.company.sox_reporting_period_end.isoformat()
+                if request.company.sox_reporting_period_end
+                else None
+            ),
+            "sox_management_icfr_assessment_required": (
+                request.company.sox_management_icfr_assessment_required
+            ),
+            "sox_auditor_attestation_required": (
+                request.company.sox_auditor_attestation_required
+            ),
+            "sox_management_assessment_status": (
+                request.company.sox_management_assessment_status
+            ),
+            "sox_attestation_status": request.company.sox_attestation_status,
+            "sox_scope_confirmed": request.company.sox_scope_confirmed,
             "eu_financial_entity": request.company.eu_financial_entity,
             "dora_entity_type": request.company.dora_entity_type,
             "dora_eu_operating_nexus": request.company.dora_eu_operating_nexus,
