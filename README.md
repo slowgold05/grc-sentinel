@@ -133,6 +133,8 @@ The current applicability golden set scores **1.00 precision and 1.00 recall**. 
 
 The source-backed candidate conditions and their activation checklist are documented in the [fintech applicability review package](docs/fintech-applicability-review.md). The [full fintech implementation roadmap](docs/fintech-full-implementation-roadmap.md) defines the work required to activate each regime end to end. They remain deliberately inactive until human review approves the legal scope, exclusions, and golden profiles.
 
+The current verification results and exact per-regime human-approval backlog are in the [fintech release-readiness report](docs/fintech-release-readiness.md).
+
 ### Fintech regulatory perimeter
 
 These are not treated as interchangeable frameworks. The intake stores explicit scope facts, the UI links to the issuing authority, and the product distinguishes a regulation from a contractual standard, an SRO rule, or an audit obligation.
