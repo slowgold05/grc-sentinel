@@ -119,6 +119,21 @@ def create_engagement(
             "eu_financial_entity": request.company.eu_financial_entity,
             "california_consumer_data": request.company.california_consumer_data,
             "ccpa_covered_business": request.company.ccpa_covered_business,
+            "ccpa_for_profit": request.company.ccpa_for_profit,
+            "ccpa_does_business_in_california": (
+                request.company.ccpa_does_business_in_california
+            ),
+            "ccpa_determines_processing_purposes": (
+                request.company.ccpa_determines_processing_purposes
+            ),
+            "ccpa_threshold_year": request.company.ccpa_threshold_year,
+            "ccpa_gross_revenue_usd": request.company.ccpa_gross_revenue_usd,
+            "ccpa_consumers_or_households": request.company.ccpa_consumers_or_households,
+            "ccpa_selling_sharing_revenue_percent": (
+                request.company.ccpa_selling_sharing_revenue_percent
+            ),
+            "ccpa_related_entity": request.company.ccpa_related_entity,
+            "ccpa_exemption": request.company.ccpa_exemption,
             "mas_trm_notice_subject": request.company.mas_trm_notice_subject,
         }
     )

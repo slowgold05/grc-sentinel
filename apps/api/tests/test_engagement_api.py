@@ -60,6 +60,16 @@ def test_intake_creates_engagement_and_hipaa_determination() -> None:
                     "exchange_act_reporting_company": True,
                     "eu_financial_entity": True,
                     "ccpa_covered_business": True,
+                    "california_consumer_data": True,
+                    "ccpa_for_profit": True,
+                    "ccpa_does_business_in_california": True,
+                    "ccpa_determines_processing_purposes": True,
+                    "ccpa_threshold_year": 2025,
+                    "ccpa_gross_revenue_usd": 30000000,
+                    "ccpa_consumers_or_households": 120000,
+                    "ccpa_selling_sharing_revenue_percent": 10,
+                    "ccpa_related_entity": False,
+                    "ccpa_exemption": "none",
                     "mas_trm_notice_subject": True,
                 },
                 "assurance_objectives": [
@@ -99,6 +109,8 @@ def test_intake_creates_engagement_and_hipaa_determination() -> None:
         assert summary["company"]["reg_sp_entity_type"] == "broker_dealer"
         assert summary["company"]["finra_firm_type"] == "carrying_clearing"
         assert summary["company"]["nydfs_exemption"] == "none"
+        assert summary["company"]["ccpa_threshold_year"] == 2025
+        assert summary["company"]["ccpa_exemption"] == "none"
         assert {item["framework"] for item in summary["assurance_objectives"]} == {
             "ISO 27001",
             "PCI DSS",

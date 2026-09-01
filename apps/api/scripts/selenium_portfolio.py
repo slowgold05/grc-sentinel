@@ -83,7 +83,6 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
         "us",
         "financial_services",
         "sox",
-        "ccpa",
         "dora",
         "mas_trm",
         "pci",
@@ -121,6 +120,20 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
     Select(form.find_element(By.NAME, "nydfs_exemption")).select_by_value("none")
     Select(form.find_element(By.NAME, "nydfs_class_a_company")).select_by_value("no")
     Select(form.find_element(By.NAME, "nydfs_uses_affiliate_program")).select_by_value("no")
+    for name in (
+        "ccpa_covered_business",
+        "california_consumer_data",
+        "ccpa_for_profit",
+        "ccpa_does_business_in_california",
+        "ccpa_determines_processing_purposes",
+    ):
+        Select(form.find_element(By.NAME, name)).select_by_value("yes")
+    Select(form.find_element(By.NAME, "ccpa_related_entity")).select_by_value("no")
+    Select(form.find_element(By.NAME, "ccpa_exemption")).select_by_value("none")
+    form.find_element(By.NAME, "ccpa_threshold_year").send_keys("2025")
+    form.find_element(By.NAME, "ccpa_gross_revenue_usd").send_keys("30000000")
+    form.find_element(By.NAME, "ccpa_consumers_or_households").send_keys("120000")
+    form.find_element(By.NAME, "ccpa_selling_sharing_revenue_percent").send_keys("10")
     screenshot(driver, output / "02-intake.png")
     form.find_element(By.XPATH, ".//button[normalize-space()='Create and evaluate']").click()
     WebDriverWait(driver, 30).until(

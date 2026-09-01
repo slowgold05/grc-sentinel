@@ -131,6 +131,9 @@ coverage without collapsing SEC, FINRA, and NYDFS into one generic finance label
 
 ## Phase 9.4 — CCPA/CPRA
 
+Progress: **period-aware threshold intake, exemption facts, source review, and boundary tests
+implemented**. Protected ruleset and requirement-level ingestion/mapping remain pending.
+
 Primary authority: [California Privacy Protection Agency FAQ](https://cppa.ca.gov/faq).
 
 - Replace the precomputed covered-business checkbox with reviewed threshold year/value facts,

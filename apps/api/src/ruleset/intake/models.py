@@ -88,8 +88,26 @@ class CompanyIntake(BaseModel):
     public_company: bool = False
     exchange_act_reporting_company: bool = False
     eu_financial_entity: bool = False
-    california_consumer_data: bool = False
-    ccpa_covered_business: bool = False
+    california_consumer_data: bool | None = None
+    ccpa_covered_business: bool | None = None
+    ccpa_for_profit: bool | None = None
+    ccpa_does_business_in_california: bool | None = None
+    ccpa_determines_processing_purposes: bool | None = None
+    ccpa_threshold_year: int | None = Field(default=None, ge=2020, le=2100)
+    ccpa_gross_revenue_usd: int | None = Field(default=None, ge=0)
+    ccpa_consumers_or_households: int | None = Field(default=None, ge=0)
+    ccpa_selling_sharing_revenue_percent: float | None = Field(default=None, ge=0, le=100)
+    ccpa_related_entity: bool | None = None
+    ccpa_exemption: Literal[
+        "none",
+        "glba_information",
+        "cfipa_information",
+        "hipaa_phi",
+        "nonprofit",
+        "government_entity",
+        "other",
+        "not_determined",
+    ] | None = None
     mas_trm_notice_subject: bool = False
 
     @field_validator("domain")
