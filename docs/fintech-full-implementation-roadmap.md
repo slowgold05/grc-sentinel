@@ -158,6 +158,11 @@ Primary authority: [Regulation (EU) 2022/2554](https://eur-lex.europa.eu/legal-c
 Runnable gate: approved Article 2 cases create correctly labeled DORA determinations and scoped
 requirements, with no model-generated legal interpretation.
 
+Progress (2026-09-01): the intake now preserves Article 2 entity category, explicit exclusions,
+EU nexus, group context, ICT-provider role, critical-provider designation, and reviewer-confirmed
+scope as distinct facts. Candidate and API tests cover the key separation. Protected rule
+activation, official requirement ingestion, sourced mappings, and legal approval remain open.
+
 ## Phase 9.6 — Singapore MAS TRM Notices
 
 Primary authority: [MAS Notice on Technology Risk Management FAQ](https://www.mas.gov.sg/-/media/mas-media-library/regulation/faqs/trpd/faqs---notice-on-technology-risk-management/faqs---notice-on-trm/faq---notice-on-technology-risk-management.pdf).

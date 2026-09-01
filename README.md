@@ -146,7 +146,7 @@ These are not treated as interchangeable frameworks. The intake stores explicit 
 | 23 NYCRR Part 500 | New York regulation | Entity operating under a covered NYDFS authorization | Scope captured; exemptions require separate review | [NYDFS Cybersecurity Resource Center](https://www.dfs.ny.gov/industry_guidance/cybersecurity) |
 | SOX Section 404 | Reporting and audit requirement | Company subject to Exchange Act periodic reporting | Scope captured as an ICFR/audit objective | [SEC Section 404 rule](https://www.sec.gov/rules-regulations/2003/03/managements-report-internal-control-over-financial-reporting-certification-disclosure-exchange-act) |
 | CCPA / CPRA | California privacy law | Business confirms it meets current statutory threshold(s) and processes California personal information | Scope captured; thresholds/exemptions require review | [California Privacy Protection Agency FAQ](https://cppa.ca.gov/faq) |
-| DORA, Regulation (EU) 2022/2554 | EU regulation | Entity confirms it is a covered EU financial entity | Scope captured; executable rule awaiting human review | [EUR-Lex summary and text](https://eur-lex.europa.eu/legal-content/EN/LSU/?uri=CELEX:32022R2554) |
+| DORA, Regulation (EU) 2022/2554 | EU regulation | Article 2 category, exclusions, EU nexus, group context, ICT-provider role, and critical designation captured separately | Detailed scope foundation; executable rule awaiting human review | [EUR-Lex text](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32022R2554) |
 | MAS Technology Risk Management Notices | Singapore regulatory notices | Institution confirms its category is named in an applicable MAS Notice | Scope captured by notice status; control obligations awaiting source ingestion | [MAS Notice on TRM FAQ](https://www.mas.gov.sg/-/media/mas-media-library/regulation/faqs/trpd/faqs---notice-on-technology-risk-management/faqs---notice-on-trm/faq---notice-on-technology-risk-management.pdf) |
 
 Two timing details are intentionally precise: the FTC's 30-day notice applies to qualifying notification events involving at least 500 consumers' unencrypted customer information, not every breach; and 31 March 2025 was when PCI DSS v4.x future-dated requirements became effective, not when the entire standard first became mandatory.
@@ -168,7 +168,7 @@ See [DATA_POLICY.md](DATA_POLICY.md), [THREAT_MODEL.md](THREAT_MODEL.md), and th
 
 ## Tests and measurable checks
 
-- 83 automated backend tests
+- 86 automated backend tests
 - 30 regulation-applicability evaluation profiles
 - Property-based rules-engine tests
 - Migration head checks

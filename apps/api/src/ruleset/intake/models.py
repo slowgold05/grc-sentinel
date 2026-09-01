@@ -87,7 +87,46 @@ class CompanyIntake(BaseModel):
     nydfs_uses_affiliate_program: bool | None = None
     public_company: bool = False
     exchange_act_reporting_company: bool = False
-    eu_financial_entity: bool = False
+    eu_financial_entity: bool | None = None
+    dora_entity_type: Literal[
+        "credit_institution",
+        "payment_institution",
+        "account_information_service_provider",
+        "electronic_money_institution",
+        "investment_firm",
+        "crypto_asset_service_provider",
+        "central_securities_depository",
+        "central_counterparty",
+        "trading_venue",
+        "trade_repository",
+        "fund_manager",
+        "data_reporting_service_provider",
+        "insurance_entity",
+        "insurance_intermediary",
+        "occupational_pension_institution",
+        "credit_rating_agency",
+        "critical_benchmark_administrator",
+        "crowdfunding_service_provider",
+        "securitisation_repository",
+        "other_article_2_entity",
+    ] | None = None
+    dora_eu_operating_nexus: bool | None = None
+    dora_article_2_exclusion: Literal[
+        "none",
+        "small_alternative_investment_fund_manager",
+        "small_insurance_or_reinsurance_undertaking",
+        "small_occupational_pension_institution",
+        "mifid_exempt_person",
+        "micro_or_small_insurance_intermediary",
+        "post_office_giro_institution",
+        "member_state_excluded_credit_institution",
+        "other",
+        "not_determined",
+    ] | None = None
+    dora_group_context: bool | None = None
+    dora_ict_third_party_provider: bool | None = None
+    dora_critical_ict_provider_designated: bool | None = None
+    dora_scope_confirmed: bool | None = None
     california_consumer_data: bool | None = None
     ccpa_covered_business: bool | None = None
     ccpa_for_profit: bool | None = None

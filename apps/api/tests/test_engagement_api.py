@@ -59,6 +59,13 @@ def test_intake_creates_engagement_and_hipaa_determination() -> None:
                     "nydfs_uses_affiliate_program": False,
                     "exchange_act_reporting_company": True,
                     "eu_financial_entity": True,
+                    "dora_entity_type": "payment_institution",
+                    "dora_eu_operating_nexus": True,
+                    "dora_article_2_exclusion": "none",
+                    "dora_group_context": True,
+                    "dora_ict_third_party_provider": True,
+                    "dora_critical_ict_provider_designated": False,
+                    "dora_scope_confirmed": True,
                     "ccpa_covered_business": True,
                     "california_consumer_data": True,
                     "ccpa_for_profit": True,
@@ -111,6 +118,8 @@ def test_intake_creates_engagement_and_hipaa_determination() -> None:
         assert summary["company"]["nydfs_exemption"] == "none"
         assert summary["company"]["ccpa_threshold_year"] == 2025
         assert summary["company"]["ccpa_exemption"] == "none"
+        assert summary["company"]["dora_entity_type"] == "payment_institution"
+        assert summary["company"]["dora_critical_ict_provider_designated"] is False
         assert {item["framework"] for item in summary["assurance_objectives"]} == {
             "ISO 27001",
             "PCI DSS",

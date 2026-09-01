@@ -117,6 +117,15 @@ def create_engagement(
                 request.company.exchange_act_reporting_company
             ),
             "eu_financial_entity": request.company.eu_financial_entity,
+            "dora_entity_type": request.company.dora_entity_type,
+            "dora_eu_operating_nexus": request.company.dora_eu_operating_nexus,
+            "dora_article_2_exclusion": request.company.dora_article_2_exclusion,
+            "dora_group_context": request.company.dora_group_context,
+            "dora_ict_third_party_provider": request.company.dora_ict_third_party_provider,
+            "dora_critical_ict_provider_designated": (
+                request.company.dora_critical_ict_provider_designated
+            ),
+            "dora_scope_confirmed": request.company.dora_scope_confirmed,
             "california_consumer_data": request.company.california_consumer_data,
             "ccpa_covered_business": request.company.ccpa_covered_business,
             "ccpa_for_profit": request.company.ccpa_for_profit,

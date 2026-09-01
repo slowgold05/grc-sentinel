@@ -83,7 +83,6 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
         "us",
         "financial_services",
         "sox",
-        "dora",
         "mas_trm",
         "pci",
         "soc2",
@@ -134,6 +133,17 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
     form.find_element(By.NAME, "ccpa_gross_revenue_usd").send_keys("30000000")
     form.find_element(By.NAME, "ccpa_consumers_or_households").send_keys("120000")
     form.find_element(By.NAME, "ccpa_selling_sharing_revenue_percent").send_keys("10")
+    Select(form.find_element(By.NAME, "dora_entity_type")).select_by_value("payment_institution")
+    Select(form.find_element(By.NAME, "dora_article_2_exclusion")).select_by_value("none")
+    for name in (
+        "eu_financial_entity",
+        "dora_eu_operating_nexus",
+        "dora_group_context",
+        "dora_ict_third_party_provider",
+        "dora_scope_confirmed",
+    ):
+        Select(form.find_element(By.NAME, name)).select_by_value("yes")
+    Select(form.find_element(By.NAME, "dora_critical_ict_provider_designated")).select_by_value("no")
     screenshot(driver, output / "02-intake.png")
     form.find_element(By.XPATH, ".//button[normalize-space()='Create and evaluate']").click()
     WebDriverWait(driver, 30).until(
