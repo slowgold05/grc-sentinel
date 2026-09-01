@@ -24,6 +24,9 @@ class Rule(BaseModel):
     explanation: str = Field(min_length=1)
     citations: list[str] = Field(min_length=1)
     version: int = Field(ge=1)
+    classification: Literal[
+        "regulation", "sro_rule", "reporting_objective", "contractual_standard"
+    ] = "regulation"
 
 
 class Determination(BaseModel):
@@ -35,4 +38,19 @@ class Determination(BaseModel):
     explanation: str
     citations: list[str]
     facts: dict[str, JsonValue]
+    classification: Literal[
+        "regulation", "sro_rule", "reporting_objective", "contractual_standard"
+    ] = "regulation"
 
+
+class ScopeEvaluation(BaseModel):
+    """One three-state scope result before applicable determinations are persisted."""
+
+    rule_id: str
+    regulation: str
+    classification: Literal[
+        "regulation", "sro_rule", "reporting_objective", "contractual_standard"
+    ]
+    status: Literal["applicable", "not_applicable", "needs_review"]
+    missing_facts: list[str] = Field(default_factory=list)
+    determination: Determination | None = None

@@ -3,7 +3,7 @@ from hypothesis import given
 from hypothesis import strategies as st
 from pydantic import ValidationError
 
-from ruleset.rules.engine import evaluate
+from ruleset.rules.engine import evaluate, evaluate_scope
 from ruleset.rules.models import CompanyFacts, Rule
 
 
@@ -39,6 +39,27 @@ def test_matching_rule_returns_auditable_determination() -> None:
 )
 def test_rule_requires_every_fact(facts: dict[str, list[str]]) -> None:
     assert evaluate(CompanyFacts(facts), [HIPAA]) == []
+
+
+def test_missing_fact_requires_review_but_false_fact_is_not_applicable() -> None:
+    missing = evaluate_scope(CompanyFacts({"data_types": ["phi"]}), [HIPAA])[0]
+    disproved = evaluate_scope(
+        CompanyFacts({"data_types": ["pii"], "geos": ["us"]}), [HIPAA]
+    )[0]
+
+    assert missing.status == "needs_review"
+    assert missing.missing_facts == ["geos"]
+    assert disproved.status == "not_applicable"
+    assert disproved.missing_facts == []
+
+
+def test_classification_flows_into_determination() -> None:
+    rule = Rule.model_validate(
+        {**HIPAA.model_dump(by_alias=True), "classification": "sro_rule"}
+    )
+    result = evaluate(CompanyFacts({"data_types": ["phi"], "geos": ["us"]}), [rule])
+
+    assert result[0].classification == "sro_rule"
 
 
 def test_numeric_comparison_requires_numbers() -> None:
