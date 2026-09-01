@@ -67,8 +67,14 @@ the requirement level after source review; it must not suppress the overall dete
 - Candidate rule: `apps/api/tests/evals/glba-candidate-rule.json`
 - Candidate golden set: `apps/api/tests/evals/glba-golden-candidates.json`
 - Automated integrity check: `apps/api/tests/evals/test_glba_candidate_set.py`
+- Shared workflow contract: `apps/api/tests/test_glba_activation_contract.py`
 
 The candidate set contains 32 positive, negative, boundary, and unknown profiles. Passing the
 test proves only that the proposed decision boundary is deterministic; it does not constitute
 legal approval. Before activation, a qualified reviewer must approve the source version, each
 condition and citation, the treatment of `other_financial_activity`, and every expected result.
+
+The workflow contract uses an explicitly non-authoritative test-only control and mapping. It
+proves that, after approved source data is installed, a GLBA determination can drive required
+controls, verified gap evidence, and an Audit Hub share through the existing generic workflow.
+It deliberately does not install or imply a real GLBA-to-control mapping.
