@@ -30,6 +30,9 @@ def test_intake_creates_engagement_and_hipaa_determination() -> None:
                     "data_types": ["PHI"],
                     "ftc_financial_institution": True,
                     "handles_customer_financial_information": True,
+                    "glba_section_505_other_regulator": False,
+                    "glba_customer_count": 12000,
+                    "glba_financial_activity": "finance_company",
                     "handles_cardholder_data": True,
                     "reg_sp_covered_institution": True,
                     "finra_member": True,
@@ -69,6 +72,8 @@ def test_intake_creates_engagement_and_hipaa_determination() -> None:
         assert summary["regulations"] == ["HIPAA"]
         assert summary["company"]["mas_trm_notice_subject"] is True
         assert summary["company"]["reg_sp_covered_institution"] is True
+        assert summary["company"]["glba_customer_count"] == 12000
+        assert summary["company"]["glba_financial_activity"] == "finance_company"
         assert {item["framework"] for item in summary["assurance_objectives"]} == {
             "ISO 27001",
             "PCI DSS",

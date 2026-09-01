@@ -4,7 +4,7 @@ const controls = [
   { id: "AC-3", title: "Access Enforcement", status: "Implemented", evidence: "PostgreSQL row-level security is enabled and forced on every tenant-owned table. Cross-tenant access is tested in CI." },
   { id: "SC-28", title: "Protection of Information at Rest", status: "Implemented", evidence: "Uploaded documents use AES-GCM envelope encryption with tenant-bound associated data and per-upload data keys." },
   { id: "SI-12", title: "Information Management and Retention", status: "Implemented", evidence: "A least-privilege database function removes expired uploads, engagements, and OSINT cache records according to the data policy." },
-  { id: "SA-11", title: "Developer Testing and Evaluation", status: "Implemented", evidence: "CI runs tests, type checks, dependency audits, Bandit, Semgrep, and secret scanning. The current backend suite contains 71 passing tests." },
+  { id: "SA-11", title: "Developer Testing and Evaluation", status: "Implemented", evidence: "CI runs tests, type checks, dependency audits, Bandit, Semgrep, and secret scanning. The current backend suite contains 75 passing tests." },
   { id: "CA-7", title: "Continuous Monitoring", status: "Implemented", evidence: "Read-only GitHub and AWS checks map live observations to controls and append immutable tenant-scoped evidence. No live customer connection is claimed yet." },
   { id: "AI-GRD-1", title: "Grounded Generation", status: "Implemented", evidence: "Generated control citations are rejected unless the cited ID was present in the exact retrieval context." },
 ] as const;

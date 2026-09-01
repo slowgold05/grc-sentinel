@@ -59,6 +59,9 @@ tests pass; no candidate fintech rule is active yet.
 
 ## Phase 9.1 — GLBA Safeguards Rule
 
+Progress: **source review, detailed intake facts, and candidate boundary tests implemented**.
+Protected ruleset activation and requirement-level ingestion/mapping remain pending human review.
+
 Primary authority: [FTC Safeguards Rule guidance](https://www.ftc.gov/business-guidance/resources/ftc-safeguards-rule-what-your-business-needs-know).
 
 - Replace the broad institution checkbox with reviewed FTC-jurisdiction, financial-activity,

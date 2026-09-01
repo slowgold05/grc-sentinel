@@ -80,6 +80,11 @@ def create_engagement(
             "handles_customer_financial_information": (
                 request.company.handles_customer_financial_information
             ),
+            "glba_section_505_other_regulator": (
+                request.company.glba_section_505_other_regulator
+            ),
+            "glba_customer_count": request.company.glba_customer_count,
+            "glba_financial_activity": request.company.glba_financial_activity,
             "handles_cardholder_data": request.company.handles_cardholder_data,
             "sec_regulated": request.company.sec_regulated,
             "reg_sp_covered_institution": request.company.reg_sp_covered_institution,

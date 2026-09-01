@@ -12,6 +12,7 @@ from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as conditions
+from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 
 DEFAULT_URL = "https://grc-sentinel-slowgold05s-projects.vercel.app"
@@ -81,8 +82,6 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
     for name in (
         "us",
         "financial_services",
-        "ftc_financial_institution",
-        "customer_financial_information",
         "cardholder_data",
         "reg_sp",
         "finra",
@@ -95,6 +94,11 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
         "soc2",
     ):
         form.find_element(By.NAME, name).click()
+    Select(form.find_element(By.NAME, "ftc_financial_institution")).select_by_value("yes")
+    Select(form.find_element(By.NAME, "customer_financial_information")).select_by_value("yes")
+    Select(form.find_element(By.NAME, "glba_other_regulator")).select_by_value("no")
+    Select(form.find_element(By.NAME, "glba_financial_activity")).select_by_value("finance_company")
+    form.find_element(By.NAME, "glba_customer_count").send_keys("12000")
     screenshot(driver, output / "02-intake.png")
     form.find_element(By.XPATH, ".//button[normalize-space()='Create and evaluate']").click()
     WebDriverWait(driver, 30).until(

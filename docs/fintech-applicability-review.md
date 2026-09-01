@@ -5,7 +5,7 @@ repository's human-reviewed ruleset process. Scope signals are user attestations
 
 | Candidate | Proposed deterministic condition | Classification | Primary authority | Review caveat |
 | --- | --- | --- | --- | --- |
-| GLBA Safeguards Rule | `ftc_financial_institution` and `handles_customer_financial_information` | US federal regulation | [FTC, 16 CFR Part 314](https://www.ftc.gov/business-guidance/resources/ftc-safeguards-rule-what-your-business-needs-know) | Confirm FTC jurisdiction; some institutions are supervised under another GLBA regulator. The FTC's 30-day report is limited to qualifying notification events involving at least 500 consumers' unencrypted information. |
+| GLBA Safeguards Rule | `ftc_financial_institution`, `handles_customer_financial_information`, and no other section 505 regulator | US federal regulation | [FTC, 16 CFR Part 314](https://www.ftc.gov/business-guidance/resources/ftc-safeguards-rule-what-your-business-needs-know) | Detailed candidate facts and requirement-level work are recorded in the [GLBA source review](glba-safeguards-source-review.md). The fewer-than-5,000-consumer treatment is not a blanket exemption. |
 | PCI DSS 4.0.1 | `handles_cardholder_data` | Contractual industry standard | [PCI SSC document library](https://www.pcisecuritystandards.org/document_library/) | Determine merchant/service-provider scope and validation method separately. The 31 March 2025 date applies to future-dated v4.x requirements. |
 | Regulation S-P | `reg_sp_covered_institution` | US federal securities rule | [SEC final rule](https://www.sec.gov/rules-regulations/2024/06/s7-05-23) | Covered categories include broker-dealers, investment companies, registered advisers, funding portals, and transfer agents. The amended-rule compliance dates were 3 December 2025 for larger entities and 3 June 2026 for smaller entities. |
 | FINRA Rule 4370 | `finra_member` | SRO rule | [FINRA BCP guidance](https://www.finra.org/rules-guidance/key-topics/business-continuity-planning) | Applicability is membership-based; the plan must be tailored to the firm's business. |
@@ -23,4 +23,3 @@ repository's human-reviewed ruleset process. Scope signals are user attestations
 4. Turn the candidate profiles in `apps/api/tests/evals/fintech-applicability-candidates.json`
    into active precision/recall cases.
 5. Add only publisher- or SCF-sourced control mappings; never infer mappings from similar wording.
-

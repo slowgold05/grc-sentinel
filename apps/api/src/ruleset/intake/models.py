@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic import BaseModel, Field, field_validator
 
 from ruleset.osint.dns_posture import normalize_domain
@@ -14,8 +16,26 @@ class CompanyIntake(BaseModel):
     sends_external_email: bool | None = None
     cloud_providers: list[str] = Field(default_factory=list)
     financial_services: bool = False
-    ftc_financial_institution: bool = False
-    handles_customer_financial_information: bool = False
+    ftc_financial_institution: bool | None = None
+    handles_customer_financial_information: bool | None = None
+    glba_section_505_other_regulator: bool | None = None
+    glba_customer_count: int | None = Field(default=None, ge=0)
+    glba_financial_activity: Literal[
+        "mortgage_lending",
+        "payday_lending",
+        "finance_company",
+        "mortgage_broker",
+        "account_servicing",
+        "check_cashing",
+        "wire_transfer",
+        "collection_agency",
+        "credit_counseling_or_financial_advice",
+        "tax_preparation",
+        "non_federally_insured_credit_union",
+        "non_sec_registered_investment_adviser",
+        "finder",
+        "other_financial_activity",
+    ] | None = None
     handles_cardholder_data: bool = False
     sec_regulated: bool = False
     reg_sp_covered_institution: bool = False
