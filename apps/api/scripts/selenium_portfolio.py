@@ -82,7 +82,6 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
     for name in (
         "us",
         "financial_services",
-        "cardholder_data",
         "reg_sp",
         "finra",
         "nydfs",
@@ -99,6 +98,17 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
     Select(form.find_element(By.NAME, "glba_other_regulator")).select_by_value("no")
     Select(form.find_element(By.NAME, "glba_financial_activity")).select_by_value("finance_company")
     form.find_element(By.NAME, "glba_customer_count").send_keys("12000")
+    Select(form.find_element(By.NAME, "pci_entity_role")).select_by_value("merchant")
+    for name in (
+        "pci_stores_account_data",
+        "pci_processes_account_data",
+        "pci_transmits_account_data",
+        "pci_can_impact_cde",
+        "pci_cde_scope_confirmed",
+    ):
+        Select(form.find_element(By.NAME, name)).select_by_value("yes")
+    Select(form.find_element(By.NAME, "pci_fully_outsourced")).select_by_value("no")
+    Select(form.find_element(By.NAME, "pci_validation_method")).select_by_value("saq_d_merchant")
     screenshot(driver, output / "02-intake.png")
     form.find_element(By.XPATH, ".//button[normalize-space()='Create and evaluate']").click()
     WebDriverWait(driver, 30).until(

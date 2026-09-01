@@ -78,6 +78,9 @@ every approved negative/exempt/unknown profile produces the expected distinct re
 
 ## Phase 9.2 — PCI DSS 4.0.1
 
+Progress: **detailed assurance intake and source review implemented**. Installed identifier/mapping
+validation and scope-driven workflow integration remain pending.
+
 Primary authority: [PCI SSC document library](https://www.pcisecuritystandards.org/document_library/).
 
 - Keep PCI DSS out of legal determinations. Collect merchant/service-provider role, account-data

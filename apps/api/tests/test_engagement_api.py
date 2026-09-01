@@ -34,6 +34,14 @@ def test_intake_creates_engagement_and_hipaa_determination() -> None:
                     "glba_customer_count": 12000,
                     "glba_financial_activity": "finance_company",
                     "handles_cardholder_data": True,
+                    "pci_entity_role": "merchant",
+                    "pci_stores_account_data": True,
+                    "pci_processes_account_data": True,
+                    "pci_transmits_account_data": True,
+                    "pci_can_impact_cde": True,
+                    "pci_fully_outsourced": False,
+                    "pci_cde_scope_confirmed": True,
+                    "pci_validation_method": "saq_d_merchant",
                     "reg_sp_covered_institution": True,
                     "finra_member": True,
                     "nydfs_licensed": True,
@@ -74,6 +82,8 @@ def test_intake_creates_engagement_and_hipaa_determination() -> None:
         assert summary["company"]["reg_sp_covered_institution"] is True
         assert summary["company"]["glba_customer_count"] == 12000
         assert summary["company"]["glba_financial_activity"] == "finance_company"
+        assert summary["company"]["pci_entity_role"] == "merchant"
+        assert summary["company"]["pci_validation_method"] == "saq_d_merchant"
         assert {item["framework"] for item in summary["assurance_objectives"]} == {
             "ISO 27001",
             "PCI DSS",

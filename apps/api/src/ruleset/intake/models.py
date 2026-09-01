@@ -37,6 +37,27 @@ class CompanyIntake(BaseModel):
         "other_financial_activity",
     ] | None = None
     handles_cardholder_data: bool = False
+    pci_entity_role: Literal[
+        "merchant", "service_provider", "merchant_and_service_provider", "other"
+    ] | None = None
+    pci_stores_account_data: bool | None = None
+    pci_processes_account_data: bool | None = None
+    pci_transmits_account_data: bool | None = None
+    pci_can_impact_cde: bool | None = None
+    pci_fully_outsourced: bool | None = None
+    pci_cde_scope_confirmed: bool | None = None
+    pci_validation_method: Literal[
+        "saq_a",
+        "saq_a_ep",
+        "saq_b",
+        "saq_b_ip",
+        "saq_c",
+        "saq_c_vt",
+        "saq_d_merchant",
+        "saq_d_service_provider",
+        "roc",
+        "not_determined",
+    ] | None = None
     sec_regulated: bool = False
     reg_sp_covered_institution: bool = False
     finra_member: bool = False
