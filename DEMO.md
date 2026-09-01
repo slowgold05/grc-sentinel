@@ -32,6 +32,9 @@ drift detection, and risks linked back to controls.
 
 **75–90 seconds — Trust and auditability**
 
-Open the trust page or an expiring Audit Hub link. Close with: applicability comes from versioned
+Open the trust page or an expiring Audit Hub link. Close with: applicability comes from
 human-reviewed versioned rules, the displayed PCI DSS and SOC 2 crosswalks come from SCF, tenant isolation comes from
 PostgreSQL RLS, and AI output always requires human review.
+
+For recording direction, timing, privacy checks, captions, and export settings, use
+[`docs/PORTFOLIO-VIDEO-GUIDE.md`](docs/PORTFOLIO-VIDEO-GUIDE.md).

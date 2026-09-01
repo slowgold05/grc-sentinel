@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="620" viewBox="0 0 1400 620" role="img" aria-labelledby="title desc">
+  <title id="title">GRC Sentinel trust architecture</title>
+  <desc id="desc">Company facts and encrypted evidence flow through deterministic rules, source-backed retrieval, constrained local AI, verification, and human review.</desc>
+  <rect width="1400" height="620" fill="#050505"/>
+  <text x="70" y="70" fill="#f8fafc" font-family="Arial, sans-serif" font-size="34" font-weight="700">GRC Sentinel: AI is the least-trusted component</text>
+  <text x="70" y="108" fill="#94a3b8" font-family="Arial, sans-serif" font-size="18">Deterministic scope · source-backed controls · verified evidence · tenant isolation</text>
+  <g font-family="Arial, sans-serif">
+    <g fill="#18181b" stroke="#ef4444" stroke-width="2">
+      <rect x="70" y="175" width="220" height="110" rx="14"/>
+      <rect x="350" y="175" width="220" height="110" rx="14"/>
+      <rect x="630" y="175" width="220" height="110" rx="14"/>
+      <rect x="910" y="175" width="220" height="110" rx="14"/>
+      <rect x="1190" y="175" width="150" height="110" rx="14"/>
+    </g>
+    <g fill="#f8fafc" font-size="20" font-weight="700" text-anchor="middle">
+      <text x="180" y="220">Company facts</text><text x="180" y="248">+ policy evidence</text>
+      <text x="460" y="220">Approved rules</text><text x="460" y="248">+ control sources</text>
+      <text x="740" y="220">pgvector</text><text x="740" y="248">retrieval</text>
+      <text x="1020" y="220">Local Ollama</text><text x="1020" y="248">structured draft</text>
+      <text x="1265" y="220">Human</text><text x="1265" y="248">approval</text>
+    </g>
+    <g stroke="#ef4444" stroke-width="3" fill="none">
+      <path d="M290 230 H340"/><path d="M570 230 H620"/><path d="M850 230 H900"/><path d="M1130 230 H1180"/>
+    </g>
+    <g fill="#ef4444"><path d="M340 230 l-12 -7 v14z"/><path d="M620 230 l-12 -7 v14z"/><path d="M900 230 l-12 -7 v14z"/><path d="M1180 230 l-12 -7 v14z"/></g>
+    <rect x="350" y="355" width="780" height="120" rx="16" fill="#18181b" stroke="#a855f7" stroke-width="2"/>
+    <text x="740" y="397" fill="#e9d5ff" font-size="22" font-weight="700" text-anchor="middle">Deterministic verification boundary</text>
+    <text x="740" y="430" fill="#cbd5e1" font-size="18" text-anchor="middle">Schema validation · allowed control IDs · exact evidence quotes · tenant context</text>
+    <text x="740" y="457" fill="#cbd5e1" font-size="18" text-anchor="middle">Unsupported output is rejected before storage or export</text>
+    <path d="M1020 285 V345" stroke="#a855f7" stroke-width="3"/><path d="M1020 345 l-7 -12 h14z" fill="#a855f7"/>
+    <path d="M1130 415 H1265 V295" stroke="#a855f7" stroke-width="3" fill="none"/><path d="M1265 295 l-7 12 h14z" fill="#a855f7"/>
+    <rect x="70" y="525" width="1270" height="45" rx="10" fill="#111827" stroke="#334155"/>
+    <text x="705" y="554" fill="#94a3b8" font-size="17" text-anchor="middle">Clerk Organizations → FastAPI → PostgreSQL + pgvector with forced row-level security</text>
+  </g>
+</svg>

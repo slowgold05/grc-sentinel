@@ -96,6 +96,8 @@ The reasoning behind this design is covered in [How GRC Sentinel rejects halluci
 
 ## Architecture
 
+![GRC Sentinel trust architecture](docs/portfolio-architecture.svg)
+
 ```mermaid
 flowchart TB
     U[Next.js 15 UI] -->|Clerk session token| A[FastAPI API]
@@ -268,6 +270,8 @@ The portfolio deployment uses:
 The public homepage is seeded so reviewers can explore the product without uploading data. Authenticated tenant workflows use the hosted API, while local Ollama-dependent generation remains a local demonstration to avoid GPU hosting cost and third-party policy disclosure.
 
 See [DEPLOYMENT.md](DEPLOYMENT.md) for configuration, migration, and smoke-test details. Production Dockerfiles are included for both applications.
+
+For a recruiter-facing recording, follow the [two-minute portfolio video guide](docs/PORTFOLIO-VIDEO-GUIDE.md). The video should be hosted externally and linked here rather than committed as a large repository binary.
 
 ## Repository map
 
