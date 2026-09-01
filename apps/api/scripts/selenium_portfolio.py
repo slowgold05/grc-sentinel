@@ -82,9 +82,6 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
     for name in (
         "us",
         "financial_services",
-        "reg_sp",
-        "finra",
-        "nydfs",
         "sox",
         "ccpa",
         "dora",
@@ -109,6 +106,21 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
         Select(form.find_element(By.NAME, name)).select_by_value("yes")
     Select(form.find_element(By.NAME, "pci_fully_outsourced")).select_by_value("no")
     Select(form.find_element(By.NAME, "pci_validation_method")).select_by_value("saq_d_merchant")
+    Select(form.find_element(By.NAME, "reg_sp_covered_institution")).select_by_value("yes")
+    Select(form.find_element(By.NAME, "reg_sp_entity_type")).select_by_value("broker_dealer")
+    Select(form.find_element(By.NAME, "reg_sp_size_cohort")).select_by_value("larger")
+    Select(form.find_element(By.NAME, "reg_sp_customer_information")).select_by_value("yes")
+    Select(form.find_element(By.NAME, "reg_sp_service_provider_used")).select_by_value("yes")
+    Select(form.find_element(By.NAME, "finra_member")).select_by_value("yes")
+    Select(form.find_element(By.NAME, "finra_firm_type")).select_by_value("carrying_clearing")
+    Select(form.find_element(By.NAME, "finra_customer_accounts")).select_by_value("yes")
+    Select(form.find_element(By.NAME, "finra_mission_critical_systems_identified")).select_by_value("yes")
+    Select(form.find_element(By.NAME, "finra_bcp_scope_confirmed")).select_by_value("yes")
+    Select(form.find_element(By.NAME, "nydfs_licensed")).select_by_value("yes")
+    Select(form.find_element(By.NAME, "nydfs_authorization_type")).select_by_value("financial_services")
+    Select(form.find_element(By.NAME, "nydfs_exemption")).select_by_value("none")
+    Select(form.find_element(By.NAME, "nydfs_class_a_company")).select_by_value("no")
+    Select(form.find_element(By.NAME, "nydfs_uses_affiliate_program")).select_by_value("no")
     screenshot(driver, output / "02-intake.png")
     form.find_element(By.XPATH, ".//button[normalize-space()='Create and evaluate']").click()
     WebDriverWait(driver, 30).until(

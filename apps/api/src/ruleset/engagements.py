@@ -96,8 +96,22 @@ def create_engagement(
             "pci_validation_method": request.company.pci_validation_method,
             "sec_regulated": request.company.sec_regulated,
             "reg_sp_covered_institution": request.company.reg_sp_covered_institution,
+            "reg_sp_entity_type": request.company.reg_sp_entity_type,
+            "reg_sp_size_cohort": request.company.reg_sp_size_cohort,
+            "reg_sp_customer_information": request.company.reg_sp_customer_information,
+            "reg_sp_service_provider_used": request.company.reg_sp_service_provider_used,
             "finra_member": request.company.finra_member,
+            "finra_firm_type": request.company.finra_firm_type,
+            "finra_customer_accounts": request.company.finra_customer_accounts,
+            "finra_mission_critical_systems_identified": (
+                request.company.finra_mission_critical_systems_identified
+            ),
+            "finra_bcp_scope_confirmed": request.company.finra_bcp_scope_confirmed,
             "nydfs_licensed": request.company.nydfs_licensed,
+            "nydfs_authorization_type": request.company.nydfs_authorization_type,
+            "nydfs_exemption": request.company.nydfs_exemption,
+            "nydfs_class_a_company": request.company.nydfs_class_a_company,
+            "nydfs_uses_affiliate_program": request.company.nydfs_uses_affiliate_program,
             "public_company": request.company.public_company,
             "exchange_act_reporting_company": (
                 request.company.exchange_act_reporting_company

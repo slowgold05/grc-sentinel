@@ -43,8 +43,20 @@ def test_intake_creates_engagement_and_hipaa_determination() -> None:
                     "pci_cde_scope_confirmed": True,
                     "pci_validation_method": "saq_d_merchant",
                     "reg_sp_covered_institution": True,
+                    "reg_sp_entity_type": "broker_dealer",
+                    "reg_sp_size_cohort": "larger",
+                    "reg_sp_customer_information": True,
+                    "reg_sp_service_provider_used": True,
                     "finra_member": True,
+                    "finra_firm_type": "carrying_clearing",
+                    "finra_customer_accounts": True,
+                    "finra_mission_critical_systems_identified": True,
+                    "finra_bcp_scope_confirmed": True,
                     "nydfs_licensed": True,
+                    "nydfs_authorization_type": "financial_services",
+                    "nydfs_exemption": "none",
+                    "nydfs_class_a_company": False,
+                    "nydfs_uses_affiliate_program": False,
                     "exchange_act_reporting_company": True,
                     "eu_financial_entity": True,
                     "ccpa_covered_business": True,
@@ -84,6 +96,9 @@ def test_intake_creates_engagement_and_hipaa_determination() -> None:
         assert summary["company"]["glba_financial_activity"] == "finance_company"
         assert summary["company"]["pci_entity_role"] == "merchant"
         assert summary["company"]["pci_validation_method"] == "saq_d_merchant"
+        assert summary["company"]["reg_sp_entity_type"] == "broker_dealer"
+        assert summary["company"]["finra_firm_type"] == "carrying_clearing"
+        assert summary["company"]["nydfs_exemption"] == "none"
         assert {item["framework"] for item in summary["assurance_objectives"]} == {
             "ISO 27001",
             "PCI DSS",

@@ -96,6 +96,9 @@ requirement set; the UI never says PCI DSS is a law or automatic legal determina
 
 ## Phase 9.3 — US securities and New York finance
 
+Progress: **detailed intake and source review implemented for Regulation S-P, FINRA Rule 4370,
+and NYDFS Part 500**. Protected rulesets and requirement-level ingestion/mapping remain pending.
+
 ### Regulation S-P
 
 Primary authority: [SEC final rule and amendments](https://www.sec.gov/rules-regulations/2024/06/s7-05-23).

@@ -59,9 +59,32 @@ class CompanyIntake(BaseModel):
         "not_determined",
     ] | None = None
     sec_regulated: bool = False
-    reg_sp_covered_institution: bool = False
-    finra_member: bool = False
-    nydfs_licensed: bool = False
+    reg_sp_covered_institution: bool | None = None
+    reg_sp_entity_type: Literal[
+        "broker_dealer",
+        "investment_company",
+        "registered_investment_adviser",
+        "funding_portal",
+        "transfer_agent",
+        "other",
+    ] | None = None
+    reg_sp_size_cohort: Literal["larger", "smaller", "not_determined"] | None = None
+    reg_sp_customer_information: bool | None = None
+    reg_sp_service_provider_used: bool | None = None
+    finra_member: bool | None = None
+    finra_firm_type: Literal["carrying_clearing", "introducing", "other"] | None = None
+    finra_customer_accounts: bool | None = None
+    finra_mission_critical_systems_identified: bool | None = None
+    finra_bcp_scope_confirmed: bool | None = None
+    nydfs_licensed: bool | None = None
+    nydfs_authorization_type: Literal[
+        "banking", "insurance", "financial_services", "virtual_currency", "other"
+    ] | None = None
+    nydfs_exemption: Literal[
+        "none", "500.19(a)", "500.19(b)", "500.19(c)", "500.19(d)", "500.19(e)", "not_determined"
+    ] | None = None
+    nydfs_class_a_company: bool | None = None
+    nydfs_uses_affiliate_program: bool | None = None
     public_company: bool = False
     exchange_act_reporting_company: bool = False
     eu_financial_entity: bool = False
