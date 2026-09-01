@@ -187,7 +187,7 @@ See [DATA_POLICY.md](DATA_POLICY.md), [THREAT_MODEL.md](THREAT_MODEL.md), and th
 
 ## Tests and measurable checks
 
-- 92 automated backend tests
+- 93 automated backend tests
 - 30 regulation-applicability evaluation profiles
 - Property-based rules-engine tests
 - Migration head checks

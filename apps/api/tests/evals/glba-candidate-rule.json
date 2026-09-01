@@ -1,0 +1,13 @@
+{
+  "rule_id": "candidate-glba-ftc-safeguards-v1",
+  "regulation": "GLBA Safeguards Rule",
+  "all": [
+    {"fact": "ftc_financial_institution", "op": "equals", "value": true},
+    {"fact": "handles_customer_financial_information", "op": "equals", "value": true},
+    {"fact": "glba_section_505_other_regulator", "op": "equals", "value": false}
+  ],
+  "explanation": "Candidate only: FTC-jurisdiction financial institution maintains customer information and no other Section 505 regulator is identified.",
+  "citations": ["16 CFR 314.1(b)", "16 CFR 314.2(h)-(i)", "16 CFR 314.3"],
+  "classification": "regulation",
+  "version": 1
+}

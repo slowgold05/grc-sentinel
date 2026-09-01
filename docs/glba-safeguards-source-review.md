@@ -61,3 +61,14 @@ the requirement level after source review; it must not suppress the overall dete
 - Add positive, negative, other-regulator, unknown, small-institution, activity-boundary, and
   notification-event golden profiles for human approval.
 - Activate the versioned JSON ruleset only in the protected human-reviewed ruleset process.
+
+## Reviewer package
+
+- Candidate rule: `apps/api/tests/evals/glba-candidate-rule.json`
+- Candidate golden set: `apps/api/tests/evals/glba-golden-candidates.json`
+- Automated integrity check: `apps/api/tests/evals/test_glba_candidate_set.py`
+
+The candidate set contains 32 positive, negative, boundary, and unknown profiles. Passing the
+test proves only that the proposed decision boundary is deterministic; it does not constitute
+legal approval. Before activation, a qualified reviewer must approve the source version, each
+condition and citation, the treatment of `other_financial_activity`, and every expected result.
