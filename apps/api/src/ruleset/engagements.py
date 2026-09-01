@@ -144,6 +144,24 @@ def create_engagement(
             "ccpa_related_entity": request.company.ccpa_related_entity,
             "ccpa_exemption": request.company.ccpa_exemption,
             "mas_trm_notice_subject": request.company.mas_trm_notice_subject,
+            "mas_institution_type": request.company.mas_institution_type,
+            "mas_trm_notice_number": request.company.mas_trm_notice_number,
+            "mas_licence_or_approval_confirmed": (
+                request.company.mas_licence_or_approval_confirmed
+            ),
+            "mas_legacy_notice_transition_complete": (
+                request.company.mas_legacy_notice_transition_complete
+            ),
+            "mas_customer_information_handled": (
+                request.company.mas_customer_information_handled
+            ),
+            "mas_critical_system_framework_established": (
+                request.company.mas_critical_system_framework_established
+            ),
+            "mas_critical_systems_identified": (
+                request.company.mas_critical_systems_identified
+            ),
+            "mas_scope_confirmed": request.company.mas_scope_confirmed,
         }
     )
     determinations = evaluate(facts, load_rules(_HIPAA_RULES))

@@ -178,6 +178,12 @@ Primary authority: [MAS Notice on Technology Risk Management FAQ](https://www.ma
 Runnable gate: the exact reviewed notice—not a generic “MAS TRM” label—drives the requirement set,
 and unsupported institution types remain `needs_review`.
 
+Progress (2026-09-01): the intake now records the 12 institution categories and current FSM
+notice numbers listed by MAS, licence/approval confirmation, legacy-notice transition, customer
+information, critical-system framework and result, and reviewed scope separately. Candidate and
+API tests cover exact notice selection and the valid “framework established/no critical systems”
+case. Protected activation and requirement ingestion remain open.
+
 ## Phase 9.7 — SOX Section 404
 
 Primary authority: [SEC Section 404 rule](https://www.sec.gov/rules-regulations/2003/03/managements-report-internal-control-over-financial-reporting-certification-disclosure-exchange-act).

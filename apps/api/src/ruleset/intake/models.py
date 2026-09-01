@@ -147,7 +147,41 @@ class CompanyIntake(BaseModel):
         "other",
         "not_determined",
     ] | None = None
-    mas_trm_notice_subject: bool = False
+    mas_trm_notice_subject: bool | None = None
+    mas_institution_type: Literal[
+        "licensed_insurer_or_insurance_agent",
+        "bank",
+        "credit_or_charge_card_issuer",
+        "finance_company",
+        "merchant_bank",
+        "payment_or_dpt_entity",
+        "money_broker",
+        "licensed_credit_bureau",
+        "registered_insurance_broker",
+        "capital_markets_financial_institution",
+        "licensed_financial_adviser",
+        "licensed_trust_company",
+    ] | None = None
+    mas_trm_notice_number: Literal[
+        "FSM-N03",
+        "FSM-N05",
+        "FSM-N07",
+        "FSM-N09",
+        "FSM-N11",
+        "FSM-N13",
+        "FSM-N15",
+        "FSM-N17",
+        "FSM-N19",
+        "FSM-N21",
+        "FSM-N23",
+        "FSM-N25",
+    ] | None = None
+    mas_licence_or_approval_confirmed: bool | None = None
+    mas_legacy_notice_transition_complete: bool | None = None
+    mas_customer_information_handled: bool | None = None
+    mas_critical_system_framework_established: bool | None = None
+    mas_critical_systems_identified: bool | None = None
+    mas_scope_confirmed: bool | None = None
 
     @field_validator("domain")
     @classmethod

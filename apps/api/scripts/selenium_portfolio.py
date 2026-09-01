@@ -83,7 +83,6 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
         "us",
         "financial_services",
         "sox",
-        "mas_trm",
         "pci",
         "soc2",
     ):
@@ -144,6 +143,18 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
     ):
         Select(form.find_element(By.NAME, name)).select_by_value("yes")
     Select(form.find_element(By.NAME, "dora_critical_ict_provider_designated")).select_by_value("no")
+    Select(form.find_element(By.NAME, "mas_institution_type")).select_by_value("payment_or_dpt_entity")
+    Select(form.find_element(By.NAME, "mas_trm_notice_number")).select_by_value("FSM-N13")
+    for name in (
+        "mas_trm_notice_subject",
+        "mas_licence_or_approval_confirmed",
+        "mas_legacy_notice_transition_complete",
+        "mas_customer_information_handled",
+        "mas_critical_system_framework_established",
+        "mas_critical_systems_identified",
+        "mas_scope_confirmed",
+    ):
+        Select(form.find_element(By.NAME, name)).select_by_value("yes")
     screenshot(driver, output / "02-intake.png")
     form.find_element(By.XPATH, ".//button[normalize-space()='Create and evaluate']").click()
     WebDriverWait(driver, 30).until(

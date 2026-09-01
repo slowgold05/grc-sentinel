@@ -78,6 +78,14 @@ def test_intake_creates_engagement_and_hipaa_determination() -> None:
                     "ccpa_related_entity": False,
                     "ccpa_exemption": "none",
                     "mas_trm_notice_subject": True,
+                    "mas_institution_type": "payment_or_dpt_entity",
+                    "mas_trm_notice_number": "FSM-N13",
+                    "mas_licence_or_approval_confirmed": True,
+                    "mas_legacy_notice_transition_complete": True,
+                    "mas_customer_information_handled": True,
+                    "mas_critical_system_framework_established": True,
+                    "mas_critical_systems_identified": True,
+                    "mas_scope_confirmed": True,
                 },
                 "assurance_objectives": [
                     {
@@ -108,6 +116,8 @@ def test_intake_creates_engagement_and_hipaa_determination() -> None:
         summary = TestClient(app).get("/api/engagements").json()[0]
         assert summary["regulations"] == ["HIPAA"]
         assert summary["company"]["mas_trm_notice_subject"] is True
+        assert summary["company"]["mas_institution_type"] == "payment_or_dpt_entity"
+        assert summary["company"]["mas_trm_notice_number"] == "FSM-N13"
         assert summary["company"]["reg_sp_covered_institution"] is True
         assert summary["company"]["glba_customer_count"] == 12000
         assert summary["company"]["glba_financial_activity"] == "finance_company"
