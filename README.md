@@ -295,7 +295,7 @@ The implementation plan is documented in [grc-platform-build-roadmap.md](grc-pla
 ## Current limitations
 
 - This is a portfolio prototype, not a compliance determination service.
-- Executable legal-applicability rules currently use HIPAA as the proof-of-concept. Detailed candidate foundations now exist for GLBA, PCI DSS, Regulation S-P, FINRA, NYDFS, CCPA/CPRA, DORA, MAS TRM, and SOX 404, but the platform does not claim they apply until protected rulesets/objectives, sourced requirements and mappings, and golden evaluation sets receive qualified human approval.
+- GLBA is the finance-focused activation proof-of-concept: a 32-profile candidate evaluation set and test-only end-to-end contract demonstrate the path from deterministic applicability through required controls, verified gaps, and Audit Hub evidence. GLBA and the detailed foundations for PCI DSS, Regulation S-P, FINRA, NYDFS, CCPA/CPRA, DORA, MAS TRM, and SOX 404 remain inactive until protected rulesets/objectives, sourced requirements and mappings, and golden evaluation sets receive qualified human approval.
 - The public deployment does not host Ollama. Run locally for private generation and embeddings.
 - GitHub and AWS monitoring require explicitly scoped, read-only credentials.
 - Have I Been Pwned domain exposure is omitted because it requires a verified-domain API account.
