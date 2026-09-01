@@ -34,8 +34,8 @@ The capture command opens an isolated Chrome session, pauses for Clerk sign-in a
 
 | Capability | What GRC Sentinel does | Why it matters |
 | --- | --- | --- |
-| Company intake | Captures financial-data handling and confirmed regulator/status facts across the US, EU, and Singapore | Gives every decision a reproducible facts snapshot without asking AI to interpret legal status |
-| Applicability | Evaluates versioned, declarative regulation rules and stores the facts used | Keeps legal applicability deterministic and testable |
+| Company intake | Captures detailed entity, threshold, exemption, licence, reporting, and assurance facts across the US, EU, and Singapore | Gives every candidate decision a reproducible facts snapshot without asking AI to interpret legal status |
+| Applicability | Evaluates approved versioned rules with `applicable`, `not_applicable`, and `needs_review` outcomes | Keeps active legal applicability deterministic while unapproved regimes remain review-gated |
 | Assurance planning | Tracks SOC 2, ISO 27001, and NIST alignment separately from mandatory regulations | Avoids falsely presenting voluntary frameworks as laws |
 | Control knowledge base | Ingests versioned NIST OSCAL and Secure Controls Framework records | Provides traceable control identifiers and mappings |
 | Secure evidence upload | Validates, encrypts, parses, retains, and hard-deletes PDF/DOCX policies | Treats customer documents as hostile and sensitive input |
@@ -55,7 +55,7 @@ The capture command opens an isolated Chrome session, pauses for Clerk sign-in a
 1. A user signs in through Clerk and creates or selects an organization.
 2. GRC Sentinel provisions a tenant and stores only the resolved internal tenant UUID in database context.
 3. The user describes the company and selects contractual or voluntary assurance objectives.
-4. The deterministic rules engine evaluates which regulations apply and records the facts used.
+4. The deterministic rules engine evaluates approved rules and records the facts used; unapproved fintech regimes remain candidate scope assessments for human review.
 5. The user uploads existing PDF or DOCX policies; GRC Sentinel validates, encrypts, and parses them into tenant-scoped sections.
 6. Retrieval finds relevant policy sections for each required control.
 7. Coverage analysis records exact supporting quotes and marks controls covered, partial, or missing.
@@ -135,19 +135,34 @@ The source-backed candidate conditions and their activation checklist are docume
 
 The current verification results and exact per-regime human-approval backlog are in the [fintech release-readiness report](docs/fintech-release-readiness.md).
 
+### Latest implementation status
+
+Roadmap Parts 9.0–9.8 are complete at the detailed scope-foundation level:
+
+- The classifier supports explicit `applicable`, `not_applicable`, and `needs_review` outcomes.
+- GLBA records FTC institution status, financial activity, customer information, regulator, and customer-count facts.
+- PCI DSS records merchant/service-provider role, account-data flows, outsourcing, CDE impact, and validation method.
+- Regulation S-P, FINRA 4370, and NYDFS Part 500 retain their distinct entity, membership, authorization, exemption, size, and operational-scope facts.
+- CCPA/CPRA records the evaluated year, business thresholds, related-entity status, and information-specific exemptions.
+- DORA separates Article 2 financial-entity scope from ICT third-party-provider and critical-provider oversight.
+- MAS TRM maps 12 institution categories to exact current FSM notice numbers and separately records critical-system framework and assessment results.
+- SOX Section 404 is modeled as an ICFR reporting/audit objective with filer category, reporting period, management assessment, and auditor-attestation status.
+
+These additions are source-reviewed intake and candidate-evaluation foundations—not activated legal determinations. Protected rulesets, requirement imports, sourced mappings, and per-regime golden sets still require qualified human approval.
+
 ### Fintech regulatory perimeter
 
 These are not treated as interchangeable frameworks. The intake stores explicit scope facts, the UI links to the issuing authority, and the product distinguishes a regulation from a contractual standard, an SRO rule, or an audit obligation.
 
 | Regime | Classification | Deterministic scope signal captured | Product status | Primary source |
 | --- | --- | --- | --- | --- |
-| GLBA Safeguards Rule, 16 CFR Part 314 | US federal regulation | FTC-covered financial institution + customer information | Scope captured; executable rule awaiting human review | [FTC rule and coverage guidance](https://www.ftc.gov/business-guidance/resources/ftc-safeguards-rule-what-your-business-needs-know) |
-| PCI DSS 4.0.1 | Contractual industry standard | Payment account data stored, processed, or transmitted | Installed control catalog, sourced crosswalks, demo readiness objective | [PCI SSC document library](https://www.pcisecuritystandards.org/document_library/) |
-| SEC Regulation S-P | US federal securities rule | Covered broker-dealer, investment company/adviser, funding portal, or transfer agent | Scope captured; executable rule awaiting human review | [SEC final rule](https://www.sec.gov/rules-regulations/2024/06/s7-05-23) |
-| FINRA Rule 4370 | SRO rule | FINRA member firm | Scope captured; executable rule awaiting human review | [FINRA BCP guidance](https://www.finra.org/rules-guidance/key-topics/business-continuity-planning) |
-| 23 NYCRR Part 500 | New York regulation | Entity operating under a covered NYDFS authorization | Scope captured; exemptions require separate review | [NYDFS Cybersecurity Resource Center](https://www.dfs.ny.gov/industry_guidance/cybersecurity) |
+| GLBA Safeguards Rule, 16 CFR Part 314 | US federal regulation | FTC institution status, financial activity, customer information, other regulator, and customer count | Detailed scope foundation; executable rule awaiting human review | [FTC rule and coverage guidance](https://www.ftc.gov/business-guidance/resources/ftc-safeguards-rule-what-your-business-needs-know) |
+| PCI DSS 4.0.1 | Contractual industry standard | Merchant/provider role, account-data flows, outsourcing, CDE impact, and validation method | Detailed assurance-scope foundation plus installed catalog and sourced crosswalks | [PCI SSC document library](https://www.pcisecuritystandards.org/document_library/) |
+| SEC Regulation S-P | US federal securities rule | Institution type, size cohort, customer information, and service-provider use | Detailed scope foundation; executable rule awaiting human review | [SEC final rule](https://www.sec.gov/rules-regulations/2024/06/s7-05-23) |
+| FINRA Rule 4370 | SRO rule | Membership, firm type, customer accounts, mission-critical systems, and BCP scope | Detailed scope foundation; executable rule awaiting human review | [FINRA BCP guidance](https://www.finra.org/rules-guidance/key-topics/business-continuity-planning) |
+| 23 NYCRR Part 500 | New York regulation | DFS authorization, exemption, Class A status, and affiliate-program use | Detailed scope foundation; executable rule awaiting human review | [NYDFS Cybersecurity Resource Center](https://www.dfs.ny.gov/industry_guidance/cybersecurity) |
 | SOX Section 404 | Reporting and audit requirement | Reporting status, filer category, period, management assessment, and auditor-attestation scope | Detailed ICFR objective foundation; activation awaiting human review | [SEC Section 404 rule](https://www.sec.gov/files/rules/final/33-8238.htm) |
-| CCPA / CPRA | California privacy law | Business confirms it meets current statutory threshold(s) and processes California personal information | Scope captured; thresholds/exemptions require review | [California Privacy Protection Agency FAQ](https://cppa.ca.gov/faq) |
+| CCPA / CPRA | California privacy law | Period-specific business thresholds, processing role, related entity, and information-level exemption | Detailed scope foundation; executable rule awaiting human review | [California Privacy Protection Agency FAQ](https://cppa.ca.gov/faq) |
 | DORA, Regulation (EU) 2022/2554 | EU regulation | Article 2 category, exclusions, EU nexus, group context, ICT-provider role, and critical designation captured separately | Detailed scope foundation; executable rule awaiting human review | [EUR-Lex text](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32022R2554) |
 | MAS Technology Risk Management Notices | Singapore regulatory notices | Institution category, licence/approval, exact FSM notice, transition, and critical-system facts | Detailed scope foundation; executable rule awaiting human review | [MAS Notice on TRM FAQ](https://www.mas.gov.sg/-/media/mas-media-library/regulation/faqs/trpd/faqs---notice-on-technology-risk-management/faqs---notice-on-trm/faq---notice-on-technology-risk-management.pdf) |
 
@@ -177,6 +192,7 @@ See [DATA_POLICY.md](DATA_POLICY.md), [THREAT_MODEL.md](THREAT_MODEL.md), and th
 - Knowledge-base crosswalk integrity checks
 - Frontend ESLint, TypeScript, and production-build validation
 - Static analysis and secret/dependency scanning in CI
+- Latest GitHub Actions release-readiness run passed, including Linux production packaging and Gitleaks
 
 ```powershell
 Set-Location apps/api
@@ -267,7 +283,7 @@ The implementation plan is documented in [grc-platform-build-roadmap.md](grc-pla
 ## Current limitations
 
 - This is a portfolio prototype, not a compliance determination service.
-- Executable legal-applicability rules currently use HIPAA as the proof-of-concept. The fintech intake captures GLBA, Regulation S-P, FINRA, NYDFS, SOX, CCPA/CPRA, DORA, and MAS scope facts, but does not claim they apply until a human-reviewed ruleset and evaluation set are approved.
+- Executable legal-applicability rules currently use HIPAA as the proof-of-concept. Detailed candidate foundations now exist for GLBA, PCI DSS, Regulation S-P, FINRA, NYDFS, CCPA/CPRA, DORA, MAS TRM, and SOX 404, but the platform does not claim they apply until protected rulesets/objectives, sourced requirements and mappings, and golden evaluation sets receive qualified human approval.
 - The public deployment does not host Ollama. Run locally for private generation and embeddings.
 - GitHub and AWS monitoring require explicitly scoped, read-only credentials.
 - Have I Been Pwned domain exposure is omitted because it requires a verified-domain API account.
