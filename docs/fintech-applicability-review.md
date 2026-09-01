@@ -3,6 +3,12 @@
 Status: **candidate only — not loaded by the application**. Activating these rules requires the
 repository's human-reviewed ruleset process. Scope signals are user attestations, not legal advice.
 
+The [machine-validated activation manifest](fintech-activation-manifest.json) records the source
+review, classification, mandatory approvals, minimum 30-profile evaluation set, and authenticated
+browser gate for every regime. GLBA is the first reviewer-ready example, with a
+[32-profile candidate set](../apps/api/tests/evals/glba-golden-candidates.json) and shared workflow
+contract; neither artifact is loaded as production legal logic.
+
 | Candidate | Proposed deterministic condition | Classification | Primary authority | Review caveat |
 | --- | --- | --- | --- | --- |
 | GLBA Safeguards Rule | `ftc_financial_institution`, `handles_customer_financial_information`, and no other section 505 regulator | US federal regulation | [FTC, 16 CFR Part 314](https://www.ftc.gov/business-guidance/resources/ftc-safeguards-rule-what-your-business-needs-know) | Detailed candidate facts and requirement-level work are recorded in the [GLBA source review](glba-safeguards-source-review.md). The fewer-than-5,000-consumer treatment is not a blanket exemption. |

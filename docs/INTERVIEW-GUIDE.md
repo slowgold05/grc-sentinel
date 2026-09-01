@@ -112,6 +112,8 @@ form trusted output. Unsupported control IDs and evidence claims are rejected.
 - Three-state applicability classification
 - HIPAA executable applicability proof of concept and evaluation set
 - Detailed candidate foundations for nine fintech regimes
+- GLBA 32-profile reviewer package and test-only end-to-end activation contract
+- Machine-validated activation manifest for all nine fintech regimes
 - NIST OSCAL and SCF knowledge-base ingestion
 - PCI DSS and SOC 2 sourced cross-framework demo data
 - Encrypted PDF/DOCX upload and constrained parsing
@@ -131,6 +133,9 @@ The detailed GLBA, PCI DSS, Regulation S-P, FINRA, NYDFS, CCPA/CPRA, DORA, MAS T
 intakes are not automatically treated as final legal determinations. Activating each regime still
 requires qualified review of scope, exclusions, effective dates, citations, requirement sources,
 control mappings, and golden evaluation profiles.
+
+The GLBA candidate profiles and workflow contract prove readiness of the shared platform plumbing;
+they are explicitly non-authoritative test fixtures and are not an active production ruleset.
 
 This is an intentional trust boundary, not a missing AI prompt. The portfolio demonstrates the
 engineering foundation while avoiding unsupported legal claims.

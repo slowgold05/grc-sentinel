@@ -139,12 +139,16 @@ The source-backed candidate conditions and their activation checklist are docume
 
 The current verification results and exact per-regime human-approval backlog are in the [fintech release-readiness report](docs/fintech-release-readiness.md).
 
+The [activation manifest](docs/fintech-activation-manifest.json) automatically enforces each
+regime's classification, source-review file, required approvals, minimum evaluation size, and
+browser acceptance gate.
+
 ### Latest implementation status
 
 Roadmap Parts 9.0–9.8 are complete at the detailed scope-foundation level:
 
 - The classifier supports explicit `applicable`, `not_applicable`, and `needs_review` outcomes.
-- GLBA records FTC institution status, financial activity, customer information, regulator, and customer-count facts.
+- GLBA records FTC institution status, financial activity, customer information, regulator, and customer-count facts. Its reviewer package contains 32 candidate profiles and a test-only contract proving the shared determination-to-Audit-Hub workflow without installing an unsourced mapping.
 - PCI DSS records merchant/service-provider role, account-data flows, outsourcing, CDE impact, and validation method.
 - Regulation S-P, FINRA 4370, and NYDFS Part 500 retain their distinct entity, membership, authorization, exemption, size, and operational-scope facts.
 - CCPA/CPRA records the evaluated year, business thresholds, related-entity status, and information-specific exemptions.
@@ -191,6 +195,8 @@ See [DATA_POLICY.md](DATA_POLICY.md), [THREAT_MODEL.md](THREAT_MODEL.md), and th
 
 - 95 automated backend tests
 - 30 regulation-applicability evaluation profiles
+- 32 additional GLBA candidate profiles awaiting qualified approval
+- Machine-validated activation gates for all nine fintech regimes
 - Property-based rules-engine tests
 - Migration head checks
 - Knowledge-base crosswalk integrity checks

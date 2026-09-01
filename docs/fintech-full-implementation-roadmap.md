@@ -1,6 +1,6 @@
 # Fintech full implementation roadmap
 
-Status: **planned — legal activation requires human review**
+Status: **scope foundations complete — protected legal activation requires human review**
 
 This roadmap closes the gap between scope-capture demo cards and end-to-end, source-backed
 features. “Complete” means more than adding a rule: the product must collect sufficient facts,
@@ -59,8 +59,11 @@ tests pass; no candidate fintech rule is active yet.
 
 ## Phase 9.1 — GLBA Safeguards Rule
 
-Progress: **source review, detailed intake facts, and candidate boundary tests implemented**.
-Protected ruleset activation and requirement-level ingestion/mapping remain pending human review.
+Progress: **reviewer-ready source package, detailed intake, 32-profile candidate set, and shared
+workflow activation contract implemented**. The contract proves that approved GLBA data can drive
+determinations, required controls, verified gaps, and Audit Hub evidence without installing an
+unsourced production mapping. Protected ruleset activation and requirement ingestion/mapping
+remain pending human review.
 
 Primary authority: [FTC Safeguards Rule guidance](https://www.ftc.gov/business-guidance/resources/ftc-safeguards-rule-what-your-business-needs-know).
 
@@ -221,5 +224,7 @@ Audit (2026-09-01): all nine detailed scope/objective foundations and their cand
 present, but none satisfies the protected activation criterion. The repository therefore keeps
 HIPAA as the only executable legal-applicability proof-of-concept and accurately labels the new
 regimes as awaiting human review. The exact approval and ingestion backlog is recorded in
-[`fintech-release-readiness.md`](fintech-release-readiness.md). Local tests and security gates pass;
-Windows standalone symlink packaging and the CI-only Gitleaks scan remain environment gates.
+[`fintech-release-readiness.md`](fintech-release-readiness.md). The machine-validated nine-regime
+activation manifest, 95 backend tests, local Vercel-mode production build, authenticated Selenium
+walkthrough, dependency/static-security checks, and Linux CI all pass. Gitleaks remains a CI-provided
+gate because no local binary is installed.

@@ -10,6 +10,7 @@ Keep credentials, tokens, terminals containing secrets, and unrelated applicatio
 3. Close notifications and unrelated tabs.
 4. Confirm the public smoke test passes:
    `python -m uv run python apps/api/scripts/selenium_portfolio.py --headless`.
+   Use the refreshed [screenshots](../screenshots/README.md) as the expected visual sequence.
 5. Record the walkthrough below in one take; trim only the beginning and end.
 6. Export an MP4 at 1080p or 1440p, H.264, 30 fps, under three minutes.
 7. Upload the video to an unlisted YouTube or portfolio-hosted page and add its link to README.
@@ -35,3 +36,4 @@ Keep credentials, tokens, terminals containing secrets, and unrelated applicatio
 - Use the title: **GRC Sentinel — Verifiable AI Compliance for Fintech**.
 - Suggested description: “A two-minute walkthrough of deterministic applicability, source-backed
   controls, local RAG, evidence verification, tenant isolation, monitoring, and audit sharing.”
+- Architecture reference: [portfolio-architecture.svg](portfolio-architecture.svg).

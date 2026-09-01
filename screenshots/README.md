@@ -1,6 +1,10 @@
 # Reviewer walkthrough captures
 
-These images were captured from the deployed application by the authenticated Selenium walkthrough on 1 September 2026. The run used only the fictional LedgerPeak Payments tenant and passed all public-route, engagement-creation, and Audit Hub checks.
+These images were refreshed from the current Vercel production deployment by the authenticated
+Selenium walkthrough on 1 September 2026. The run used only the fictional LedgerPeak Payments
+tenant and passed all public-route, detailed-intake, engagement-creation, coverage, and Audit Hub
+checks. The intake capture shows the expanded GLBA, PCI DSS, Regulation S-P, FINRA, NYDFS,
+CCPA/CPRA, DORA, MAS TRM, and SOX sections.
 
 | Order | File | Stage to show |
 | --- | --- | --- |

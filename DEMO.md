@@ -12,6 +12,8 @@ demo for the public flow and a Clerk organization for live tenant actions.
 Open the fintech regulatory perimeter. Show how GLBA, Regulation S-P, FINRA, NYDFS, SOX,
 CCPA/CPRA, DORA, MAS notices, and PCI DSS are classified separately and linked to primary
 sources. Explain that intake facts are not themselves legal determinations.
+Mention that GLBA has a 32-profile reviewer package and workflow contract, but remains inactive
+until qualified approval of the rule, requirements, and mappings.
 
 **15–35 seconds — Evidence-backed gap analysis**
 

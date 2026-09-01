@@ -12,6 +12,10 @@ Live services:
 - Frontend: https://grc-sentinel-slowgold05s-projects.vercel.app
 - API health: https://api-production-3fd2d.up.railway.app/health
 
+Last verified 1 September 2026: the current detailed-intake frontend was deployed to production,
+both live endpoints returned HTTP 200, the authenticated Selenium walkthrough passed, and the
+ten-stage screenshots were refreshed. GitHub Actions passed the 95-test and production-build gate.
+
 ## Railway
 
 Create PostgreSQL and API services from this repository. Set the API Dockerfile path to
@@ -57,4 +61,5 @@ production OAuth requires provider-owned credentials.
 2. Create a Clerk organization and confirm `/api/tenant` provisions it once.
 3. Create an engagement, upload a non-sensitive sample policy, and verify coverage.
 4. Confirm a signed-out request to `/api/tenant` returns 401.
-5. Record the flow using `DEMO.md` and replace the README screenshot if needed.
+5. Run the authenticated Selenium capture and verify all ten images.
+6. Record the flow using `DEMO.md` and the portfolio video guide.

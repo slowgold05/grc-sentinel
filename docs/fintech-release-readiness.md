@@ -9,9 +9,13 @@ Audit date: 2026-09-01
   NYDFS Part 500, CCPA/CPRA, DORA, MAS TRM Notices, and SOX Section 404.
 - Classification labels keep regulation, SRO rule, reporting/audit objective, and contractual
   assurance standard distinct.
-- 92 backend tests pass; Ruff, KB validation, frontend lint/type compilation/static generation,
-  Selenium public smoke, Bandit, Semgrep, Python dependency audit, and pnpm audit pass.
+- 95 backend tests pass; Ruff, KB validation, frontend lint/type/production build, authenticated
+  Selenium walkthrough, Bandit, Semgrep, Python dependency audit, and pnpm audit pass.
 - PostgreSQL is healthy and Alembic is at head `0022`.
+- The current Vercel production deployment and Railway health endpoint return 200, and the
+  detailed ten-stage reviewer screenshots were refreshed from the deployed application.
+- GLBA has a 32-profile candidate set plus a test-only activation contract covering persistence,
+  required controls, verified gap evidence, and Audit Hub sharing.
 
 ## Protected activation backlog
 
@@ -23,7 +27,7 @@ source-review artifact, mandatory approvals, minimum evaluation size, and browse
 
 | Regime | Human approval required before activation |
 | --- | --- |
-| GLBA | FTC scope/exemptions, effective version, cited rules, 30+ golden profiles, requirement import, sourced mappings |
+| GLBA | Approve the 32 candidate profiles and proposed citations; approve effective rule version, requirement import, and sourced mappings |
 | PCI DSS 4.0.1 | Contractual scope/validation interpretation, official/licensed requirement source, golden profiles, sourced mappings |
 | Regulation S-P | Covered-institution and compliance-date review, rule citations, golden profiles, requirement import, sourced mappings |
 | FINRA 4370 | Membership/BCP scope review, SRO citations, golden profiles, requirement import, sourced mappings |
@@ -33,14 +37,14 @@ source-review artifact, mandatory approvals, minimum evaluation size, and browse
 | MAS TRM | Institution-to-current-FSM-notice mapping, versions/transitions/exceptions, golden profiles, notice imports, sourced mappings |
 | SOX 404 | Filer/transition/attestation review, ICFR evidence methodology, golden profiles, sourced ITGC mappings |
 
-After approval, each regime needs a new protected ruleset/objective data PR, immutable versioned
-source records, API persistence tests, per-track authenticated Selenium coverage, and published
-per-regime plus combined evaluation metrics. Until then, the README must say “detailed foundation”
-or “awaiting human review,” never “implemented.”
+After approval, each regime needs a protected ruleset/objective data PR, immutable versioned source
+records, real requirement/control data, per-track authenticated Selenium coverage, and published
+per-regime plus combined evaluation metrics. The shared GLBA workflow contract already proves the
+generic persistence-to-Audit-Hub plumbing with explicitly non-authoritative test fixtures. Until
+approval, the README must say “detailed foundation” or “awaiting human review,” never “implemented.”
 
 ## Environment note
 
-On this Windows host, Next.js completes compilation, lint/type validation, page-data collection,
-and static-page generation, then Windows denies the standalone output symlinks with `EPERM`.
-The Linux GitHub Actions build remains the release packaging authority. Gitleaks is also provided
-by CI because no local binary is installed.
+On this Windows host, the ordinary standalone Next.js build can encounter symlink permission
+errors. The documented Vercel-mode build completes locally, and Linux GitHub Actions remains the
+release packaging authority. Gitleaks is provided by CI because no local binary is installed.
