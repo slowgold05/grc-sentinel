@@ -304,6 +304,13 @@ Scope-capture demo cards do not count as implementation; each activated regime m
 deterministic classification, sourced requirements and mappings, full workflow integration, and
 boundary-focused golden evaluations.
 
+## Part 10 — AI Governance and Policy Management
+
+The source hierarchy, inventory, deterministic triage, impact assessments, evaluation evidence,
+human approval gates, AI policy suite, incident workflow, Audit Hub integration, and cheap-model
+execution protocol are maintained in the
+[AI governance implementation roadmap](docs/ai-governance-implementation-roadmap.md).
+
 ---
 
 ## Suggested timeline recap

@@ -288,6 +288,11 @@ screenshots/              Walkthrough images
 
 The implementation plan is documented in [grc-platform-build-roadmap.md](grc-platform-build-roadmap.md). `PROJECT.md` records repository conventions and rebuilt state.
 
+The next planned extension is a governed AI-system lifecycle covering inventory, impact and risk
+assessment, deterministic regulatory triage, evaluation evidence, human deployment approvals,
+AI-policy generation, monitoring, incidents, and Audit Hub reporting. See the
+[AI governance implementation roadmap](docs/ai-governance-implementation-roadmap.md).
+
 ## Current limitations
 
 - This is a prototype, not a compliance determination service.
