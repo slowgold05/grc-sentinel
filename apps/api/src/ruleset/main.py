@@ -21,7 +21,13 @@ from ruleset.ai_governance.inventory import (
     list_ai_systems,
     update_ai_system_state,
 )
-from ruleset.ai_governance.models import AISystemCreate, AISystemRecord, AISystemStateUpdate
+from ruleset.ai_governance.models import (
+    AISystemCreate,
+    AISystemRecord,
+    AISystemStateUpdate,
+    InternalRiskResult,
+)
+from ruleset.ai_governance.triage import evaluate_internal_risk
 from ruleset.auth import CurrentTenant, TenantIdentity
 from ruleset.config import settings
 from ruleset.coverage_analysis import analyze_upload_coverage
@@ -171,6 +177,17 @@ def patch_ai_system_status(
     if record is None:
         raise HTTPException(status_code=404, detail="AI system not found")
     return record
+
+
+@app.get("/api/ai-systems/{system_id}/internal-risk", response_model=InternalRiskResult)
+def get_ai_system_internal_risk(
+    system_id: UUID, identity: CurrentTenant
+) -> InternalRiskResult:
+    """Return deterministic internal prioritization for one tenant-visible AI system."""
+    record = get_ai_system(engine, identity.org_id, system_id)
+    if record is None:
+        raise HTTPException(status_code=404, detail="AI system not found")
+    return evaluate_internal_risk(record.profile)
 
 
 @app.get("/api/frameworks", response_model=list[FrameworkOption])

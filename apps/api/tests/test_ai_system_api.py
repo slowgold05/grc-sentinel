@@ -63,6 +63,10 @@ def test_ai_system_api_enforces_tenant_and_approval_boundaries() -> None:
         assert created.json()["status"] == "draft"
         assert client.get("/api/ai-systems").json()[0]["id"] == system_id
         assert client.get(f"/api/ai-systems/{system_id}").status_code == 200
+        triage = client.get(f"/api/ai-systems/{system_id}/internal-risk")
+        assert triage.status_code == 200
+        assert triage.json()["rating"] == "needs_review"
+        assert "decision_consequence" in triage.json()["missing_facts"]
         transitioned = client.patch(
             f"/api/ai-systems/{system_id}/status", json={"status": "in_review"}
         )
@@ -75,6 +79,7 @@ def test_ai_system_api_enforces_tenant_and_approval_boundaries() -> None:
         app.dependency_overrides[require_tenant] = lambda: _identity(org_b, "owner_b")
         assert client.get("/api/ai-systems").json() == []
         assert client.get(f"/api/ai-systems/{system_id}").status_code == 404
+        assert client.get(f"/api/ai-systems/{system_id}/internal-risk").status_code == 404
         assert client.patch(
             f"/api/ai-systems/{system_id}/status", json={"status": "retired"}
         ).status_code == 404

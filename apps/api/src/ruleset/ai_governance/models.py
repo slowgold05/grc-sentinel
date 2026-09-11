@@ -41,6 +41,33 @@ class InternalRiskRating(StrEnum):
     NEEDS_REVIEW = "needs_review"
 
 
+class DecisionConsequence(StrEnum):
+    """Organization-defined consequence if an AI-assisted decision is wrong."""
+
+    MINIMAL = "minimal"
+    MATERIAL = "material"
+    SIGNIFICANT = "significant"
+    SEVERE = "severe"
+
+
+class AutonomyLevel(StrEnum):
+    """Structured execution authority for internal risk prioritization."""
+
+    NONE = "none"
+    ASSISTIVE = "assistive"
+    BOUNDED = "bounded"
+    AUTONOMOUS = "autonomous"
+
+
+class HumanReviewCoverage(StrEnum):
+    """Structured human-review coverage for internal risk prioritization."""
+
+    EVERY_OUTPUT = "every_output"
+    SAMPLED = "sampled"
+    EXCEPTION_ONLY = "exception_only"
+    NONE = "none"
+
+
 class CandidateLegalStatus(StrEnum):
     """Non-final statuses emitted by candidate legal triage."""
 
@@ -149,6 +176,23 @@ class AISystemProfile(BaseModel):
     autonomy: str = Field(min_length=1, max_length=200)
     tool_access: bool
     human_oversight: str = Field(min_length=1, max_length=2_000)
+    decision_consequence: DecisionConsequence | None = None
+    sensitive_data: bool | None = None
+    autonomy_level: AutonomyLevel | None = None
+    human_review_coverage: HumanReviewCoverage | None = None
+
+
+class InternalRiskResult(BaseModel):
+    """Explainable internal prioritization result; never a legal classification."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    ruleset_id: str
+    ruleset_version: int
+    rating: InternalRiskRating
+    score: int | None
+    facts: dict[str, object]
+    fired_conditions: tuple[str, ...]
+    missing_facts: tuple[str, ...]
 
 
 class AISystemCreate(BaseModel):
