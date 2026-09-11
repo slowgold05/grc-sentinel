@@ -1,22 +1,28 @@
 # GRC Sentinel
 
-GRC Sentinel is an AI-assisted governance, risk, and compliance (GRC) platform prototype. It turns a company profile and its existing policy evidence into an auditable compliance workspace: applicable requirements, control coverage, evidence gaps, risks, draft policies, monitoring results, and auditor-ready exports.
+GRC Sentinel turns a company profile and its existing policy documents into an auditable compliance workspace: applicable requirements, control coverage backed by exact quotes, evidence gaps, risks, draft policies, monitoring results, and auditor-ready exports.
 
-The key design decision is that the language model never decides what legally applies and is never trusted to invent evidence. Deterministic rules establish applicability, retrieval limits the model's context, and verification rejects unsupported citations before output can be stored.
+The design premise is that a language model should never decide what legally applies, and should never be trusted to invent evidence. Deterministic rules establish applicability, retrieval bounds the model's context, and verification rejects unsupported citations before anything can be stored.
 
-> Portfolio prototype—not legal advice, a certification, or an audit opinion. Generated compliance material requires qualified human review.
+> GRC Sentinel is a prototype. It is not legal advice, a certification, or an audit opinion. Generated compliance material requires qualified human review before use.
 
-**[Open the live recruiter demo](https://grc-sentinel-slowgold05s-projects.vercel.app)** · **[Check API health](https://api-production-3fd2d.up.railway.app/health)** · **[Read the 90-second demo script](DEMO.md)**
+**[Open the live demo](https://grc-sentinel-slowgold05s-projects.vercel.app)** · **[API health](https://api-production-3fd2d.up.railway.app/health)**
 
-Preparing for an interview? Use the [GRC Sentinel interview guide](docs/INTERVIEW-GUIDE.md) for a short pitch, architecture explanation, demo sequence, likely questions, and resume talking points.
+---
 
-## What a reviewer can see
+## Explore the live demo
 
-The public homepage contains a fictional fintech engagement for **LedgerPeak Payments**, a source-linked US/EU/Singapore regulatory-perimeter view, and an interactive PCI DSS 4.0.1/SOC 2 control-coverage matrix. Select a control to inspect its exact policy evidence and remediation gap. The navigation demonstrates the risk register, continuous monitoring, questionnaire review, framework drift, policy library, and trust center.
+The public homepage contains a fictional fintech engagement for **LedgerPeak Payments**, a source-linked US/EU/Singapore regulatory-perimeter view, and an interactive PCI DSS 4.0.1 / SOC 2 control-coverage matrix. Select any control to inspect its exact policy evidence and remediation gap. The navigation also demonstrates the risk register, continuous monitoring, questionnaire review, framework drift, policy library, and trust center.
 
-The complete local build adds private document processing and local AI through Ollama. This split keeps the public portfolio inexpensive and prevents real policy text from being sent to a hosted model.
+The homepage is seeded so anyone can explore the product without uploading data. The complete local build adds private document processing and local inference through Ollama. This split keeps the hosted demo inexpensive and prevents real policy text from being sent to a hosted model.
 
-The completed black-and-red reviewer walkthrough is documented in [`screenshots/`](screenshots/README.md). It covers intake, control evidence, risks, monitoring, questionnaires, framework drift, policies, the trust center, and an expiring Audit Hub share.
+| Intake and applicability | Evidence-backed coverage |
+| --- | --- |
+| ![Fintech intake](screenshots/02-intake.png) | ![Control coverage](screenshots/03-coverage.png) |
+| **Risk register** | **Expiring Audit Hub share** |
+| ![Risk register](screenshots/04-risks.png) | ![Audit Hub share](screenshots/10-audit-share.png) |
+
+The full walkthrough — intake, control evidence, risks, monitoring, questionnaires, framework drift, policies, the trust center, and an expiring Audit Hub share — is documented in [`screenshots/`](screenshots/README.md).
 
 To repeat the browser smoke test and authenticated screenshot walkthrough:
 
@@ -26,13 +32,9 @@ python -m uv run python scripts/selenium_portfolio.py --headless
 python -m uv run python scripts/selenium_portfolio.py --capture
 ```
 
-The capture command opens an isolated Chrome session, pauses for Clerk sign-in and organization selection, uses only fictional LedgerPeak Payments data, and writes the ten reviewer images under `screenshots/`. The deployed Vercel-to-Railway flow passed this complete walkthrough on 1 September 2026.
+The capture command opens an isolated Chrome session, pauses for Clerk sign-in and organization selection, uses only fictional LedgerPeak Payments data, and writes the ten walkthrough images under `screenshots/`. The deployed Vercel-to-Railway flow passed this complete walkthrough on 1 September 2026.
 
-| Intake and applicability | Evidence-backed coverage |
-| --- | --- |
-| ![Fintech intake](screenshots/02-intake.png) | ![Control coverage](screenshots/03-coverage.png) |
-| **Risk register** | **Expiring Audit Hub share** |
-| ![Risk register](screenshots/04-risks.png) | ![Audit Hub share](screenshots/10-audit-share.png) |
+## What it does
 
 | Capability | What GRC Sentinel does | Why it matters |
 | --- | --- | --- |
@@ -67,7 +69,7 @@ The capture command opens an isolated Chrome session, pauses for Clerk sign-in a
 
 ## How the AI is constrained
 
-GRC Sentinel uses retrieval-augmented generation (RAG), but deterministic software surrounds the model:
+GRC Sentinel uses retrieval-augmented generation, but deterministic software surrounds the model:
 
 ```mermaid
 flowchart LR
@@ -120,11 +122,11 @@ flowchart TB
 | Data | PostgreSQL, pgvector, Alembic | Controls, evidence, vectors, audit history, RLS isolation |
 | Identity | Clerk Organizations | Sign-in, organization membership, session verification |
 | AI | Ollama with OpenAI-compatible APIs | Local generation and embeddings |
-| Infrastructure | Docker Compose, Railway, Vercel | Reproducible local stack and public portfolio deployment |
+| Infrastructure | Docker Compose, Railway, Vercel | Reproducible local stack and hosted demo deployment |
 
 ## Framework and regulation coverage
 
-The current knowledge base contains **6 framework records, 4,233 controls, 4,354 sourced crosswalk mappings, and 4,233 embeddings**. The production portfolio database was populated from the official SCF 2026.2 workbook using the same validated, idempotent importer; its import processed 1,534 SCF controls and 4,354 selected mappings.
+The current knowledge base contains **6 framework records, 4,233 controls, 4,354 sourced crosswalk mappings, and 4,233 embeddings**. The hosted database was populated from the official SCF 2026.2 workbook using the same validated, idempotent importer; that import processed 1,534 SCF controls and 4,354 selected mappings.
 
 - NIST SP 800-53 Rev. 5 controls come from official [NIST OSCAL content](https://github.com/usnistgov/oscal-content).
 - Cross-framework identifiers come from the [Secure Controls Framework](https://securecontrolsframework.com/).
@@ -137,18 +139,14 @@ The current applicability golden set scores **1.00 precision and 1.00 recall**. 
 
 The source-backed candidate conditions and their activation checklist are documented in the [fintech applicability review package](docs/fintech-applicability-review.md). The [full fintech implementation roadmap](docs/fintech-full-implementation-roadmap.md) defines the work required to activate each regime end to end. They remain deliberately inactive until human review approves the legal scope, exclusions, and golden profiles.
 
-The current verification results and exact per-regime human-approval backlog are in the [fintech release-readiness report](docs/fintech-release-readiness.md).
+Current verification results and the exact per-regime approval backlog are in the [fintech release-readiness report](docs/fintech-release-readiness.md). The [activation manifest](docs/fintech-activation-manifest.json) automatically enforces each regime's classification, source-review file, required approvals, minimum evaluation size, and browser acceptance gate.
 
-The [activation manifest](docs/fintech-activation-manifest.json) automatically enforces each
-regime's classification, source-review file, required approvals, minimum evaluation size, and
-browser acceptance gate.
-
-### Latest implementation status
+### Implementation status
 
 Roadmap Parts 9.0–9.8 are complete at the detailed scope-foundation level:
 
 - The classifier supports explicit `applicable`, `not_applicable`, and `needs_review` outcomes.
-- GLBA records FTC institution status, financial activity, customer information, regulator, and customer-count facts. Its reviewer package contains 32 candidate profiles and a test-only contract proving the shared determination-to-Audit-Hub workflow without installing an unsourced mapping.
+- GLBA records FTC institution status, financial activity, customer information, regulator, and customer-count facts. Its source-review package contains 32 candidate profiles and a test-only contract proving the shared determination-to-Audit-Hub workflow without installing an unsourced mapping.
 - PCI DSS records merchant/service-provider role, account-data flows, outsourcing, CDE impact, and validation method.
 - Regulation S-P, FINRA 4370, and NYDFS Part 500 retain their distinct entity, membership, authorization, exemption, size, and operational-scope facts.
 - CCPA/CPRA records the evaluated year, business thresholds, related-entity status, and information-specific exemptions.
@@ -156,7 +154,7 @@ Roadmap Parts 9.0–9.8 are complete at the detailed scope-foundation level:
 - MAS TRM maps 12 institution categories to exact current FSM notice numbers and separately records critical-system framework and assessment results.
 - SOX Section 404 is modeled as an ICFR reporting/audit objective with filer category, reporting period, management assessment, and auditor-attestation status.
 
-These additions are source-reviewed intake and candidate-evaluation foundations—not activated legal determinations. Protected rulesets, requirement imports, sourced mappings, and per-regime golden sets still require qualified human approval.
+These are source-reviewed intake and candidate-evaluation foundations, not activated legal determinations. Protected rulesets, requirement imports, sourced mappings, and per-regime golden sets still require qualified human approval.
 
 ### Fintech regulatory perimeter
 
@@ -184,12 +182,12 @@ Two timing details are intentionally precise: the FTC's 30-day notice applies to
 - Clerk organization IDs are resolved to internal UUIDs before database access.
 - Uploads are size- and magic-byte-validated, encrypted per tenant, and parsed with resource limits.
 - URL fetching blocks private, loopback, link-local, and cloud-metadata destinations and revalidates redirects.
-- Prompts clearly delimit user-controlled text and model output is length-capped and schema-validated.
+- Prompts clearly delimit user-controlled text; model output is length-capped and schema-validated.
 - Audit evidence is append-only; audit-share links expire and can be revoked.
 - Logs redact sensitive fields, and secrets remain in ignored local files or hosting secret stores.
 - CI runs tests, migration checks, Bandit, Semgrep, Gitleaks, dependency audits, and frontend checks.
 
-See [DATA_POLICY.md](DATA_POLICY.md), [THREAT_MODEL.md](THREAT_MODEL.md), and the live `/trust` page for the detailed boundaries.
+See [DATA_POLICY.md](DATA_POLICY.md), [THREAT_MODEL.md](THREAT_MODEL.md), and the live `/trust` page for detailed boundaries.
 
 ## Tests and measurable checks
 
@@ -252,13 +250,13 @@ Open `http://localhost:3000`; API health is at `http://localhost:8000/health`.
 
 ### Authentication
 
-The hosted demo already uses the linked Clerk development instance. For a new local setup:
+The hosted demo uses a linked Clerk development instance. For a new local setup, create your own Clerk application and substitute its ID:
 
 ```powershell
 Set-Location apps/web
 clerk auth login
-clerk init --app app_3IfQoM1pXe4hwChImmzYNgNVqha
-clerk enable orgs --app app_3IfQoM1pXe4hwChImmzYNgNVqha --instance dev --force-selection --auto-create --max-members 5 --yes
+clerk init --app <your-clerk-app-id>
+clerk enable orgs --app <your-clerk-app-id> --instance dev --force-selection --auto-create --max-members 5 --yes
 clerk doctor
 ```
 
@@ -266,18 +264,16 @@ Email authentication is sufficient. Google and GitHub are optional sign-in conve
 
 ## Deployment
 
-The portfolio deployment uses:
+The hosted demo uses:
 
 - **Vercel:** public Next.js interface
 - **Railway:** FastAPI and PostgreSQL/pgvector
 - **Clerk:** development authentication and Organizations
-- **Local laptop:** Ollama inference for the private full-stack demonstration
+- **Local machine:** Ollama inference for the private full-stack demonstration
 
-The public homepage is seeded so reviewers can explore the product without uploading data. Authenticated tenant workflows use the hosted API, while local Ollama-dependent generation remains a local demonstration to avoid GPU hosting cost and third-party policy disclosure.
+Authenticated tenant workflows use the hosted API, while Ollama-dependent generation remains a local demonstration to avoid GPU hosting cost and third-party policy disclosure.
 
 See [DEPLOYMENT.md](DEPLOYMENT.md) for configuration, migration, and smoke-test details. Production Dockerfiles are included for both applications.
-
-For a recruiter-facing recording, follow the [two-minute portfolio video guide](docs/PORTFOLIO-VIDEO-GUIDE.md). The video should be hosted externally and linked here rather than committed as a large repository binary.
 
 ## Repository map
 
@@ -287,14 +283,14 @@ apps/web/                 Next.js dashboard and Clerk-authenticated workflows
 docker/                   Least-privilege local PostgreSQL initialization
 docs/                     Technical design notes
 packages/shared-types/    OpenAPI-derived contract destination
-screenshots/              Reviewer walkthrough images
+screenshots/              Walkthrough images
 ```
 
 The implementation plan is documented in [grc-platform-build-roadmap.md](grc-platform-build-roadmap.md). `PROJECT.md` records repository conventions and rebuilt state.
 
 ## Current limitations
 
-- This is a portfolio prototype, not a compliance determination service.
+- This is a prototype, not a compliance determination service.
 - GLBA is the finance-focused activation proof-of-concept: a 32-profile candidate evaluation set and test-only end-to-end contract demonstrate the path from deterministic applicability through required controls, verified gaps, and Audit Hub evidence. GLBA and the detailed foundations for PCI DSS, Regulation S-P, FINRA, NYDFS, CCPA/CPRA, DORA, MAS TRM, and SOX 404 remain inactive until protected rulesets/objectives, sourced requirements and mappings, and golden evaluation sets receive qualified human approval.
 - The public deployment does not host Ollama. Run locally for private generation and embeddings.
 - GitHub and AWS monitoring require explicitly scoped, read-only credentials.
