@@ -3,6 +3,8 @@ import asyncio
 import pytest
 
 from ruleset.generation.guardrails import (
+    CostBudget,
+    CostBudgetExceededError,
     ModelGate,
     RetryableModelError,
     TokenBudget,
@@ -15,6 +17,10 @@ def test_budget_aborts_before_overrun_and_retry_is_bounded() -> None:
     budget.reserve(80)
     with pytest.raises(TokenBudgetExceededError):
         budget.reserve(21)
+    cost = CostBudget(limit_microusd=100)
+    cost.reserve(80)
+    with pytest.raises(CostBudgetExceededError):
+        cost.reserve(21)
 
     attempts = 0
     delays: list[float] = []

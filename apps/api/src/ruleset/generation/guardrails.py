@@ -11,6 +11,10 @@ class TokenBudgetExceededError(RuntimeError):
     """Raised before a model call would exceed its engagement budget."""
 
 
+class CostBudgetExceededError(RuntimeError):
+    """Raised before a hosted model call would exceed its cost budget."""
+
+
 class RetryableModelError(RuntimeError):
     """Raised for provider throttling or temporary unavailability."""
 
@@ -27,6 +31,20 @@ class TokenBudget:
         if tokens < 0 or self.reserved + tokens > self.limit:
             raise TokenBudgetExceededError("engagement token budget exceeded")
         self.reserved += tokens
+
+
+@dataclass
+class CostBudget:
+    """Conservative hosted-model cost reservation in millionths of a US dollar."""
+
+    limit_microusd: int
+    reserved_microusd: int = 0
+
+    def reserve(self, estimated_microusd: int) -> None:
+        """Reserve estimated call cost before contacting a hosted provider."""
+        if estimated_microusd < 0 or self.reserved_microusd + estimated_microusd > self.limit_microusd:
+            raise CostBudgetExceededError("engagement cost budget exceeded")
+        self.reserved_microusd += estimated_microusd
 
 
 class ModelGate:

@@ -1,0 +1,17 @@
+{
+  "checks": [
+    {"check_id": "schema_validity", "limitation": "One valid and one invalid strict JSON fixture.", "passed": true},
+    {"check_id": "citation_fidelity", "limitation": "One retrieved control fixture.", "passed": true},
+    {"check_id": "quote_fidelity", "limitation": "Exact substring verification only.", "passed": true},
+    {"check_id": "unsupported_control_rejection", "limitation": "Tests deterministic rejection, not semantic correctness.", "passed": true},
+    {"check_id": "tenant_separation", "limitation": "One PostgreSQL RLS cross-tenant fixture.", "passed": true},
+    {"check_id": "prompt_injection_boundary", "limitation": "Checks delimiting, not universal injection resistance.", "passed": true},
+    {"check_id": "refusal_behavior", "limitation": "Refusal means rejecting unsupported generated citations before storage.", "passed": true},
+    {"check_id": "token_limit", "limitation": "Deterministic reservation limit; no provider billing estimate.", "passed": true},
+    {"check_id": "cost_limit", "limitation": "Preflight microusd estimate; provider-reported cost can differ.", "passed": true}
+  ],
+  "disclaimer": "Fixed fictional fixtures test narrow application guardrails; they do not establish broad model safety.",
+  "fixture_version": "grc-sentinel-fictional-v1",
+  "passed": true,
+  "report_version": 1
+}
