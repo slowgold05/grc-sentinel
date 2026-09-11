@@ -16,6 +16,7 @@ class Risk(BaseModel):
     status: Literal["open", "mitigating", "accepted", "closed"]
     treatment: str
     control_ids: list[str]
+    ai_system_id: UUID | None = None
 
 
 class RiskCreate(BaseModel):
@@ -26,6 +27,7 @@ class RiskCreate(BaseModel):
     impact: int = Field(ge=1, le=5)
     treatment: str = Field(default="", max_length=10_000)
     control_ids: list[str] = Field(default_factory=list, max_length=100)
+    ai_system_id: UUID | None = None
 
 
 class RiskStatusUpdate(BaseModel):
@@ -49,16 +51,21 @@ def create_risk(
     impact: int,
     treatment: str = "",
     control_ids: list[str] | None = None,
+    ai_system_id: UUID | None = None,
 ) -> UUID:
     if not title.strip() or not description.strip() or not 1 <= likelihood <= 5 or not 1 <= impact <= 5:
         raise ValueError("risk title, description, likelihood, and impact are invalid")
     with engine.begin() as connection:
         _set_org(connection, org_id)
+        if ai_system_id is not None and connection.execute(
+            text("SELECT id FROM ai_systems WHERE id = :id"), {"id": ai_system_id}
+        ).scalar_one_or_none() is None:
+            raise LookupError("AI system not found")
         return connection.execute(
             text(
                 "INSERT INTO risks "
-                "(org_id, title, description, likelihood, impact, treatment, control_ids) VALUES "
-                "(:org_id, :title, :description, :likelihood, :impact, :treatment, :control_ids) "
+                "(org_id, title, description, likelihood, impact, treatment, control_ids, ai_system_id) VALUES "
+                "(:org_id, :title, :description, :likelihood, :impact, :treatment, :control_ids, :ai_system_id) "
                 "RETURNING id"
             ),
             {
@@ -69,6 +76,7 @@ def create_risk(
                 "impact": impact,
                 "treatment": treatment,
                 "control_ids": control_ids or [],
+                "ai_system_id": ai_system_id,
             },
         ).scalar_one()
 

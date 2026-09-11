@@ -13,23 +13,29 @@ type Risk = {
   status: string;
   treatment: string;
   control_ids: string[];
+  ai_system_id: string | null;
 };
+type AISystemOption = { id: string; name: string };
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 export function LiveRiskRegister() {
   const { getToken, isLoaded, userId } = useAuth();
   const [risks, setRisks] = useState<Risk[]>([]);
+  const [aiSystems, setAiSystems] = useState<AISystemOption[]>([]);
   const [error, setError] = useState("");
 
   const refresh = useCallback(async () => {
     const token = await getToken();
     if (!token) return;
-    const response = await fetch(`${apiUrl}/api/risks`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (!response.ok) throw new Error("Could not load tenant risks");
+    const headers = { Authorization: `Bearer ${token}` };
+    const [response, systemsResponse] = await Promise.all([
+      fetch(`${apiUrl}/api/risks`, { headers }),
+      fetch(`${apiUrl}/api/ai-systems`, { headers }),
+    ]);
+    if (!response.ok || !systemsResponse.ok) throw new Error("Could not load tenant risks");
     setRisks(await response.json());
+    setAiSystems(await systemsResponse.json());
   }, [getToken]);
 
   useEffect(() => {
@@ -52,6 +58,7 @@ export function LiveRiskRegister() {
           likelihood: Number(form.get("likelihood")),
           impact: Number(form.get("impact")),
           control_ids: String(form.get("control_ids") ?? "").split(",").map((id) => id.trim()).filter(Boolean),
+          ai_system_id: form.get("ai_system_id") || null,
         }),
       });
       if (!response.ok) return setError("Could not create risk");
@@ -75,11 +82,12 @@ export function LiveRiskRegister() {
         <select name="likelihood" aria-label="Likelihood" className="rounded-lg border border-zinc-700 bg-black px-3 py-2">{[1, 2, 3, 4, 5].map((value) => <option key={value}>{value}</option>)}</select>
         <select name="impact" aria-label="Impact" className="rounded-lg border border-zinc-700 bg-black px-3 py-2">{[1, 2, 3, 4, 5].map((value) => <option key={value}>{value}</option>)}</select>
         <input name="control_ids" placeholder="Controls: IA-2, AC-2" className="rounded-lg border border-zinc-700 bg-black px-3 py-2" />
+        <select name="ai_system_id" aria-label="Related AI system" className="rounded-lg border border-zinc-700 bg-black px-3 py-2"><option value="">No AI system</option>{aiSystems.map((system) => <option key={system.id} value={system.id}>{system.name}</option>)}</select>
         <button className="rounded-lg bg-red-400 px-4 py-2 font-semibold text-slate-950 hover:bg-red-300">Add risk</button>
       </form>
       {error && <p role="alert" className="mt-3 text-sm text-rose-300">{error}</p>}
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
-        {risks.map((risk) => <article key={risk.id} className="rounded-xl border border-zinc-800 bg-black/70 p-4"><h3 className="font-semibold">{risk.title}</h3><p className="mt-2 text-sm text-slate-400">Score {risk.score} · {risk.status} · {risk.control_ids.join(", ") || "No mapped controls"}</p></article>)}
+        {risks.map((risk) => <article key={risk.id} className="rounded-xl border border-zinc-800 bg-black/70 p-4"><h3 className="font-semibold">{risk.title}</h3><p className="mt-2 text-sm text-slate-400">Score {risk.score} · {risk.status} · {risk.control_ids.join(", ") || "No mapped controls"}</p>{risk.ai_system_id && <p className="mt-2 text-xs text-violet-300">AI system: {aiSystems.find((system) => system.id === risk.ai_system_id)?.name ?? risk.ai_system_id}</p>}</article>)}
       </div>
     </section>
   );
