@@ -21,6 +21,15 @@ from ruleset.ai_governance.inventory import (
     list_ai_systems,
     update_ai_system_state,
 )
+from ruleset.ai_governance.incidents import (
+    IncidentCreate,
+    IncidentRecord,
+    IncidentStaleError,
+    IncidentTransition,
+    create_incident,
+    list_incidents,
+    transition_incident,
+)
 from ruleset.ai_governance.assessments import (
     list_impact_versions,
     save_impact_draft,
@@ -456,6 +465,41 @@ def post_policy_approval(
         approve_policy(engine, identity.org_id, policy_id, identity.user_id, payload)
     except LookupError as error:
         raise HTTPException(status_code=404, detail=str(error)) from error
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@app.post("/api/ai-systems/{system_id}/incidents", status_code=status.HTTP_201_CREATED)
+def post_ai_incident(
+    system_id: UUID, payload: IncidentCreate, identity: CurrentTenant
+) -> dict[str, UUID]:
+    try:
+        incident_id = create_incident(
+            engine, identity.org_id, system_id, identity.user_id, payload
+        )
+    except LookupError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+    return {"id": incident_id}
+
+
+@app.get("/api/ai-systems/{system_id}/incidents", response_model=list[IncidentRecord])
+def get_ai_incidents(system_id: UUID, identity: CurrentTenant) -> list[IncidentRecord]:
+    return list_incidents(engine, identity.org_id, system_id)
+
+
+@app.post("/api/incidents/{incident_id}/transitions", status_code=status.HTTP_204_NO_CONTENT)
+def post_ai_incident_transition(
+    incident_id: UUID, payload: IncidentTransition, identity: CurrentTenant
+) -> Response:
+    try:
+        transition_incident(engine, identity.org_id, incident_id, identity.user_id, payload)
+    except LookupError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    except IncidentStaleError as error:
+        raise HTTPException(status_code=409, detail=str(error)) from error
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
