@@ -1,6 +1,6 @@
 # AI governance and policy implementation roadmap
 
-Status: **planned — implement one bounded task at a time**  
+Status: **planned — implement one bounded task at a time**
 Source review date: **2026-09-11**
 
 This roadmap adds an auditable AI-governance lifecycle to GRC Sentinel. An LLM may retrieve and
