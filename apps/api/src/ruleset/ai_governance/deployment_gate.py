@@ -16,7 +16,9 @@ def evaluate_deployment_gate(facts: DeploymentGateFacts) -> DeploymentGateResult
         blockers.append("current_evaluation_missing")
     elif facts.evaluation_required and not facts.evaluation_passed:
         blockers.append("required_evaluation_failed")
-    if facts.exception_required and not facts.exception_valid:
+    if facts.exception_required and (
+        facts.exception_expires_at is None or facts.exception_expires_at <= facts.evaluated_at
+    ):
         blockers.append("valid_exception_missing")
     if facts.legal_review_required and not facts.legal_review_approved:
         blockers.append("legal_review_not_approved")

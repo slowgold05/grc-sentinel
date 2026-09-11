@@ -188,10 +188,30 @@ class GovernanceDecisionCreate(BaseModel):
     rationale: str = Field(min_length=1, max_length=10_000)
     assessment_version_id: UUID | None = None
     expires_at: datetime | None = None
+    exception_owner: ShortLabel | None = None
+    compensating_controls: list[ShortLabel] = Field(default_factory=list, max_length=50)
     expected_latest_decision_id: UUID | None = None
     approval_scope: list[AIChangeType] = Field(
         default_factory=lambda: list(AIChangeType), min_length=1, max_length=7
     )
+
+    @model_validator(mode="after")
+    def validate_exception_terms(self) -> "GovernanceDecisionCreate":
+        accepted_exception = (
+            self.decision_type == GovernanceDecisionType.EXCEPTION
+            and self.outcome != ApprovalOutcome.REJECTED
+        )
+        if accepted_exception and (
+            self.expires_at is None
+            or self.exception_owner is None
+            or not self.compensating_controls
+        ):
+            raise ValueError("accepted exception requires expiry, owner, and compensating controls")
+        if self.decision_type != GovernanceDecisionType.EXCEPTION and (
+            self.exception_owner is not None or self.compensating_controls
+        ):
+            raise ValueError("exception terms are valid only for exception decisions")
+        return self
 
 
 class GovernanceDecisionRecord(GovernanceDecisionCreate):
@@ -216,7 +236,8 @@ class DeploymentGateFacts(BaseModel):
     evaluation_current: bool
     evaluation_passed: bool
     exception_required: bool
-    exception_valid: bool
+    exception_expires_at: datetime | None
+    evaluated_at: datetime
     legal_review_required: bool
     legal_review_approved: bool
 
@@ -375,7 +396,9 @@ class EUCandidateFacts(BaseModel):
     intended_purpose: str = Field(min_length=1, max_length=2_000)
     affected_persons: tuple[ShortLabel, ...] = Field(default_factory=tuple, max_length=50)
     territorial_scope_confirmed: bool | None = None
-    prohibited_practice_indicators: tuple[ShortLabel, ...] = Field(default_factory=tuple, max_length=50)
+    prohibited_practice_indicators: tuple[ShortLabel, ...] = Field(
+        default_factory=tuple, max_length=50
+    )
     prohibited_review_complete: bool | None = None
     annex_i_or_iii_category: ShortLabel | None = None
     high_risk_path_confirmed: bool | None = None

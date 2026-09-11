@@ -1,3 +1,4 @@
+from datetime import UTC, datetime, timedelta
 from uuid import UUID, uuid4
 
 from fastapi.testclient import TestClient
@@ -24,12 +25,12 @@ def test_ai_system_api_enforces_tenant_and_approval_boundaries() -> None:
                 text("INSERT INTO orgs (id, name) VALUES (:id, :name)"),
                 {"id": org_id, "name": f"AI inventory {org_id}"},
             )
+        connection.execute(text("SELECT set_config('app.org_id', :id, true)"), {"id": str(org_a)})
         connection.execute(
-            text("SELECT set_config('app.org_id', :id, true)"), {"id": str(org_a)}
-        )
-        connection.execute(
-            text("INSERT INTO engagements (id, org_id, company, expires_at) VALUES "
-                 "(:id, :org_id, '{}', now() + interval '1 day')"),
+            text(
+                "INSERT INTO engagements (id, org_id, company, expires_at) VALUES "
+                "(:id, :org_id, '{}', now() + interval '1 day')"
+            ),
             {"id": engagement_id, "org_id": org_a},
         )
 
@@ -81,32 +82,46 @@ def test_ai_system_api_enforces_tenant_and_approval_boundaries() -> None:
         assert objective.json()["source_version"] == "2023"
         assert objective.json()["selected_by"] == "owner_a"
         assert len(client.get(f"/api/ai-systems/{system_id}/objectives").json()) == 1
-        assert client.post(
-            f"/api/ai-systems/{system_id}/objectives",
-            json={"framework": "iso_42001", "basis": "company_strategy", "scope": "AI"},
-        ).status_code == 409
-        empty_assessment = {name: "" for name in (
-            "purpose_limitations", "stakeholders", "benefits_harms", "data_provenance",
-            "privacy", "contextual_fairness", "explainability", "security", "robustness",
-            "human_oversight", "vendor_reliance", "misuse", "incident_response", "monitoring",
-            "decommissioning",
-        )}
-        assert client.patch(
-            f"/api/ai-systems/{system_id}/impact-assessment", json=empty_assessment
-        ).status_code == 200
-        first_version = client.post(
-            f"/api/ai-systems/{system_id}/impact-assessment/submit"
-        ).json()
+        assert (
+            client.post(
+                f"/api/ai-systems/{system_id}/objectives",
+                json={"framework": "iso_42001", "basis": "company_strategy", "scope": "AI"},
+            ).status_code
+            == 409
+        )
+        empty_assessment = {
+            name: ""
+            for name in (
+                "purpose_limitations",
+                "stakeholders",
+                "benefits_harms",
+                "data_provenance",
+                "privacy",
+                "contextual_fairness",
+                "explainability",
+                "security",
+                "robustness",
+                "human_oversight",
+                "vendor_reliance",
+                "misuse",
+                "incident_response",
+                "monitoring",
+                "decommissioning",
+            )
+        }
+        assert (
+            client.patch(
+                f"/api/ai-systems/{system_id}/impact-assessment", json=empty_assessment
+            ).status_code
+            == 200
+        )
+        first_version = client.post(f"/api/ai-systems/{system_id}/impact-assessment/submit").json()
         assert first_version["version"] == 1
         assert first_version["status"] == "needs_review"
         assert len(first_version["missing_facts"]) == 15
         complete_assessment = {name: f"Reviewed {name}" for name in empty_assessment}
-        client.patch(
-            f"/api/ai-systems/{system_id}/impact-assessment", json=complete_assessment
-        )
-        second_version = client.post(
-            f"/api/ai-systems/{system_id}/impact-assessment/submit"
-        ).json()
+        client.patch(f"/api/ai-systems/{system_id}/impact-assessment", json=complete_assessment)
+        second_version = client.post(f"/api/ai-systems/{system_id}/impact-assessment/submit").json()
         assert second_version["version"] == 2
         assert second_version["status"] == "complete"
         assert second_version["reviewer"] is None
@@ -136,16 +151,19 @@ def test_ai_system_api_enforces_tenant_and_approval_boundaries() -> None:
         )
         assert replacement.status_code == 201
         assert replacement.json()["supersedes_id"] == first_decision.json()["id"]
-        assert client.post(
-            f"/api/ai-systems/{system_id}/decisions",
-            json={
-                "decision_type": "assessment",
-                "outcome": "rejected",
-                "rationale": "Stale review attempt.",
-                "assessment_version_id": second_version["id"],
-                "expected_latest_decision_id": first_decision.json()["id"],
-            },
-        ).status_code == 409
+        assert (
+            client.post(
+                f"/api/ai-systems/{system_id}/decisions",
+                json={
+                    "decision_type": "assessment",
+                    "outcome": "rejected",
+                    "rationale": "Stale review attempt.",
+                    "assessment_version_id": second_version["id"],
+                    "expected_latest_decision_id": first_decision.json()["id"],
+                },
+            ).status_code
+            == 409
+        )
         history = client.get(f"/api/ai-systems/{system_id}/decisions").json()
         assert len(history) == 2
         for decision_type in ("deployment", "material_change", "exception", "retirement"):
@@ -155,6 +173,15 @@ def test_ai_system_api_enforces_tenant_and_approval_boundaries() -> None:
                     "decision_type": decision_type,
                     "outcome": "conditional" if decision_type == "exception" else "approved",
                     "rationale": f"Reviewed {decision_type} decision.",
+                    **(
+                        {
+                            "expires_at": (datetime.now(UTC) + timedelta(days=30)).isoformat(),
+                            "exception_owner": "AI risk owner",
+                            "compensating_controls": ["Daily human review"],
+                        }
+                        if decision_type == "exception"
+                        else {}
+                    ),
                 },
             )
             assert response.status_code == 201
@@ -162,68 +189,94 @@ def test_ai_system_api_enforces_tenant_and_approval_boundaries() -> None:
             item["decision_type"]
             for item in client.get(f"/api/ai-systems/{system_id}/decisions").json()
         } == {"assessment", "deployment", "material_change", "exception", "retirement"}
-        assert client.post(
-            f"/api/ai-systems/{system_id}/decisions",
-            json={
-                "decision_type": "assessment",
-                "outcome": "approved",
-                "rationale": "Missing version.",
-            },
-        ).status_code == 422
+        assert (
+            client.post(
+                f"/api/ai-systems/{system_id}/decisions",
+                json={
+                    "decision_type": "assessment",
+                    "outcome": "approved",
+                    "rationale": "Missing version.",
+                },
+            ).status_code
+            == 422
+        )
         with engine.begin() as connection:
             connection.execute(
                 text("SELECT set_config('app.org_id', :id, true)"), {"id": str(org_a)}
             )
-            assert connection.execute(
-                text("UPDATE ai_governance_decisions SET rationale = 'changed' WHERE id = :id"),
-                {"id": first_decision.json()["id"]},
-            ).rowcount == 0
-            assert connection.execute(
-                text("DELETE FROM ai_governance_decisions WHERE id = :id"),
-                {"id": first_decision.json()["id"]},
-            ).rowcount == 0
+            assert (
+                connection.execute(
+                    text("UPDATE ai_governance_decisions SET rationale = 'changed' WHERE id = :id"),
+                    {"id": first_decision.json()["id"]},
+                ).rowcount
+                == 0
+            )
+            assert (
+                connection.execute(
+                    text("DELETE FROM ai_governance_decisions WHERE id = :id"),
+                    {"id": first_decision.json()["id"]},
+                ).rowcount
+                == 0
+            )
         transitioned = client.patch(
             f"/api/ai-systems/{system_id}/status", json={"status": "in_review"}
         )
         assert transitioned.status_code == 200
         assert transitioned.json()["status"] == "in_review"
-        assert client.patch(
-            f"/api/ai-systems/{system_id}/status", json={"status": "deployed"}
-        ).status_code == 409
+        assert (
+            client.patch(
+                f"/api/ai-systems/{system_id}/status", json={"status": "deployed"}
+            ).status_code
+            == 409
+        )
 
         app.dependency_overrides[require_tenant] = lambda: _identity(org_b, "owner_b")
         assert client.get("/api/ai-systems").json() == []
         assert client.get(f"/api/ai-systems/{system_id}").status_code == 404
         assert client.get(f"/api/ai-systems/{system_id}/internal-risk").status_code == 404
         assert client.get(f"/api/ai-systems/{system_id}/objectives").json() == []
-        assert client.post(
-            f"/api/ai-systems/{system_id}/objectives",
-            json={"framework": "nist_ai_rmf", "basis": "company_strategy", "scope": "AI"},
-        ).status_code == 404
+        assert (
+            client.post(
+                f"/api/ai-systems/{system_id}/objectives",
+                json={"framework": "nist_ai_rmf", "basis": "company_strategy", "scope": "AI"},
+            ).status_code
+            == 404
+        )
         assert client.get(f"/api/ai-systems/{system_id}/impact-assessments").json() == []
         assert client.get(f"/api/ai-systems/{system_id}/decisions").json() == []
-        assert client.post(
-            f"/api/ai-systems/{system_id}/decisions",
-            json={
-                "decision_type": "deployment",
-                "outcome": "approved",
-                "rationale": "Cross-tenant attempt.",
-            },
-        ).status_code == 404
-        assert client.patch(
-            f"/api/ai-systems/{system_id}/status", json={"status": "retired"}
-        ).status_code == 404
+        assert (
+            client.post(
+                f"/api/ai-systems/{system_id}/decisions",
+                json={
+                    "decision_type": "deployment",
+                    "outcome": "approved",
+                    "rationale": "Cross-tenant attempt.",
+                },
+            ).status_code
+            == 404
+        )
+        assert (
+            client.patch(
+                f"/api/ai-systems/{system_id}/status", json={"status": "retired"}
+            ).status_code
+            == 404
+        )
 
         app.dependency_overrides[require_tenant] = lambda: _identity(org_a, "owner_a")
         with engine.begin() as connection:
             connection.execute(
                 text("SELECT set_config('app.org_id', :id, true)"), {"id": str(org_a)}
             )
-            assert connection.execute(
-                text("SELECT count(*) FROM audit_events WHERE engagement_id = :id "
-                     "AND event_type LIKE 'ai_system_%'"),
-                {"id": engagement_id},
-            ).scalar_one() == 2
+            assert (
+                connection.execute(
+                    text(
+                        "SELECT count(*) FROM audit_events WHERE engagement_id = :id "
+                        "AND event_type LIKE 'ai_system_%'"
+                    ),
+                    {"id": engagement_id},
+                ).scalar_one()
+                == 2
+            )
         assert client.delete(f"/api/engagements/{engagement_id}").status_code == 204
         assert client.get("/api/ai-systems").json() == []
     finally:
