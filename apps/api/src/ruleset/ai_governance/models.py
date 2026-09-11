@@ -107,6 +107,20 @@ class EvaluationResult(StrEnum):
     ERROR = "error"
 
 
+class EvaluationType(StrEnum):
+    """Supported AI evaluation risk dimensions."""
+
+    TASK_PERFORMANCE = "task_performance"
+    ROBUSTNESS = "robustness"
+    PROMPT_INJECTION = "prompt_injection"
+    PRIVACY_LEAKAGE = "privacy_leakage"
+    GROUNDEDNESS = "groundedness"
+    HARMFUL_OUTPUT = "harmful_output"
+    CONTEXTUAL_FAIRNESS = "contextual_fairness"
+    OVERSIGHT_EFFECTIVENESS = "oversight_effectiveness"
+    RELIABILITY = "reliability"
+
+
 class IncidentSeverity(StrEnum):
     """Organization-defined AI incident severity levels."""
 
@@ -208,6 +222,64 @@ class EvaluationVerdict(BaseModel):
     evaluation_id: str = Field(min_length=1, max_length=100)
     summary: str = Field(min_length=1, max_length=2_000)
     evaluated_at: datetime
+
+
+class EvaluationDefinitionCreate(BaseModel):
+    """Immutable versioned evaluation definition input."""
+
+    model_config = ConfigDict(extra="forbid")
+    evaluation_type: EvaluationType
+    name: str = Field(min_length=1, max_length=200)
+    dataset_name: str = Field(min_length=1, max_length=200)
+    dataset_version: str = Field(min_length=1, max_length=100)
+    population_context: str = Field(min_length=1, max_length=2_000)
+    metric_name: str = Field(min_length=1, max_length=200)
+    metric_direction: Literal["higher_is_better", "lower_is_better"]
+    threshold: float
+    owner: str = Field(min_length=1, max_length=200)
+    cadence: str = Field(min_length=1, max_length=200)
+    limitations: str = Field(min_length=1, max_length=2_000)
+
+
+class EvaluationDefinitionRecord(EvaluationDefinitionCreate):
+    """Stored definition with approval and latest-measurement state."""
+
+    id: UUID
+    ai_system_id: UUID
+    version: int
+    created_by: str
+    created_at: datetime
+    threshold_approved_by: str | None = None
+    latest_result: Literal["pass", "fail"] | None = None
+
+
+class ThresholdApprovalCreate(BaseModel):
+    """Human threshold-approval rationale."""
+
+    model_config = ConfigDict(extra="forbid")
+    rationale: str = Field(min_length=1, max_length=10_000)
+
+
+class EvaluationRunCreate(BaseModel):
+    """Measured evaluation output bound to model and configuration versions."""
+
+    model_config = ConfigDict(extra="forbid")
+    model_version: str = Field(min_length=1, max_length=200)
+    configuration_version: str = Field(min_length=1, max_length=200)
+    measured_value: float
+    summary: str = Field(min_length=1, max_length=2_000)
+
+
+class EvaluationRunRecord(EvaluationRunCreate):
+    """Append-only deterministic evaluation verdict."""
+
+    id: UUID
+    definition_id: UUID
+    definition_version: int
+    dataset_version: str
+    result: Literal["pass", "fail"]
+    run_by: str
+    tested_at: datetime
 
 
 class IncidentClassification(BaseModel):

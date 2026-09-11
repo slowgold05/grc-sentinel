@@ -10,7 +10,7 @@ GRC Sentinel minimizes stored customer data and hard-deletes it when its purpose
 | AI system inventory | Validated purpose, owner, model/vendor, data, geography, autonomy, and oversight facts | Tenant RLS; lifecycle changes are audited | Life of engagement |
 | Decision evidence | Facts snapshots, determinations, AI governance decisions, audit events | Tenant RLS; append-only where specified | 1 year |
 | OSINT cache | Public DNS and web posture | Tenant RLS | 30 days |
-| Control evidence | Read-only connector responses and verdicts | Tenant RLS; append-only | 1 year |
+| Control and AI evaluation evidence | Read-only connector responses, versioned AI evaluation definitions, approved thresholds, and immutable verdicts | Tenant RLS; append-only evidence | 1 year |
 | Share links | Hashed access tokens | Tenant RLS; raw token never stored | Delete at expiry |
 
 Engagement deletion is a hard-delete cascade covering uploads, encrypted blobs, chunks, determinations, policies, statements, questionnaires, answers, and generated artifacts. A daily sweeper enforces expiry. Backups follow the hosting provider's documented deletion window and are never restored selectively after an erasure request.

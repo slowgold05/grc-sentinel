@@ -32,6 +32,14 @@ from ruleset.ai_governance.decisions import (
     create_governance_decision,
     list_governance_decisions,
 )
+from ruleset.ai_governance.evaluations import (
+    EvaluationValidationError,
+    append_evaluation_run,
+    approve_evaluation_threshold,
+    create_evaluation_definition,
+    list_evaluation_definitions,
+    list_evaluation_runs,
+)
 from ruleset.ai_governance.models import (
     AIAssuranceObjective,
     AIAssuranceObjectiveCreate,
@@ -44,6 +52,11 @@ from ruleset.ai_governance.models import (
     InternalRiskResult,
     GovernanceDecisionCreate,
     GovernanceDecisionRecord,
+    EvaluationDefinitionCreate,
+    EvaluationDefinitionRecord,
+    EvaluationRunCreate,
+    EvaluationRunRecord,
+    ThresholdApprovalCreate,
 )
 from ruleset.ai_governance.objectives import (
     ObjectiveAlreadySelectedError,
@@ -271,6 +284,50 @@ def post_ai_governance_decision(system_id: UUID, payload: GovernanceDecisionCrea
 def get_ai_governance_decisions(system_id: UUID, identity: CurrentTenant) -> list[GovernanceDecisionRecord]:
     """Return complete append-only governance decision history."""
     return list_governance_decisions(engine, identity.org_id, system_id)
+
+
+@app.post("/api/ai-systems/{system_id}/evaluation-definitions", response_model=EvaluationDefinitionRecord, status_code=status.HTTP_201_CREATED)
+def post_evaluation_definition(system_id: UUID, payload: EvaluationDefinitionCreate, identity: CurrentTenant) -> EvaluationDefinitionRecord:
+    """Append a versioned AI evaluation definition."""
+    try:
+        return create_evaluation_definition(engine, identity.org_id, system_id, identity.user_id, payload)
+    except LookupError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+
+
+@app.get("/api/ai-systems/{system_id}/evaluation-definitions", response_model=list[EvaluationDefinitionRecord])
+def get_evaluation_definitions(system_id: UUID, identity: CurrentTenant) -> list[EvaluationDefinitionRecord]:
+    """List measured and unmeasured evaluation definitions."""
+    return list_evaluation_definitions(engine, identity.org_id, system_id)
+
+
+@app.post("/api/ai-evaluation-definitions/{definition_id}/threshold-approval", status_code=status.HTTP_204_NO_CONTENT)
+def post_threshold_approval(definition_id: UUID, payload: ThresholdApprovalCreate, identity: CurrentTenant) -> Response:
+    """Append verified human approval of an evaluation threshold."""
+    try:
+        approve_evaluation_threshold(engine, identity.org_id, definition_id, identity.user_id, payload.rationale)
+    except LookupError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    except EvaluationValidationError as error:
+        raise HTTPException(status_code=409, detail=str(error)) from error
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@app.post("/api/ai-evaluation-definitions/{definition_id}/runs", response_model=EvaluationRunRecord, status_code=status.HTTP_201_CREATED)
+def post_evaluation_run(definition_id: UUID, payload: EvaluationRunCreate, identity: CurrentTenant) -> EvaluationRunRecord:
+    """Append a deterministic evaluation verdict."""
+    try:
+        return append_evaluation_run(engine, identity.org_id, definition_id, identity.user_id, payload)
+    except LookupError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    except EvaluationValidationError as error:
+        raise HTTPException(status_code=409, detail=str(error)) from error
+
+
+@app.get("/api/ai-evaluation-definitions/{definition_id}/runs", response_model=list[EvaluationRunRecord])
+def get_evaluation_runs(definition_id: UUID, identity: CurrentTenant) -> list[EvaluationRunRecord]:
+    """Return complete immutable evaluation run history."""
+    return list_evaluation_runs(engine, identity.org_id, definition_id)
 
 
 @app.get("/api/frameworks", response_model=list[FrameworkOption])
