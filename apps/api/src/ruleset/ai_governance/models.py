@@ -121,6 +121,18 @@ class EvaluationType(StrEnum):
     RELIABILITY = "reliability"
 
 
+class AIChangeType(StrEnum):
+    """Material change dimensions that can invalidate scoped approvals."""
+
+    MODEL = "model"
+    PROMPT = "prompt"
+    CORPUS = "corpus"
+    TOOL_PERMISSIONS = "tool_permissions"
+    PURPOSE = "purpose"
+    VENDOR_TERMS = "vendor_terms"
+    MEASURED_PERFORMANCE = "measured_performance"
+
+
 class IncidentSeverity(StrEnum):
     """Organization-defined AI incident severity levels."""
 
@@ -177,6 +189,9 @@ class GovernanceDecisionCreate(BaseModel):
     assessment_version_id: UUID | None = None
     expires_at: datetime | None = None
     expected_latest_decision_id: UUID | None = None
+    approval_scope: list[AIChangeType] = Field(
+        default_factory=lambda: list(AIChangeType), min_length=1, max_length=7
+    )
 
 
 class GovernanceDecisionRecord(GovernanceDecisionCreate):
@@ -280,6 +295,31 @@ class EvaluationRunRecord(EvaluationRunCreate):
     result: Literal["pass", "fail"]
     run_by: str
     tested_at: datetime
+    drift: bool
+
+
+class AISystemVersionCreate(BaseModel):
+    """Exact version identifiers and explicitly reviewed material changes."""
+
+    model_config = ConfigDict(extra="forbid")
+    model_version: ShortLabel
+    prompt_version: ShortLabel
+    corpus_version: ShortLabel
+    tool_permissions_version: ShortLabel
+    purpose_version: ShortLabel
+    vendor_terms_version: ShortLabel
+    material_changes: list[AIChangeType] = Field(default_factory=list, max_length=7)
+
+
+class AISystemVersionRecord(AISystemVersionCreate):
+    """Append-only AI system configuration snapshot."""
+
+    id: UUID
+    ai_system_id: UUID
+    version: int
+    created_by: str
+    created_at: datetime
+    review_required: bool
 
 
 class IncidentClassification(BaseModel):

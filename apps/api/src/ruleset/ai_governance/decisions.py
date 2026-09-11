@@ -40,8 +40,8 @@ def create_governance_decision(engine: Engine, org_id: UUID, system_id: UUID, ac
         if supersedes_id != request.expected_latest_decision_id:
             raise StaleDecisionError("decision history changed; refresh before deciding")
         row = connection.execute(
-            text("INSERT INTO ai_governance_decisions (org_id, engagement_id, ai_system_id, decision_type, outcome, rationale, assessment_version_id, supersedes_id, decided_by, expires_at) VALUES (:org_id, :engagement_id, :system_id, :decision_type, :outcome, :rationale, :assessment_version_id, :supersedes_id, :actor, :expires_at) RETURNING *"),
-            {"org_id": org_id, "engagement_id": engagement_id, "system_id": system_id, "decision_type": request.decision_type.value, "outcome": request.outcome.value, "rationale": request.rationale, "assessment_version_id": request.assessment_version_id, "supersedes_id": supersedes_id, "actor": actor, "expires_at": request.expires_at},
+            text("INSERT INTO ai_governance_decisions (org_id, engagement_id, ai_system_id, decision_type, outcome, rationale, assessment_version_id, supersedes_id, decided_by, expires_at, approval_scope) VALUES (:org_id, :engagement_id, :system_id, :decision_type, :outcome, :rationale, :assessment_version_id, :supersedes_id, :actor, :expires_at, :approval_scope) RETURNING *"),
+            {"org_id": org_id, "engagement_id": engagement_id, "system_id": system_id, "decision_type": request.decision_type.value, "outcome": request.outcome.value, "rationale": request.rationale, "assessment_version_id": request.assessment_version_id, "supersedes_id": supersedes_id, "actor": actor, "expires_at": request.expires_at, "approval_scope": [item.value for item in request.approval_scope]},
         ).mappings().one()
         connection.execute(
             text("INSERT INTO audit_events (org_id, engagement_id, event_type, details) VALUES (:org_id, :engagement_id, 'ai_governance_decision_created', jsonb_build_object('decision_id', CAST(:decision_id AS text), 'ai_system_id', CAST(:system_id AS text)))"),

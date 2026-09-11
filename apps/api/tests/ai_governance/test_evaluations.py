@@ -6,6 +6,8 @@ from sqlalchemy import text
 
 from ruleset.ai_governance.evaluations import evaluation_result
 from ruleset.ai_governance.models import EvaluationDefinitionCreate
+from ruleset.ai_governance.models import AIChangeType
+from ruleset.ai_governance.versions import approval_is_current
 from ruleset.auth import TenantIdentity, require_tenant
 from ruleset.database import engine
 from ruleset.main import app
@@ -43,6 +45,15 @@ def test_metric_direction_determines_result() -> None:
     assert evaluation_result("higher_is_better", 0.9, 0.89) == "fail"
     assert evaluation_result("lower_is_better", 0.1, 0.1) == "pass"
     assert evaluation_result("lower_is_better", 0.1, 0.11) == "fail"
+
+
+def test_only_scoped_material_changes_invalidate_approval() -> None:
+    """Keep unrelated approvals current while invalidating intersecting scopes."""
+    assert approval_is_current([AIChangeType.MODEL], [AIChangeType.PROMPT])
+    assert not approval_is_current(
+        [AIChangeType.MODEL, AIChangeType.MEASURED_PERFORMANCE],
+        [AIChangeType.MEASURED_PERFORMANCE],
+    )
 
 
 def test_evaluation_registry_is_tenant_safe_approved_and_append_only() -> None:
@@ -90,10 +101,13 @@ def test_evaluation_registry_is_tenant_safe_approved_and_append_only() -> None:
         passed = client.post(f"/api/ai-evaluation-definitions/{definition_id}/runs", json=run_payload)
         assert passed.status_code == 201
         assert passed.json()["result"] == "pass"
+        assert passed.json()["drift"] is False
         assert passed.json()["definition_version"] == 1
         assert passed.json()["dataset_version"] == "fixture-v1"
         failed = client.post(f"/api/ai-evaluation-definitions/{definition_id}/runs", json=run_payload | {"measured_value": 0.8})
         assert failed.json()["result"] == "fail"
+        assert failed.json()["drift"] is True
+        assert client.get(f"/api/ai-evaluation-definitions/{definition_id}/runs").json()[1]["drift"] is False
         revised = client.post(
             f"/api/ai-systems/{system_id}/evaluation-definitions",
             json=definition_payload | {"dataset_version": "fixture-v2"},
@@ -105,6 +119,25 @@ def test_evaluation_registry_is_tenant_safe_approved_and_append_only() -> None:
         assert definitions[1]["latest_result"] == "fail"
         assert definitions[1]["threshold_approved_by"] == "reviewer_a"
         assert len(client.get(f"/api/ai-evaluation-definitions/{definition_id}/runs").json()) == 2
+        version_payload = {
+            "model_version": "model-v1",
+            "prompt_version": "prompt-v1",
+            "corpus_version": "corpus-v1",
+            "tool_permissions_version": "tools-v1",
+            "purpose_version": "purpose-v1",
+            "vendor_terms_version": "terms-v1",
+            "material_changes": [],
+        }
+        baseline = client.post(f"/api/ai-systems/{system_id}/versions", json=version_payload)
+        assert baseline.json()["version"] == 1
+        assert baseline.json()["review_required"] is False
+        changed = client.post(
+            f"/api/ai-systems/{system_id}/versions",
+            json=version_payload | {"model_version": "model-v2", "material_changes": ["model"]},
+        )
+        assert changed.json()["version"] == 2
+        assert changed.json()["review_required"] is True
+        assert client.get(f"/api/ai-systems/{system_id}/versions").json()[0]["material_changes"] == ["model"]
         with engine.begin() as connection:
             connection.execute(text("SELECT set_config('app.org_id', :id, true)"), {"id": str(org_a)})
             assert connection.execute(text("UPDATE ai_evaluation_runs SET result = 'pass' WHERE id = :id"), {"id": failed.json()["id"]}).rowcount == 0
@@ -113,6 +146,7 @@ def test_evaluation_registry_is_tenant_safe_approved_and_append_only() -> None:
         app.dependency_overrides[require_tenant] = lambda: TenantIdentity(org_id=org_b, user_id="reviewer_b", provider_org_id="org_b")
         assert client.get(f"/api/ai-systems/{system_id}/evaluation-definitions").json() == []
         assert client.get(f"/api/ai-evaluation-definitions/{definition_id}/runs").json() == []
+        assert client.get(f"/api/ai-systems/{system_id}/versions").json() == []
         assert client.post(f"/api/ai-evaluation-definitions/{definition_id}/runs", json=run_payload).status_code == 404
 
         app.dependency_overrides[require_tenant] = lambda: TenantIdentity(org_id=org_a, user_id="reviewer_a", provider_org_id="org_a")

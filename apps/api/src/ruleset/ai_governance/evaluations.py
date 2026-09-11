@@ -22,6 +22,11 @@ def evaluation_result(direction: str, threshold: float, measured: float) -> str:
     return "pass" if passes else "fail"
 
 
+def is_evaluation_drift(previous_result: str | None, current_result: str) -> bool:
+    """Treat only a pass-to-fail evaluation transition as measured drift."""
+    return previous_result == "pass" and current_result == "fail"
+
+
 def _definition(row: Mapping[str, object]) -> EvaluationDefinitionRecord:
     values = dict(row)
     values["owner"] = values.pop("owner_name")
@@ -62,15 +67,21 @@ def append_evaluation_run(engine: Engine, org_id: UUID, definition_id: UUID, act
     """Append a run using only its definition's approved threshold."""
     with engine.begin() as connection:
         connection.execute(text("SELECT set_config('app.org_id', :id, true)"), {"id": str(org_id)})
-        definition = connection.execute(text("SELECT d.*, a.id AS approval_id FROM ai_evaluation_definitions d LEFT JOIN ai_evaluation_threshold_approvals a ON a.definition_id = d.id WHERE d.id = :id"), {"id": definition_id}).mappings().one_or_none()
+        definition = connection.execute(text("SELECT * FROM ai_evaluation_definitions WHERE id = :id"), {"id": definition_id}).mappings().one_or_none()
         if definition is None:
             raise LookupError("evaluation definition not found")
-        if definition["approval_id"] is None:
+        connection.execute(
+            text("SELECT id FROM ai_systems WHERE id = :id FOR UPDATE"),
+            {"id": definition["ai_system_id"]},
+        ).scalar_one()
+        if connection.execute(text("SELECT id FROM ai_evaluation_threshold_approvals WHERE definition_id = :id"), {"id": definition_id}).scalar_one_or_none() is None:
             raise EvaluationValidationError("threshold requires human approval")
         result = evaluation_result(definition["metric_direction"], definition["threshold"], request.measured_value)
+        previous = connection.execute(text("SELECT result FROM ai_evaluation_runs WHERE definition_id = :id ORDER BY tested_at DESC, id DESC LIMIT 1"), {"id": definition_id}).scalar_one_or_none()
+        drift = is_evaluation_drift(previous, result)
         row = connection.execute(
-            text("INSERT INTO ai_evaluation_runs (org_id, engagement_id, ai_system_id, definition_id, definition_version, dataset_version, model_version, configuration_version, measured_value, result, summary, run_by) VALUES (:org_id, :engagement_id, :system_id, :definition_id, :definition_version, :dataset_version, :model_version, :configuration_version, :measured_value, :result, :summary, :actor) RETURNING *"),
-            {"org_id": org_id, "engagement_id": definition["engagement_id"], "system_id": definition["ai_system_id"], "definition_id": definition_id, "definition_version": definition["version"], "dataset_version": definition["dataset_version"], "result": result, "actor": actor, **request.model_dump()},
+            text("INSERT INTO ai_evaluation_runs (org_id, engagement_id, ai_system_id, definition_id, definition_version, dataset_version, model_version, configuration_version, measured_value, result, summary, run_by, drift) VALUES (:org_id, :engagement_id, :system_id, :definition_id, :definition_version, :dataset_version, :model_version, :configuration_version, :measured_value, :result, :summary, :actor, :drift) RETURNING *"),
+            {"org_id": org_id, "engagement_id": definition["engagement_id"], "system_id": definition["ai_system_id"], "definition_id": definition_id, "definition_version": definition["version"], "dataset_version": definition["dataset_version"], "result": result, "actor": actor, "drift": drift, **request.model_dump()},
         ).mappings().one()
         values = dict(row)
         for key in ("org_id", "engagement_id", "ai_system_id"):

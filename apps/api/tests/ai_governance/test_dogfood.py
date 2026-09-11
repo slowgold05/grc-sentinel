@@ -6,7 +6,7 @@ from ruleset.ai_governance.dogfood import build_dogfood_report
 from ruleset.database import engine
 
 
-def test_dogfood_report_is_reproducible_and_blocks_regressions(tmp_path: Path) -> None:
+def test_dogfood_report_is_reproducible_and_blocks_regressions() -> None:
     """Run real guardrails and emit a stable machine-readable report."""
     report = build_dogfood_report(
         engine,
@@ -22,6 +22,3 @@ def test_dogfood_report_is_reproducible_and_blocks_regressions(tmp_path: Path) -
     assert json.loads(rendered)["fixture_version"] == "grc-sentinel-fictional-v1"
     expected = Path(__file__).with_name("dogfood-report.json")
     assert payload == json.loads(expected.read_text(encoding="utf-8"))
-    output = tmp_path / "ai-governance-dogfood-report.json"
-    output.write_text(rendered, encoding="utf-8")
-    assert json.loads(output.read_text(encoding="utf-8"))["passed"] is True

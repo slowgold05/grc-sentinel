@@ -49,6 +49,8 @@ from ruleset.ai_governance.models import (
     AISystemCreate,
     AISystemRecord,
     AISystemStateUpdate,
+    AISystemVersionCreate,
+    AISystemVersionRecord,
     InternalRiskResult,
     GovernanceDecisionCreate,
     GovernanceDecisionRecord,
@@ -64,6 +66,7 @@ from ruleset.ai_governance.objectives import (
     list_ai_objectives,
 )
 from ruleset.ai_governance.triage import evaluate_internal_risk
+from ruleset.ai_governance.versions import append_system_version, list_system_versions
 from ruleset.auth import CurrentTenant, TenantIdentity
 from ruleset.config import settings
 from ruleset.coverage_analysis import analyze_upload_coverage
@@ -328,6 +331,21 @@ def post_evaluation_run(definition_id: UUID, payload: EvaluationRunCreate, ident
 def get_evaluation_runs(definition_id: UUID, identity: CurrentTenant) -> list[EvaluationRunRecord]:
     """Return complete immutable evaluation run history."""
     return list_evaluation_runs(engine, identity.org_id, definition_id)
+
+
+@app.post("/api/ai-systems/{system_id}/versions", response_model=AISystemVersionRecord, status_code=status.HTTP_201_CREATED)
+def post_ai_system_version(system_id: UUID, payload: AISystemVersionCreate, identity: CurrentTenant) -> AISystemVersionRecord:
+    """Append an exact AI configuration version and its material-change dimensions."""
+    try:
+        return append_system_version(engine, identity.org_id, system_id, identity.user_id, payload)
+    except LookupError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+
+
+@app.get("/api/ai-systems/{system_id}/versions", response_model=list[AISystemVersionRecord])
+def get_ai_system_versions(system_id: UUID, identity: CurrentTenant) -> list[AISystemVersionRecord]:
+    """Return append-only AI configuration history."""
+    return list_system_versions(engine, identity.org_id, system_id)
 
 
 @app.get("/api/frameworks", response_model=list[FrameworkOption])
