@@ -21,9 +21,17 @@ from ruleset.ai_governance.inventory import (
     list_ai_systems,
     update_ai_system_state,
 )
+from ruleset.ai_governance.assessments import (
+    list_impact_versions,
+    save_impact_draft,
+    submit_impact_assessment,
+)
 from ruleset.ai_governance.models import (
     AIAssuranceObjective,
     AIAssuranceObjectiveCreate,
+    AIImpactContent,
+    AIImpactDraft,
+    AIImpactVersion,
     AISystemCreate,
     AISystemRecord,
     AISystemStateUpdate,
@@ -212,6 +220,30 @@ def post_ai_system_objective(system_id: UUID, payload: AIAssuranceObjectiveCreat
 def get_ai_system_objectives(system_id: UUID, identity: CurrentTenant) -> list[AIAssuranceObjective]:
     """List selected AI assurance objectives."""
     return list_ai_objectives(engine, identity.org_id, system_id)
+
+
+@app.patch("/api/ai-systems/{system_id}/impact-assessment", response_model=AIImpactDraft)
+def patch_ai_impact_draft(system_id: UUID, payload: AIImpactContent, identity: CurrentTenant) -> AIImpactDraft:
+    """Save the authenticated user's current editable impact-assessment draft."""
+    try:
+        return save_impact_draft(engine, identity.org_id, system_id, identity.user_id, payload)
+    except LookupError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+
+
+@app.post("/api/ai-systems/{system_id}/impact-assessment/submit", response_model=AIImpactVersion, status_code=status.HTTP_201_CREATED)
+def post_ai_impact_version(system_id: UUID, identity: CurrentTenant) -> AIImpactVersion:
+    """Submit the current draft as a new immutable version."""
+    try:
+        return submit_impact_assessment(engine, identity.org_id, system_id, identity.user_id)
+    except LookupError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+
+
+@app.get("/api/ai-systems/{system_id}/impact-assessments", response_model=list[AIImpactVersion])
+def get_ai_impact_versions(system_id: UUID, identity: CurrentTenant) -> list[AIImpactVersion]:
+    """List immutable impact-assessment submissions."""
+    return list_impact_versions(engine, identity.org_id, system_id)
 
 
 @app.get("/api/frameworks", response_model=list[FrameworkOption])

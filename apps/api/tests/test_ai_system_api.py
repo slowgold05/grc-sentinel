@@ -85,6 +85,33 @@ def test_ai_system_api_enforces_tenant_and_approval_boundaries() -> None:
             f"/api/ai-systems/{system_id}/objectives",
             json={"framework": "iso_42001", "basis": "company_strategy", "scope": "AI"},
         ).status_code == 409
+        empty_assessment = {name: "" for name in (
+            "purpose_limitations", "stakeholders", "benefits_harms", "data_provenance",
+            "privacy", "contextual_fairness", "explainability", "security", "robustness",
+            "human_oversight", "vendor_reliance", "misuse", "incident_response", "monitoring",
+            "decommissioning",
+        )}
+        assert client.patch(
+            f"/api/ai-systems/{system_id}/impact-assessment", json=empty_assessment
+        ).status_code == 200
+        first_version = client.post(
+            f"/api/ai-systems/{system_id}/impact-assessment/submit"
+        ).json()
+        assert first_version["version"] == 1
+        assert first_version["status"] == "needs_review"
+        assert len(first_version["missing_facts"]) == 15
+        complete_assessment = {name: f"Reviewed {name}" for name in empty_assessment}
+        client.patch(
+            f"/api/ai-systems/{system_id}/impact-assessment", json=complete_assessment
+        )
+        second_version = client.post(
+            f"/api/ai-systems/{system_id}/impact-assessment/submit"
+        ).json()
+        assert second_version["version"] == 2
+        assert second_version["status"] == "complete"
+        assert second_version["reviewer"] is None
+        assert second_version["source_versions"]["nist_ai_rmf"] == "1.0"
+        assert len(client.get(f"/api/ai-systems/{system_id}/impact-assessments").json()) == 2
         transitioned = client.patch(
             f"/api/ai-systems/{system_id}/status", json={"status": "in_review"}
         )
@@ -103,6 +130,7 @@ def test_ai_system_api_enforces_tenant_and_approval_boundaries() -> None:
             f"/api/ai-systems/{system_id}/objectives",
             json={"framework": "nist_ai_rmf", "basis": "company_strategy", "scope": "AI"},
         ).status_code == 404
+        assert client.get(f"/api/ai-systems/{system_id}/impact-assessments").json() == []
         assert client.patch(
             f"/api/ai-systems/{system_id}/status", json={"status": "retired"}
         ).status_code == 404

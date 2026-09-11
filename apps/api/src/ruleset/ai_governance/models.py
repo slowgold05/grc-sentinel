@@ -246,6 +246,52 @@ class AIAssuranceObjective(AIAssuranceObjectiveCreate):
     created_at: datetime
 
 
+class AIImpactContent(BaseModel):
+    """Structured impact-assessment domains; blank fields remain review blockers."""
+
+    model_config = ConfigDict(extra="forbid")
+    purpose_limitations: str = Field(default="", max_length=10_000)
+    stakeholders: str = Field(default="", max_length=10_000)
+    benefits_harms: str = Field(default="", max_length=10_000)
+    data_provenance: str = Field(default="", max_length=10_000)
+    privacy: str = Field(default="", max_length=10_000)
+    contextual_fairness: str = Field(default="", max_length=10_000)
+    explainability: str = Field(default="", max_length=10_000)
+    security: str = Field(default="", max_length=10_000)
+    robustness: str = Field(default="", max_length=10_000)
+    human_oversight: str = Field(default="", max_length=10_000)
+    vendor_reliance: str = Field(default="", max_length=10_000)
+    misuse: str = Field(default="", max_length=10_000)
+    incident_response: str = Field(default="", max_length=10_000)
+    monitoring: str = Field(default="", max_length=10_000)
+    decommissioning: str = Field(default="", max_length=10_000)
+
+
+class AIImpactDraft(BaseModel):
+    """Editable current assessment draft."""
+
+    id: UUID
+    ai_system_id: UUID
+    content: AIImpactContent
+    author: str
+    updated_at: datetime
+
+
+class AIImpactVersion(BaseModel):
+    """Immutable submitted assessment snapshot."""
+
+    id: UUID
+    ai_system_id: UUID
+    version: int
+    content: AIImpactContent
+    status: Literal["complete", "needs_review"]
+    missing_facts: tuple[str, ...]
+    author: str
+    reviewer: str | None
+    source_versions: dict[str, str]
+    created_at: datetime
+
+
 class AISystemCreate(BaseModel):
     """Validated request for an engagement-owned AI system."""
 
