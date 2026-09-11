@@ -3,7 +3,23 @@ from datetime import UTC, datetime, timedelta
 import pytest
 from pydantic import ValidationError
 
-from ruleset.ai_governance.models import AITriage, ApprovalDecision
+from ruleset.ai_governance.models import AISystemProfile, AITriage, ApprovalDecision
+
+
+def test_missing_vendor_facts_become_review_gaps() -> None:
+    profile = AISystemProfile(
+        operator_roles=["deployer"],
+        model_name="local-model",
+        vendor="Local runtime",
+        intended_users=["analysts"],
+        decision_impact="Draft only",
+        external_access=False,
+        autonomy="assistive",
+        tool_access=False,
+        human_oversight="Every output is reviewed",
+    )
+    assert "data_use_terms" in profile.missing_vendor_facts()
+    assert "vendor_review_date" in profile.missing_vendor_facts()
 
 
 def test_valid_ai_governance_contracts() -> None:

@@ -3,7 +3,7 @@ from enum import StrEnum
 from typing import Annotated, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, computed_field, model_validator
 
 ShortLabel = Annotated[str, Field(min_length=1, max_length=200)]
 
@@ -359,6 +359,12 @@ class AISystemProfile(BaseModel):
     operator_roles: list[OperatorRole] = Field(min_length=1, max_length=7)
     model_name: str = Field(min_length=1, max_length=200)
     vendor: str = Field(min_length=1, max_length=200)
+    hosting_region: ShortLabel | None = None
+    data_use_terms: str | None = Field(default=None, min_length=1, max_length=2_000)
+    subprocessors: list[ShortLabel] = Field(default_factory=list, max_length=50)
+    security_artifacts: list[ShortLabel] = Field(default_factory=list, max_length=50)
+    contract_date: date | None = None
+    vendor_review_date: date | None = None
     intended_users: list[ShortLabel] = Field(min_length=1, max_length=50)
     affected_persons: list[ShortLabel] = Field(default_factory=list, max_length=50)
     decision_impact: str = Field(min_length=1, max_length=1_000)
@@ -372,6 +378,27 @@ class AISystemProfile(BaseModel):
     sensitive_data: bool | None = None
     autonomy_level: AutonomyLevel | None = None
     human_review_coverage: HumanReviewCoverage | None = None
+
+    @model_validator(mode="after")
+    def vendor_review_follows_contract(self) -> "AISystemProfile":
+        if (
+            self.contract_date is not None
+            and self.vendor_review_date is not None
+            and self.vendor_review_date < self.contract_date
+        ):
+            raise ValueError("vendor_review_date cannot precede contract_date")
+        return self
+
+    def missing_vendor_facts(self) -> list[str]:
+        values = {
+            "hosting_region": self.hosting_region,
+            "data_use_terms": self.data_use_terms,
+            "subprocessors": self.subprocessors,
+            "security_artifacts": self.security_artifacts,
+            "contract_date": self.contract_date,
+            "vendor_review_date": self.vendor_review_date,
+        }
+        return [name for name, value in values.items() if not value]
 
 
 class InternalRiskResult(BaseModel):
@@ -525,3 +552,8 @@ class AISystemRecord(AISystemCreate):
     status: LifecycleStatus
     created_at: datetime
     updated_at: datetime
+
+    @computed_field
+    @property
+    def vendor_review_gaps(self) -> list[str]:
+        return self.profile.missing_vendor_facts()

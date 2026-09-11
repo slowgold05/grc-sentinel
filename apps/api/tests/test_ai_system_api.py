@@ -45,6 +45,12 @@ def test_ai_system_api_enforces_tenant_and_approval_boundaries() -> None:
             "operator_roles": ["deployer"],
             "model_name": "qwen3:14b",
             "vendor": "Ollama local",
+            "hosting_region": "Local workstation",
+            "data_use_terms": "Local processing; no vendor training use.",
+            "subprocessors": ["None declared"],
+            "security_artifacts": ["Local architecture review"],
+            "contract_date": "2026-09-01",
+            "vendor_review_date": "2026-09-11",
             "intended_users": ["support agents"],
             "affected_persons": ["customers"],
             "decision_impact": "Draft only; a person decides whether to send.",
@@ -62,6 +68,7 @@ def test_ai_system_api_enforces_tenant_and_approval_boundaries() -> None:
         assert created.status_code == 201
         system_id = created.json()["id"]
         assert created.json()["status"] == "draft"
+        assert created.json()["vendor_review_gaps"] == []
         assert client.get("/api/ai-systems").json()[0]["id"] == system_id
         assert client.get(f"/api/ai-systems/{system_id}").status_code == 200
         triage = client.get(f"/api/ai-systems/{system_id}/internal-risk")
