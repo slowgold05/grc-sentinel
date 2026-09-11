@@ -37,6 +37,7 @@ export default function Home() {
           </div>
           <div className="flex flex-wrap gap-3 text-sm lg:justify-end">
             <AuthControls />
+            <Link href="/ai-systems" className="rounded-full border border-red-500/30 px-4 py-2 font-medium text-red-400 hover:bg-red-500/10">AI systems</Link>
             <Link href="/risks" className="rounded-full border border-red-500/30 px-4 py-2 font-medium text-red-400 hover:bg-red-500/10">Risk register</Link>
             <Link href="/monitoring" className="rounded-full border border-red-500/30 px-4 py-2 font-medium text-red-400 hover:bg-red-500/10">Monitoring</Link>
             <Link href="/questionnaires" className="rounded-full border border-red-500/30 px-4 py-2 font-medium text-red-400 hover:bg-red-500/10">Questionnaires</Link>

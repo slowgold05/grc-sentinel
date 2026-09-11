@@ -1,0 +1,159 @@
+"use client";
+
+import { useAuth } from "@clerk/nextjs";
+import { FormEvent, useCallback, useEffect, useState } from "react";
+
+const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
+type Engagement = { id: string; company: { company_name: string } };
+type AISystem = {
+  id: string; engagement_id: string; name: string; description: string; owner: string;
+  business_purpose: string; status: string; deployment_date: string | null;
+  next_review_date: string | null; created_at: string;
+  profile: {
+    operator_roles: string[]; model_name: string; vendor: string; intended_users: string[];
+    affected_persons: string[]; decision_impact: string; data_categories: string[];
+    geographies: string[]; external_access: boolean; autonomy: string;
+    tool_access: boolean; human_oversight: string;
+  };
+};
+
+const fieldClass = "rounded-lg border border-zinc-700 bg-black px-3 py-2 text-slate-100 placeholder:text-zinc-600";
+const split = (value: FormDataEntryValue | null) => String(value ?? "").split(",").map((item) => item.trim()).filter(Boolean);
+
+function StatusBadge({ status }: { status: string }) {
+  const tone = status === "suspended" ? "bg-amber-400/10 text-amber-300" : status === "retired" ? "bg-zinc-700 text-zinc-300" : "bg-red-400/10 text-red-300";
+  return <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${tone}`}>{status.replaceAll("_", " ")}</span>;
+}
+
+export function AISystemInventory() {
+  const { getToken, isLoaded, userId } = useAuth();
+  const [systems, setSystems] = useState<AISystem[]>([]);
+  const [engagements, setEngagements] = useState<Engagement[]>([]);
+  const [selected, setSelected] = useState<AISystem | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const request = useCallback(async (path: string, init?: RequestInit) => {
+    const token = await getToken();
+    if (!token) throw new Error("Sign in and select an organization first");
+    const response = await fetch(`${apiUrl}${path}`, {
+      ...init,
+      headers: { Authorization: `Bearer ${token}`, ...(init?.body ? { "Content-Type": "application/json" } : {}) },
+    });
+    if (!response.ok) {
+      const detail = await response.json().catch(() => null);
+      throw new Error(detail?.detail ?? "The AI inventory request failed");
+    }
+    return response.json();
+  }, [getToken]);
+
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [systemRows, engagementRows] = await Promise.all([request("/api/ai-systems"), request("/api/engagements")]);
+      setSystems(systemRows);
+      setEngagements(engagementRows);
+      setSelected((current) => current ? systemRows.find((row: AISystem) => row.id === current.id) ?? null : null);
+      setError("");
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Could not load the AI inventory");
+    } finally {
+      setLoading(false);
+    }
+  }, [request]);
+
+  useEffect(() => { if (userId) void refresh(); else setLoading(false); }, [refresh, userId]);
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSaving(true);
+    setError("");
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
+    try {
+      const created = await request("/api/ai-systems", {
+        method: "POST",
+        body: JSON.stringify({
+          engagement_id: form.get("engagement_id"), name: form.get("name"), description: form.get("description"),
+          owner: form.get("owner"), business_purpose: form.get("business_purpose"),
+          deployment_date: form.get("deployment_date") || null, next_review_date: form.get("next_review_date") || null,
+          profile: {
+            operator_roles: [form.get("operator_role")], model_name: form.get("model_name"), vendor: form.get("vendor"),
+            intended_users: split(form.get("intended_users")), affected_persons: split(form.get("affected_persons")),
+            decision_impact: form.get("decision_impact"), data_categories: split(form.get("data_categories")),
+            geographies: split(form.get("geographies")), external_access: form.get("external_access") === "on",
+            autonomy: form.get("autonomy"), tool_access: form.get("tool_access") === "on",
+            human_oversight: form.get("human_oversight"),
+          },
+        }),
+      });
+      formElement.reset();
+      await refresh();
+      setSelected(created);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Could not create the AI system");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function changeStatus(status: string) {
+    if (!selected) return;
+    setSaving(true);
+    try {
+      const updated = await request(`/api/ai-systems/${selected.id}/status`, { method: "PATCH", body: JSON.stringify({ status }) });
+      setSelected(updated);
+      setSystems((rows) => rows.map((row) => row.id === updated.id ? updated : row));
+      setError("");
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Could not update lifecycle state");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (!isLoaded || loading) return <p className="mt-8 text-sm text-slate-400">Loading AI inventory&hellip;</p>;
+  if (!userId) return <p className="mt-8 text-sm text-slate-400">Sign in and select an organization to manage AI systems.</p>;
+
+  return (
+    <section className="grid gap-8 py-10 xl:grid-cols-[minmax(22rem,0.8fr)_minmax(28rem,1.2fr)]" aria-label="AI system inventory">
+      <div>
+        <h2 className="text-xl font-semibold">Registered systems</h2>
+        <p className="mt-2 text-sm text-slate-400">Tenant-scoped records protected by PostgreSQL row-level security.</p>
+        {systems.length === 0 && <p className="mt-5 rounded-xl border border-dashed border-zinc-700 p-5 text-sm text-slate-400">No AI systems yet. Create the first inventory record.</p>}
+        <div className="mt-5 space-y-3">
+          {systems.map((system) => <button key={system.id} type="button" onClick={() => setSelected(system)} className="block w-full rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-left hover:border-red-500/40 focus:outline-none focus:ring-2 focus:ring-red-500"><span className="flex items-start justify-between gap-3"><span className="font-semibold">{system.name}</span><StatusBadge status={system.status} /></span><span className="mt-2 block text-sm text-slate-400">{system.profile.vendor} / {system.profile.model_name}</span></button>)}
+        </div>
+        {selected && <article className="mt-5 rounded-xl border border-red-500/20 bg-red-500/[0.04] p-5" aria-live="polite"><div className="flex items-start justify-between gap-3"><h3 className="text-lg font-semibold">{selected.name}</h3><StatusBadge status={selected.status} /></div><dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2"><div><dt className="text-slate-500">Owner</dt><dd>{selected.owner}</dd></div><div><dt className="text-slate-500">Role</dt><dd>{selected.profile.operator_roles.join(", ")}</dd></div><div><dt className="text-slate-500">Purpose</dt><dd>{selected.business_purpose}</dd></div><div><dt className="text-slate-500">Decision impact</dt><dd>{selected.profile.decision_impact}</dd></div><div><dt className="text-slate-500">Data</dt><dd>{selected.profile.data_categories.join(", ") || "None recorded"}</dd></div><div><dt className="text-slate-500">Oversight</dt><dd>{selected.profile.human_oversight}</dd></div></dl><div className="mt-5 flex flex-wrap gap-2">{["in_review", "suspended", "retired"].map((status) => <button key={status} type="button" disabled={saving || selected.status === status} onClick={() => void changeStatus(status)} className="rounded-lg border border-zinc-700 px-3 py-2 text-xs font-medium hover:border-red-500 disabled:cursor-not-allowed disabled:opacity-40">Mark {status.replaceAll("_", " ")}</button>)}</div><p className="mt-3 text-xs text-slate-500">Approval and deployment require the protected human approval gate.</p></article>}
+      </div>
+
+      <form onSubmit={submit} className="grid gap-4 rounded-2xl border border-zinc-800 bg-zinc-950 p-6 sm:grid-cols-2" id="new-ai-system">
+        <div className="sm:col-span-2"><h2 className="text-xl font-semibold">Register an AI system</h2><p className="mt-2 text-sm text-slate-400">Capture facts only; this form does not make a legal classification.</p></div>
+        <label className="grid gap-1 text-sm">Engagement<select required name="engagement_id" className={fieldClass}><option value="">Select an engagement</option>{engagements.map((item) => <option key={item.id} value={item.id}>{item.company.company_name}</option>)}</select></label>
+        <label className="grid gap-1 text-sm">System name<input required name="name" maxLength={200} className={fieldClass} /></label>
+        <label className="grid gap-1 text-sm">Owner<input required name="owner" maxLength={200} className={fieldClass} /></label>
+        <label className="grid gap-1 text-sm">Business purpose<input required name="business_purpose" maxLength={2000} className={fieldClass} /></label>
+        <label className="grid gap-1 text-sm sm:col-span-2">Description<textarea required name="description" maxLength={10000} rows={2} className={fieldClass} /></label>
+        <label className="grid gap-1 text-sm">Model<input required name="model_name" maxLength={200} className={fieldClass} /></label>
+        <label className="grid gap-1 text-sm">Vendor<input required name="vendor" maxLength={200} className={fieldClass} /></label>
+        <label className="grid gap-1 text-sm">Operator role<select name="operator_role" className={fieldClass}>{["deployer", "provider", "importer", "distributor", "product_manufacturer", "gpai_provider", "unknown"].map((role) => <option key={role}>{role}</option>)}</select></label>
+        <label className="grid gap-1 text-sm">Intended users<input required name="intended_users" placeholder="Analysts, reviewers" className={fieldClass} /></label>
+        <label className="grid gap-1 text-sm">Affected persons<input name="affected_persons" placeholder="Customers, applicants" className={fieldClass} /></label>
+        <label className="grid gap-1 text-sm">Data categories<input name="data_categories" placeholder="Account data, support tickets" className={fieldClass} /></label>
+        <label className="grid gap-1 text-sm">Geographies<input name="geographies" placeholder="US, Singapore" className={fieldClass} /></label>
+        <label className="grid gap-1 text-sm">Autonomy<input required name="autonomy" maxLength={200} placeholder="Advisory only" className={fieldClass} /></label>
+        <label className="grid gap-1 text-sm sm:col-span-2">Decision impact<textarea required name="decision_impact" maxLength={1000} rows={2} className={fieldClass} /></label>
+        <label className="grid gap-1 text-sm sm:col-span-2">Human oversight<textarea required name="human_oversight" maxLength={2000} rows={2} className={fieldClass} /></label>
+        <label className="grid gap-1 text-sm">Deployment date<input name="deployment_date" type="date" className={fieldClass} /></label>
+        <label className="grid gap-1 text-sm">Next review date<input name="next_review_date" type="date" className={fieldClass} /></label>
+        <label className="flex items-center gap-2 text-sm"><input name="external_access" type="checkbox" /> External users can access it</label>
+        <label className="flex items-center gap-2 text-sm"><input name="tool_access" type="checkbox" /> Can invoke tools or actions</label>
+        {engagements.length === 0 && <p className="text-sm text-amber-300 sm:col-span-2">Create an engagement on the coverage page before registering an AI system.</p>}
+        <button disabled={saving || engagements.length === 0} className="rounded-lg bg-red-400 px-4 py-2 font-semibold text-black hover:bg-red-300 disabled:cursor-not-allowed disabled:opacity-40 sm:col-span-2">{saving ? "Saving…" : "Register system"}</button>
+        {error && <p role="alert" className="text-sm text-rose-300 sm:col-span-2">{error}</p>}
+      </form>
+    </section>
+  );
+}

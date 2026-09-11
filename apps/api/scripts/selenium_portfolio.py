@@ -23,6 +23,7 @@ PUBLIC_PAGES = {
     "07-framework-drift.png": ("/framework-drift", "Regulatory drift impact"),
     "08-policies.png": ("/policies", "Verified policy exports"),
     "09-trust-center.png": ("/trust", "The platform follows the controls it recommends."),
+    "11-ai-systems.png": ("/ai-systems", "Know every AI system you govern."),
 }
 
 
