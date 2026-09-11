@@ -15,6 +15,13 @@ from ruleset.audit_hub import (
     resolve_share,
     revoke_share,
 )
+from ruleset.ai_governance.inventory import (
+    create_ai_system,
+    get_ai_system,
+    list_ai_systems,
+    update_ai_system_state,
+)
+from ruleset.ai_governance.models import AISystemCreate, AISystemRecord, AISystemStateUpdate
 from ruleset.auth import CurrentTenant, TenantIdentity
 from ruleset.config import settings
 from ruleset.coverage_analysis import analyze_upload_coverage
@@ -124,6 +131,46 @@ def remove_audit_share(token: str, identity: CurrentTenant) -> Response:
 def current_tenant(identity: CurrentTenant) -> TenantIdentity:
     """Prove the verified Clerk organization-to-RLS tenant mapping."""
     return identity
+
+
+@app.post("/api/ai-systems", response_model=AISystemRecord, status_code=status.HTTP_201_CREATED)
+def post_ai_system(payload: AISystemCreate, identity: CurrentTenant) -> AISystemRecord:
+    """Create an AI system inside the authenticated tenant."""
+    try:
+        return create_ai_system(engine, identity.org_id, identity.user_id, payload)
+    except LookupError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+
+
+@app.get("/api/ai-systems", response_model=list[AISystemRecord])
+def get_ai_systems(identity: CurrentTenant) -> list[AISystemRecord]:
+    """List AI systems visible to the authenticated tenant."""
+    return list_ai_systems(engine, identity.org_id)
+
+
+@app.get("/api/ai-systems/{system_id}", response_model=AISystemRecord)
+def get_ai_system_detail(system_id: UUID, identity: CurrentTenant) -> AISystemRecord:
+    """Return one AI system visible to the authenticated tenant."""
+    record = get_ai_system(engine, identity.org_id, system_id)
+    if record is None:
+        raise HTTPException(status_code=404, detail="AI system not found")
+    return record
+
+
+@app.patch("/api/ai-systems/{system_id}/status", response_model=AISystemRecord)
+def patch_ai_system_status(
+    system_id: UUID, payload: AISystemStateUpdate, identity: CurrentTenant
+) -> AISystemRecord:
+    """Change an AI system state without bypassing future approval gates."""
+    try:
+        record = update_ai_system_state(
+            engine, identity.org_id, system_id, payload.status, identity.user_id
+        )
+    except ValueError as error:
+        raise HTTPException(status_code=409, detail=str(error)) from error
+    if record is None:
+        raise HTTPException(status_code=404, detail="AI system not found")
+    return record
 
 
 @app.get("/api/frameworks", response_model=list[FrameworkOption])

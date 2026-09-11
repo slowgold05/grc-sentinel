@@ -45,6 +45,14 @@ def test_hard_delete_leaves_no_engagement_artifacts() -> None:
             ),
             {"org_id": org_id, "engagement_id": engagement_id, "framework_id": framework_id},
         )
+        connection.execute(
+            text(
+                "INSERT INTO ai_systems "
+                "(org_id, engagement_id, name, description, owner_name, business_purpose, profile) "
+                "VALUES (:org_id, :engagement_id, 'assistant', 'test', 'owner', 'test', '{}')"
+            ),
+            {"org_id": org_id, "engagement_id": engagement_id},
+        )
     determination = Determination(
         rule_id="hipaa-covered-entity-v2",
         rule_version=2,
@@ -79,11 +87,12 @@ def test_hard_delete_leaves_no_engagement_artifacts() -> None:
                     "(SELECT count(*) FROM determinations WHERE org_id = :org_id), "
                     "(SELECT count(*) FROM uploads WHERE org_id = :org_id), "
                     "(SELECT count(*) FROM upload_chunks WHERE org_id = :org_id), "
-                    "(SELECT count(*) FROM assurance_objectives WHERE org_id = :org_id)"
+                    "(SELECT count(*) FROM assurance_objectives WHERE org_id = :org_id), "
+                    "(SELECT count(*) FROM ai_systems WHERE org_id = :org_id)"
                 ),
                 {"org_id": org_id},
             ).one()
-        assert tuple(counts) == (0, 0, 0, 0, 0)
+        assert tuple(counts) == (0, 0, 0, 0, 0, 0)
     finally:
         with engine.begin() as connection:
             connection.execute(

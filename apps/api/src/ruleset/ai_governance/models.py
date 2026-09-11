@@ -1,7 +1,11 @@
-from datetime import datetime
+from datetime import date, datetime
 from enum import StrEnum
+from typing import Annotated
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+ShortLabel = Annotated[str, Field(min_length=1, max_length=200)]
 
 
 class LifecycleStatus(StrEnum):
@@ -127,3 +131,62 @@ class IncidentClassification(BaseModel):
     severity: IncidentSeverity
     summary: str = Field(min_length=1, max_length=10_000)
     regulatory_review_required: bool
+
+
+class AISystemProfile(BaseModel):
+    """Validated facts describing one inventoried AI system."""
+
+    model_config = ConfigDict(extra="forbid")
+    operator_roles: list[OperatorRole] = Field(min_length=1, max_length=7)
+    model_name: str = Field(min_length=1, max_length=200)
+    vendor: str = Field(min_length=1, max_length=200)
+    intended_users: list[ShortLabel] = Field(min_length=1, max_length=50)
+    affected_persons: list[ShortLabel] = Field(default_factory=list, max_length=50)
+    decision_impact: str = Field(min_length=1, max_length=1_000)
+    data_categories: list[ShortLabel] = Field(default_factory=list, max_length=50)
+    geographies: list[ShortLabel] = Field(default_factory=list, max_length=50)
+    external_access: bool
+    autonomy: str = Field(min_length=1, max_length=200)
+    tool_access: bool
+    human_oversight: str = Field(min_length=1, max_length=2_000)
+
+
+class AISystemCreate(BaseModel):
+    """Validated request for an engagement-owned AI system."""
+
+    model_config = ConfigDict(extra="forbid")
+    engagement_id: UUID
+    name: str = Field(min_length=1, max_length=200)
+    description: str = Field(min_length=1, max_length=10_000)
+    owner: str = Field(min_length=1, max_length=200)
+    business_purpose: str = Field(min_length=1, max_length=2_000)
+    profile: AISystemProfile
+    deployment_date: date | None = None
+    next_review_date: date | None = None
+
+    @model_validator(mode="after")
+    def review_follows_deployment(self) -> "AISystemCreate":
+        """Reject a review date earlier than the deployment date."""
+        if (
+            self.deployment_date is not None
+            and self.next_review_date is not None
+            and self.next_review_date < self.deployment_date
+        ):
+            raise ValueError("next_review_date cannot precede deployment_date")
+        return self
+
+
+class AISystemStateUpdate(BaseModel):
+    """Validated lifecycle-state change request."""
+
+    model_config = ConfigDict(extra="forbid")
+    status: LifecycleStatus
+
+
+class AISystemRecord(AISystemCreate):
+    """Stored AI system inventory record."""
+
+    id: UUID
+    status: LifecycleStatus
+    created_at: datetime
+    updated_at: datetime

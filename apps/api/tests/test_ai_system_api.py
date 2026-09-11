@@ -1,0 +1,101 @@
+from uuid import UUID, uuid4
+
+from fastapi.testclient import TestClient
+from sqlalchemy import text
+
+from ruleset.auth import TenantIdentity, require_tenant
+from ruleset.database import engine
+from ruleset.main import app
+
+
+def _identity(org_id: UUID, user: str) -> TenantIdentity:
+    return TenantIdentity(org_id=org_id, user_id=user, provider_org_id=f"org_{org_id}")
+
+
+def test_ai_system_api_enforces_tenant_and_approval_boundaries() -> None:
+    """Create, read, transition, audit, isolate, and cascade-delete an AI system."""
+    org_a, org_b, engagement_id = uuid4(), uuid4(), uuid4()
+    with engine.begin() as connection:
+        for org_id in (org_a, org_b):
+            connection.execute(
+                text("SELECT set_config('app.org_id', :id, true)"), {"id": str(org_id)}
+            )
+            connection.execute(
+                text("INSERT INTO orgs (id, name) VALUES (:id, :name)"),
+                {"id": org_id, "name": f"AI inventory {org_id}"},
+            )
+        connection.execute(
+            text("SELECT set_config('app.org_id', :id, true)"), {"id": str(org_a)}
+        )
+        connection.execute(
+            text("INSERT INTO engagements (id, org_id, company, expires_at) VALUES "
+                 "(:id, :org_id, '{}', now() + interval '1 day')"),
+            {"id": engagement_id, "org_id": org_a},
+        )
+
+    client = TestClient(app)
+    payload = {
+        "engagement_id": str(engagement_id),
+        "name": "LedgerPeak Support Assistant",
+        "description": "Drafts support replies for human review.",
+        "owner": "Customer Operations",
+        "business_purpose": "Reduce response drafting time.",
+        "profile": {
+            "operator_roles": ["deployer"],
+            "model_name": "qwen3:14b",
+            "vendor": "Ollama local",
+            "intended_users": ["support agents"],
+            "affected_persons": ["customers"],
+            "decision_impact": "Draft only; a person decides whether to send.",
+            "data_categories": ["support tickets"],
+            "geographies": ["Singapore", "United States"],
+            "external_access": False,
+            "autonomy": "drafting only",
+            "tool_access": False,
+            "human_oversight": "A support agent reviews every draft.",
+        },
+    }
+    try:
+        app.dependency_overrides[require_tenant] = lambda: _identity(org_a, "owner_a")
+        created = client.post("/api/ai-systems", json=payload)
+        assert created.status_code == 201
+        system_id = created.json()["id"]
+        assert created.json()["status"] == "draft"
+        assert client.get("/api/ai-systems").json()[0]["id"] == system_id
+        assert client.get(f"/api/ai-systems/{system_id}").status_code == 200
+        transitioned = client.patch(
+            f"/api/ai-systems/{system_id}/status", json={"status": "in_review"}
+        )
+        assert transitioned.status_code == 200
+        assert transitioned.json()["status"] == "in_review"
+        assert client.patch(
+            f"/api/ai-systems/{system_id}/status", json={"status": "deployed"}
+        ).status_code == 409
+
+        app.dependency_overrides[require_tenant] = lambda: _identity(org_b, "owner_b")
+        assert client.get("/api/ai-systems").json() == []
+        assert client.get(f"/api/ai-systems/{system_id}").status_code == 404
+        assert client.patch(
+            f"/api/ai-systems/{system_id}/status", json={"status": "retired"}
+        ).status_code == 404
+
+        app.dependency_overrides[require_tenant] = lambda: _identity(org_a, "owner_a")
+        with engine.begin() as connection:
+            connection.execute(
+                text("SELECT set_config('app.org_id', :id, true)"), {"id": str(org_a)}
+            )
+            assert connection.execute(
+                text("SELECT count(*) FROM audit_events WHERE engagement_id = :id "
+                     "AND event_type LIKE 'ai_system_%'"),
+                {"id": engagement_id},
+            ).scalar_one() == 2
+        assert client.delete(f"/api/engagements/{engagement_id}").status_code == 204
+        assert client.get("/api/ai-systems").json() == []
+    finally:
+        app.dependency_overrides.clear()
+        for org_id in (org_a, org_b):
+            with engine.begin() as connection:
+                connection.execute(
+                    text("SELECT set_config('app.org_id', :id, true)"), {"id": str(org_id)}
+                )
+                connection.execute(text("DELETE FROM orgs WHERE id = :id"), {"id": org_id})
