@@ -10,6 +10,10 @@ class DecisionValidationError(Exception):
     """Raised when a decision references invalid or incomplete tenant state."""
 
 
+class StaleDecisionError(Exception):
+    """Raised when the reviewer's expected decision history is no longer current."""
+
+
 def create_governance_decision(engine: Engine, org_id: UUID, system_id: UUID, actor: str, request: GovernanceDecisionCreate) -> GovernanceDecisionRecord:
     """Append a decision that supersedes the latest decision of the same type."""
     if request.expires_at is not None and request.expires_at <= datetime.now(UTC):
@@ -21,6 +25,9 @@ def create_governance_decision(engine: Engine, org_id: UUID, system_id: UUID, ac
         engagement_id = connection.execute(text("SELECT engagement_id FROM ai_systems WHERE id = :id"), {"id": system_id}).scalar_one_or_none()
         if engagement_id is None:
             raise LookupError("AI system not found")
+        connection.execute(
+            text("SELECT id FROM ai_systems WHERE id = :id FOR UPDATE"), {"id": system_id}
+        ).scalar_one()
         if request.assessment_version_id is not None and connection.execute(
             text("SELECT id FROM ai_impact_assessment_versions WHERE id = :id AND ai_system_id = :system_id"),
             {"id": request.assessment_version_id, "system_id": system_id},
@@ -30,6 +37,8 @@ def create_governance_decision(engine: Engine, org_id: UUID, system_id: UUID, ac
             text("SELECT id FROM ai_governance_decisions WHERE ai_system_id = :system_id AND decision_type = :decision_type ORDER BY decided_at DESC, id DESC LIMIT 1"),
             {"system_id": system_id, "decision_type": request.decision_type.value},
         ).scalar_one_or_none()
+        if supersedes_id != request.expected_latest_decision_id:
+            raise StaleDecisionError("decision history changed; refresh before deciding")
         row = connection.execute(
             text("INSERT INTO ai_governance_decisions (org_id, engagement_id, ai_system_id, decision_type, outcome, rationale, assessment_version_id, supersedes_id, decided_by, expires_at) VALUES (:org_id, :engagement_id, :system_id, :decision_type, :outcome, :rationale, :assessment_version_id, :supersedes_id, :actor, :expires_at) RETURNING *"),
             {"org_id": org_id, "engagement_id": engagement_id, "system_id": system_id, "decision_type": request.decision_type.value, "outcome": request.outcome.value, "rationale": request.rationale, "assessment_version_id": request.assessment_version_id, "supersedes_id": supersedes_id, "actor": actor, "expires_at": request.expires_at},
@@ -41,6 +50,7 @@ def create_governance_decision(engine: Engine, org_id: UUID, system_id: UUID, ac
         values = dict(row)
         values.pop("org_id")
         values.pop("engagement_id")
+        values["expected_latest_decision_id"] = request.expected_latest_decision_id
         return GovernanceDecisionRecord.model_validate(values)
 
 
@@ -49,4 +59,4 @@ def list_governance_decisions(engine: Engine, org_id: UUID, system_id: UUID) -> 
     with engine.begin() as connection:
         connection.execute(text("SELECT set_config('app.org_id', :id, true)"), {"id": str(org_id)})
         rows = connection.execute(text("SELECT * FROM ai_governance_decisions WHERE ai_system_id = :id ORDER BY decided_at DESC, id DESC"), {"id": system_id}).mappings()
-        return [GovernanceDecisionRecord.model_validate({key: value for key, value in row.items() if key not in {"org_id", "engagement_id"}}) for row in rows]
+        return [GovernanceDecisionRecord.model_validate({**{key: value for key, value in row.items() if key not in {"org_id", "engagement_id"}}, "expected_latest_decision_id": row["supersedes_id"]}) for row in rows]

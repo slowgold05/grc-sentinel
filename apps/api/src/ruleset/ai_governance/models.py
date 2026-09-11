@@ -95,6 +95,8 @@ class GovernanceDecisionType(StrEnum):
     MATERIAL_CHANGE = "material_change"
     EXCEPTION = "exception"
     RETIREMENT = "retirement"
+    RESIDUAL_RISK = "residual_risk"
+    LEGAL_REVIEW = "legal_review"
 
 
 class EvaluationResult(StrEnum):
@@ -160,6 +162,7 @@ class GovernanceDecisionCreate(BaseModel):
     rationale: str = Field(min_length=1, max_length=10_000)
     assessment_version_id: UUID | None = None
     expires_at: datetime | None = None
+    expected_latest_decision_id: UUID | None = None
 
 
 class GovernanceDecisionRecord(GovernanceDecisionCreate):
@@ -170,6 +173,31 @@ class GovernanceDecisionRecord(GovernanceDecisionCreate):
     supersedes_id: UUID | None
     decided_by: str
     decided_at: datetime
+
+
+class DeploymentGateFacts(BaseModel):
+    """Explicit current facts consumed by the pure deployment gate."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    assessment_current: bool
+    assessment_approved: bool
+    residual_risk_decided: bool
+    residual_risk_accepted: bool
+    evaluation_required: bool
+    evaluation_current: bool
+    evaluation_passed: bool
+    exception_required: bool
+    exception_valid: bool
+    legal_review_required: bool
+    legal_review_approved: bool
+
+
+class DeploymentGateResult(BaseModel):
+    """Deterministic blocker list that no model may alter."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    allowed: bool
+    blockers: tuple[str, ...]
 
 
 class EvaluationVerdict(BaseModel):

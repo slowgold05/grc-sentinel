@@ -28,6 +28,7 @@ from ruleset.ai_governance.assessments import (
 )
 from ruleset.ai_governance.decisions import (
     DecisionValidationError,
+    StaleDecisionError,
     create_governance_decision,
     list_governance_decisions,
 )
@@ -262,6 +263,8 @@ def post_ai_governance_decision(system_id: UUID, payload: GovernanceDecisionCrea
         raise HTTPException(status_code=404, detail=str(error)) from error
     except DecisionValidationError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
+    except StaleDecisionError as error:
+        raise HTTPException(status_code=409, detail=str(error)) from error
 
 
 @app.get("/api/ai-systems/{system_id}/decisions", response_model=list[GovernanceDecisionRecord])

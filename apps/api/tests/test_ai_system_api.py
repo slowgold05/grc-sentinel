@@ -131,10 +131,21 @@ def test_ai_system_api_enforces_tenant_and_approval_boundaries() -> None:
                 "outcome": "approved",
                 "rationale": "Monitoring actions were verified.",
                 "assessment_version_id": second_version["id"],
+                "expected_latest_decision_id": first_decision.json()["id"],
             },
         )
         assert replacement.status_code == 201
         assert replacement.json()["supersedes_id"] == first_decision.json()["id"]
+        assert client.post(
+            f"/api/ai-systems/{system_id}/decisions",
+            json={
+                "decision_type": "assessment",
+                "outcome": "rejected",
+                "rationale": "Stale review attempt.",
+                "assessment_version_id": second_version["id"],
+                "expected_latest_decision_id": first_decision.json()["id"],
+            },
+        ).status_code == 409
         history = client.get(f"/api/ai-systems/{system_id}/decisions").json()
         assert len(history) == 2
         for decision_type in ("deployment", "material_change", "exception", "retirement"):
