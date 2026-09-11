@@ -23,10 +23,18 @@ def test_exports_policy_and_traceability_appendix() -> None:
                 tested_at=datetime(2026, 8, 30, tzinfo=UTC),
             )
         ],
+        source_versions=[
+            {"framework": "NIST AI RMF", "version": "1.0", "classification": "voluntary framework"}
+        ],
+        approver="reviewer@example.test",
+        gaps=["ISO/IEC 42001 licensed corpus not installed"],
     )
     document = Document(BytesIO(content))
     text = "\n".join(paragraph.text for paragraph in document.paragraphs)
     assert "Access Control Policy" in text
     assert "professional review required" in text
+    assert "reviewer@example.test" in text
+    assert "NIST AI RMF 1.0" in text
+    assert "ISO/IEC 42001 licensed corpus not installed" in text
     assert document.tables[0].rows[1].cells[2].text == "IA-2"
     assert document.tables[1].rows[1].cells[0].text == "github-org-mfa-v1"

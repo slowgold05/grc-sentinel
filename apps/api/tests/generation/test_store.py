@@ -8,6 +8,8 @@ from ruleset.config import settings
 from ruleset.generation.faithfulness import FaithfulnessVerdict
 from ruleset.generation.models import CitationVerdict, GeneratedStatement, GenerationOutput
 from ruleset.generation.store import (
+    PolicyApproval,
+    approve_policy,
     export_stored_policy,
     list_policies,
     record_model_usage,
@@ -53,7 +55,38 @@ def test_stores_only_citation_verified_policy_and_usage() -> None:
             output,
             CitationVerdict(accepted=True, invalid_control_ids=[]),
             [FaithfulnessVerdict(faithful=True, issue="")],
+            source_versions=[
+                {
+                    "framework": "NIST AI RMF",
+                    "version": "1.0",
+                    "classification": "voluntary framework",
+                }
+            ],
+            gaps=["Human review required"],
         )
+        with pytest.raises(LookupError):
+            approve_policy(
+                engine,
+                uuid4(),
+                policy_id,
+                "other-tenant",
+                PolicyApproval(rationale="Must not cross tenant boundary"),
+            )
+        approve_policy(
+            engine,
+            org_id,
+            policy_id,
+            "reviewer@example.test",
+            PolicyApproval(rationale="Reviewed against the selected objective"),
+        )
+        with pytest.raises(LookupError, match="already approved"):
+            approve_policy(
+                engine,
+                org_id,
+                policy_id,
+                "reviewer@example.test",
+                PolicyApproval(rationale="Duplicate approval"),
+            )
         record_model_usage(
             engine,
             org_id,

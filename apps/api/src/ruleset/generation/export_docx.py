@@ -56,6 +56,9 @@ def export_policy_docx(
     ruleset_version: str,
     statements: list[GeneratedStatement],
     evidence: list[EvidenceReference] | None = None,
+    source_versions: list[dict[str, str]] | None = None,
+    approver: str | None = None,
+    gaps: list[str] | None = None,
 ) -> bytes:
     """Build an auditor-readable policy with a control traceability appendix."""
     document = Document()
@@ -87,6 +90,7 @@ def export_policy_docx(
         ("Generated", generated_at.isoformat()),
         ("Ruleset", ruleset_version),
         ("Status", "Draft - professional review required"),
+        ("Approver", approver or "Pending human approval"),
     ):
         paragraph = document.add_paragraph()
         paragraph.paragraph_format.space_after = Pt(2)
@@ -119,6 +123,19 @@ def export_policy_docx(
         cells[0].text = str(index)
         cells[1].text = statement.text
         cells[2].text = ", ".join(statement.control_ids)
+
+    document.add_heading("Source Versions", level=1)
+    if source_versions:
+        for source in source_versions:
+            document.add_paragraph(
+                f"{source['framework']} {source['version']} — {source['classification']}"
+            )
+    else:
+        document.add_paragraph("No source-version snapshot recorded.")
+
+    document.add_heading("Review Gaps", level=1)
+    for gap in gaps or ["None recorded; human review remains required."]:
+        document.add_paragraph(gap)
 
     if evidence:
         document.add_heading("Control Evidence", level=1)

@@ -65,6 +65,12 @@ from ruleset.ai_governance.objectives import (
     create_ai_objective,
     list_ai_objectives,
 )
+from ruleset.ai_governance.policy_suite import (
+    AIPolicyDraftCreated,
+    AIPolicyDraftRequest,
+    AIPolicyType,
+    generate_ai_policy,
+)
 from ruleset.ai_governance.triage import evaluate_internal_risk
 from ruleset.ai_governance.versions import append_system_version, list_system_versions
 from ruleset.auth import CurrentTenant, TenantIdentity
@@ -83,8 +89,10 @@ from ruleset.engagements import (
     list_engagements,
 )
 from ruleset.generation.store import (
+    PolicyApproval,
     PolicySummary,
     UsageSummary,
+    approve_policy,
     export_stored_policy,
     list_policies,
     summarize_usage,
@@ -397,6 +405,58 @@ def get_questionnaire_answers(identity: CurrentTenant) -> list[AnswerRecord]:
 @app.get("/api/policies", response_model=list[PolicySummary])
 def get_policies(identity: CurrentTenant) -> list[PolicySummary]:
     return list_policies(engine, identity.org_id)
+
+
+@app.post(
+    "/api/ai-systems/{system_id}/policies/{policy_type}",
+    response_model=AIPolicyDraftCreated,
+    status_code=status.HTTP_201_CREATED,
+)
+async def post_ai_policy(
+    system_id: UUID,
+    policy_type: AIPolicyType,
+    payload: AIPolicyDraftRequest,
+    identity: CurrentTenant,
+) -> AIPolicyDraftCreated:
+    async def generate(prompt: str, schema: dict[str, object]):
+        return await call_model_json(
+            prompt,
+            schema,
+            base_url=settings.llm_base_url,
+            model=settings.llm_generation_model,
+            max_tokens=1_500,
+            api_key=settings.llm_api_key.get_secret_value() if settings.llm_api_key else None,
+        )
+
+    async def verify(prompt: str, schema: dict[str, object]):
+        return await call_model_json(
+            prompt,
+            schema,
+            base_url=settings.llm_base_url,
+            model=settings.llm_verifier_model,
+            max_tokens=300,
+            api_key=settings.llm_api_key.get_secret_value() if settings.llm_api_key else None,
+        )
+
+    try:
+        return await generate_ai_policy(
+            engine, identity.org_id, system_id, policy_type, payload, generate, verify
+        )
+    except LookupError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
+
+@app.post("/api/policies/{policy_id}/approve", status_code=status.HTTP_204_NO_CONTENT)
+def post_policy_approval(
+    policy_id: UUID, payload: PolicyApproval, identity: CurrentTenant
+) -> Response:
+    try:
+        approve_policy(engine, identity.org_id, policy_id, identity.user_id, payload)
+    except LookupError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @app.get("/api/model-usage", response_model=UsageSummary)

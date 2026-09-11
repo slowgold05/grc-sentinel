@@ -1,7 +1,8 @@
+import json
 from uuid import UUID
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import Engine, text
 
 from ruleset.generation.faithfulness import FaithfulnessVerdict
@@ -21,6 +22,12 @@ class UsageSummary(BaseModel):
     input_tokens: int
     output_tokens: int
     cost_microusd: int
+
+
+class PolicyApproval(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    rationale: str = Field(min_length=1, max_length=10_000)
 
 
 def summarize_usage(engine: Engine, org_id: UUID) -> UsageSummary:
@@ -56,8 +63,9 @@ def export_stored_policy(engine: Engine, org_id: UUID, policy_id: UUID) -> tuple
         connection.execute(text("SELECT set_config('app.org_id', :id, true)"), {"id": str(org_id)})
         policy = connection.execute(
             text(
-                "SELECT p.policy_type, p.version, p.created_at, e.company FROM policies p "
-                "JOIN engagements e ON e.id = p.engagement_id WHERE p.id = :id"
+                "SELECT p.policy_type, p.version, p.created_at, p.source_versions, p.gaps, "
+                "e.company, a.approved_by FROM policies p JOIN engagements e ON e.id = p.engagement_id "
+                "LEFT JOIN policy_approvals a ON a.policy_id = p.id WHERE p.id = :id"
             ),
             {"id": policy_id},
         ).mappings().one_or_none()
@@ -85,6 +93,9 @@ def export_stored_policy(engine: Engine, org_id: UUID, policy_id: UUID) -> tuple
         generated_at=policy["created_at"],
         ruleset_version="verified-controls",
         statements=statements,
+        source_versions=policy["source_versions"],
+        approver=policy["approved_by"],
+        gaps=policy["gaps"],
     )
 
 
@@ -97,6 +108,10 @@ def store_policy(
     output: GenerationOutput,
     citations: CitationVerdict,
     faithfulness: list[FaithfulnessVerdict],
+    *,
+    ai_system_id: UUID | None = None,
+    source_versions: list[dict[str, str]] | None = None,
+    gaps: list[str] | None = None,
 ) -> UUID:
     """Atomically store policy statements only after deterministic citation acceptance."""
     if not citations.accepted:
@@ -109,10 +124,18 @@ def store_policy(
         )
         policy_id = connection.execute(
             text(
-                "INSERT INTO policies (org_id, engagement_id, policy_type) "
-                "VALUES (:org_id, :engagement_id, :policy_type) RETURNING id"
+                "INSERT INTO policies (org_id, engagement_id, policy_type, ai_system_id, "
+                "source_versions, gaps) VALUES (:org_id, :engagement_id, :policy_type, "
+                ":ai_system_id, CAST(:sources AS jsonb), :gaps) RETURNING id"
             ),
-            {"org_id": org_id, "engagement_id": engagement_id, "policy_type": policy_type},
+            {
+                "org_id": org_id,
+                "engagement_id": engagement_id,
+                "policy_type": policy_type,
+                "ai_system_id": ai_system_id,
+                "sources": json.dumps(source_versions or []),
+                "gaps": gaps or [],
+            },
         ).scalar_one()
         for sequence, (statement, verdict) in enumerate(
             zip(output.statements, faithfulness, strict=True), start=1
@@ -136,6 +159,24 @@ def store_policy(
                 },
             )
     return policy_id
+
+
+def approve_policy(
+    engine: Engine, org_id: UUID, policy_id: UUID, actor: str, approval: PolicyApproval
+) -> None:
+    """Append the authenticated human's approval; models have no path to call this directly."""
+    with engine.begin() as connection:
+        connection.execute(text("SELECT set_config('app.org_id', :id, true)"), {"id": str(org_id)})
+        inserted = connection.execute(
+            text(
+                "INSERT INTO policy_approvals (org_id, policy_id, approved_by, rationale) "
+                "SELECT :org, id, :actor, :rationale FROM policies WHERE id = :policy_id "
+                "ON CONFLICT (policy_id) DO NOTHING RETURNING id"
+            ),
+            {"org": org_id, "policy_id": policy_id, "actor": actor, "rationale": approval.rationale},
+        ).scalar_one_or_none()
+    if inserted is None:
+        raise LookupError("draft not found or already approved")
 
 
 def record_model_usage(
