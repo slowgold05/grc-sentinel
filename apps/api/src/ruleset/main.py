@@ -22,10 +22,17 @@ from ruleset.ai_governance.inventory import (
     update_ai_system_state,
 )
 from ruleset.ai_governance.models import (
+    AIAssuranceObjective,
+    AIAssuranceObjectiveCreate,
     AISystemCreate,
     AISystemRecord,
     AISystemStateUpdate,
     InternalRiskResult,
+)
+from ruleset.ai_governance.objectives import (
+    ObjectiveAlreadySelectedError,
+    create_ai_objective,
+    list_ai_objectives,
 )
 from ruleset.ai_governance.triage import evaluate_internal_risk
 from ruleset.auth import CurrentTenant, TenantIdentity
@@ -188,6 +195,23 @@ def get_ai_system_internal_risk(
     if record is None:
         raise HTTPException(status_code=404, detail="AI system not found")
     return evaluate_internal_risk(record.profile)
+
+
+@app.post("/api/ai-systems/{system_id}/objectives", response_model=AIAssuranceObjective, status_code=status.HTTP_201_CREATED)
+def post_ai_system_objective(system_id: UUID, payload: AIAssuranceObjectiveCreate, identity: CurrentTenant) -> AIAssuranceObjective:
+    """Select a voluntary or certifiable AI assurance objective."""
+    try:
+        return create_ai_objective(engine, identity.org_id, system_id, identity.user_id, payload)
+    except LookupError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    except ObjectiveAlreadySelectedError as error:
+        raise HTTPException(status_code=409, detail=str(error)) from error
+
+
+@app.get("/api/ai-systems/{system_id}/objectives", response_model=list[AIAssuranceObjective])
+def get_ai_system_objectives(system_id: UUID, identity: CurrentTenant) -> list[AIAssuranceObjective]:
+    """List selected AI assurance objectives."""
+    return list_ai_objectives(engine, identity.org_id, system_id)
 
 
 @app.get("/api/frameworks", response_model=list[FrameworkOption])

@@ -1,6 +1,6 @@
 from datetime import date, datetime
 from enum import StrEnum
-from typing import Annotated
+from typing import Annotated, Literal
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -223,6 +223,27 @@ class EUCandidateResult(BaseModel):
     status: CandidateLegalStatus
     fired_condition: str | None
     missing_facts: tuple[str, ...]
+
+
+class AIAssuranceObjectiveCreate(BaseModel):
+    """User-selected AI assurance objective; never an applicable-law claim."""
+
+    model_config = ConfigDict(extra="forbid")
+    framework: Literal["nist_ai_rmf", "iso_42001", "singapore_model_ai_governance"]
+    basis: Literal["customer_contract", "company_strategy", "regulator_request"]
+    scope: str = Field(min_length=1, max_length=2_000)
+    target_date: date | None = None
+
+
+class AIAssuranceObjective(AIAssuranceObjectiveCreate):
+    """Stored AI objective with pinned provenance and selector."""
+
+    id: UUID
+    ai_system_id: UUID
+    source_version: str
+    objective_type: Literal["voluntary", "certifiable"]
+    selected_by: str
+    created_at: datetime
 
 
 class AISystemCreate(BaseModel):

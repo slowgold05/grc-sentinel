@@ -67,6 +67,24 @@ def test_ai_system_api_enforces_tenant_and_approval_boundaries() -> None:
         assert triage.status_code == 200
         assert triage.json()["rating"] == "needs_review"
         assert "decision_consequence" in triage.json()["missing_facts"]
+        objective = client.post(
+            f"/api/ai-systems/{system_id}/objectives",
+            json={
+                "framework": "iso_42001",
+                "basis": "customer_contract",
+                "scope": "Support assistant lifecycle",
+                "target_date": "2027-01-31",
+            },
+        )
+        assert objective.status_code == 201
+        assert objective.json()["objective_type"] == "certifiable"
+        assert objective.json()["source_version"] == "2023"
+        assert objective.json()["selected_by"] == "owner_a"
+        assert len(client.get(f"/api/ai-systems/{system_id}/objectives").json()) == 1
+        assert client.post(
+            f"/api/ai-systems/{system_id}/objectives",
+            json={"framework": "iso_42001", "basis": "company_strategy", "scope": "AI"},
+        ).status_code == 409
         transitioned = client.patch(
             f"/api/ai-systems/{system_id}/status", json={"status": "in_review"}
         )
@@ -80,6 +98,11 @@ def test_ai_system_api_enforces_tenant_and_approval_boundaries() -> None:
         assert client.get("/api/ai-systems").json() == []
         assert client.get(f"/api/ai-systems/{system_id}").status_code == 404
         assert client.get(f"/api/ai-systems/{system_id}/internal-risk").status_code == 404
+        assert client.get(f"/api/ai-systems/{system_id}/objectives").json() == []
+        assert client.post(
+            f"/api/ai-systems/{system_id}/objectives",
+            json={"framework": "nist_ai_rmf", "basis": "company_strategy", "scope": "AI"},
+        ).status_code == 404
         assert client.patch(
             f"/api/ai-systems/{system_id}/status", json={"status": "retired"}
         ).status_code == 404
