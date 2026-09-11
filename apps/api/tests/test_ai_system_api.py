@@ -112,6 +112,65 @@ def test_ai_system_api_enforces_tenant_and_approval_boundaries() -> None:
         assert second_version["reviewer"] is None
         assert second_version["source_versions"]["nist_ai_rmf"] == "1.0"
         assert len(client.get(f"/api/ai-systems/{system_id}/impact-assessments").json()) == 2
+        first_decision = client.post(
+            f"/api/ai-systems/{system_id}/decisions",
+            json={
+                "decision_type": "assessment",
+                "outcome": "conditional",
+                "rationale": "Address monitoring actions before deployment.",
+                "assessment_version_id": second_version["id"],
+            },
+        )
+        assert first_decision.status_code == 201
+        assert first_decision.json()["decided_by"] == "owner_a"
+        assert first_decision.json()["supersedes_id"] is None
+        replacement = client.post(
+            f"/api/ai-systems/{system_id}/decisions",
+            json={
+                "decision_type": "assessment",
+                "outcome": "approved",
+                "rationale": "Monitoring actions were verified.",
+                "assessment_version_id": second_version["id"],
+            },
+        )
+        assert replacement.status_code == 201
+        assert replacement.json()["supersedes_id"] == first_decision.json()["id"]
+        history = client.get(f"/api/ai-systems/{system_id}/decisions").json()
+        assert len(history) == 2
+        for decision_type in ("deployment", "material_change", "exception", "retirement"):
+            response = client.post(
+                f"/api/ai-systems/{system_id}/decisions",
+                json={
+                    "decision_type": decision_type,
+                    "outcome": "conditional" if decision_type == "exception" else "approved",
+                    "rationale": f"Reviewed {decision_type} decision.",
+                },
+            )
+            assert response.status_code == 201
+        assert {
+            item["decision_type"]
+            for item in client.get(f"/api/ai-systems/{system_id}/decisions").json()
+        } == {"assessment", "deployment", "material_change", "exception", "retirement"}
+        assert client.post(
+            f"/api/ai-systems/{system_id}/decisions",
+            json={
+                "decision_type": "assessment",
+                "outcome": "approved",
+                "rationale": "Missing version.",
+            },
+        ).status_code == 422
+        with engine.begin() as connection:
+            connection.execute(
+                text("SELECT set_config('app.org_id', :id, true)"), {"id": str(org_a)}
+            )
+            assert connection.execute(
+                text("UPDATE ai_governance_decisions SET rationale = 'changed' WHERE id = :id"),
+                {"id": first_decision.json()["id"]},
+            ).rowcount == 0
+            assert connection.execute(
+                text("DELETE FROM ai_governance_decisions WHERE id = :id"),
+                {"id": first_decision.json()["id"]},
+            ).rowcount == 0
         transitioned = client.patch(
             f"/api/ai-systems/{system_id}/status", json={"status": "in_review"}
         )
@@ -131,6 +190,15 @@ def test_ai_system_api_enforces_tenant_and_approval_boundaries() -> None:
             json={"framework": "nist_ai_rmf", "basis": "company_strategy", "scope": "AI"},
         ).status_code == 404
         assert client.get(f"/api/ai-systems/{system_id}/impact-assessments").json() == []
+        assert client.get(f"/api/ai-systems/{system_id}/decisions").json() == []
+        assert client.post(
+            f"/api/ai-systems/{system_id}/decisions",
+            json={
+                "decision_type": "deployment",
+                "outcome": "approved",
+                "rationale": "Cross-tenant attempt.",
+            },
+        ).status_code == 404
         assert client.patch(
             f"/api/ai-systems/{system_id}/status", json={"status": "retired"}
         ).status_code == 404

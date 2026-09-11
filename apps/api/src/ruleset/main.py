@@ -26,6 +26,11 @@ from ruleset.ai_governance.assessments import (
     save_impact_draft,
     submit_impact_assessment,
 )
+from ruleset.ai_governance.decisions import (
+    DecisionValidationError,
+    create_governance_decision,
+    list_governance_decisions,
+)
 from ruleset.ai_governance.models import (
     AIAssuranceObjective,
     AIAssuranceObjectiveCreate,
@@ -36,6 +41,8 @@ from ruleset.ai_governance.models import (
     AISystemRecord,
     AISystemStateUpdate,
     InternalRiskResult,
+    GovernanceDecisionCreate,
+    GovernanceDecisionRecord,
 )
 from ruleset.ai_governance.objectives import (
     ObjectiveAlreadySelectedError,
@@ -244,6 +251,23 @@ def post_ai_impact_version(system_id: UUID, identity: CurrentTenant) -> AIImpact
 def get_ai_impact_versions(system_id: UUID, identity: CurrentTenant) -> list[AIImpactVersion]:
     """List immutable impact-assessment submissions."""
     return list_impact_versions(engine, identity.org_id, system_id)
+
+
+@app.post("/api/ai-systems/{system_id}/decisions", response_model=GovernanceDecisionRecord, status_code=status.HTTP_201_CREATED)
+def post_ai_governance_decision(system_id: UUID, payload: GovernanceDecisionCreate, identity: CurrentTenant) -> GovernanceDecisionRecord:
+    """Append a human governance decision for a tenant-visible AI system."""
+    try:
+        return create_governance_decision(engine, identity.org_id, system_id, identity.user_id, payload)
+    except LookupError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    except DecisionValidationError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
+
+@app.get("/api/ai-systems/{system_id}/decisions", response_model=list[GovernanceDecisionRecord])
+def get_ai_governance_decisions(system_id: UUID, identity: CurrentTenant) -> list[GovernanceDecisionRecord]:
+    """Return complete append-only governance decision history."""
+    return list_governance_decisions(engine, identity.org_id, system_id)
 
 
 @app.get("/api/frameworks", response_model=list[FrameworkOption])

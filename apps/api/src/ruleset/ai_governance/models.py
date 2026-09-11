@@ -87,6 +87,16 @@ class ApprovalOutcome(StrEnum):
     CONDITIONAL = "conditional"
 
 
+class GovernanceDecisionType(StrEnum):
+    """Human-owned AI lifecycle decision categories."""
+
+    ASSESSMENT = "assessment"
+    DEPLOYMENT = "deployment"
+    MATERIAL_CHANGE = "material_change"
+    EXCEPTION = "exception"
+    RETIREMENT = "retirement"
+
+
 class EvaluationResult(StrEnum):
     """Stored verdicts for versioned AI evaluations."""
 
@@ -139,6 +149,27 @@ class ApprovalDecision(BaseModel):
         if self.expires_at is not None and self.expires_at <= self.decided_at:
             raise ValueError("expires_at must be later than decided_at")
         return self
+
+
+class GovernanceDecisionCreate(BaseModel):
+    """Validated request for one append-only governance decision."""
+
+    model_config = ConfigDict(extra="forbid")
+    decision_type: GovernanceDecisionType
+    outcome: ApprovalOutcome
+    rationale: str = Field(min_length=1, max_length=10_000)
+    assessment_version_id: UUID | None = None
+    expires_at: datetime | None = None
+
+
+class GovernanceDecisionRecord(GovernanceDecisionCreate):
+    """Stored decision with verified actor and supersession link."""
+
+    id: UUID
+    ai_system_id: UUID
+    supersedes_id: UUID | None
+    decided_by: str
+    decided_at: datetime
 
 
 class EvaluationVerdict(BaseModel):

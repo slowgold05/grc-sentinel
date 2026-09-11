@@ -8,7 +8,7 @@ GRC Sentinel minimizes stored customer data and hard-deletes it when its purpose
 | Uploaded documents | Existing policies and questionnaires | Per-organization envelope encryption | 90 days by default; delete with engagement |
 | Derived artifacts | Assurance objectives, AI impact-assessment drafts and versions, chunks, embeddings, gap results, generated policies | Database encryption and tenant RLS | Life of engagement |
 | AI system inventory | Validated purpose, owner, model/vendor, data, geography, autonomy, and oversight facts | Tenant RLS; lifecycle changes are audited | Life of engagement |
-| Decision evidence | Facts snapshots, determinations, audit events | Tenant RLS; append-only where specified | 1 year |
+| Decision evidence | Facts snapshots, determinations, AI governance decisions, audit events | Tenant RLS; append-only where specified | 1 year |
 | OSINT cache | Public DNS and web posture | Tenant RLS | 30 days |
 | Control evidence | Read-only connector responses and verdicts | Tenant RLS; append-only | 1 year |
 | Share links | Hashed access tokens | Tenant RLS; raw token never stored | Delete at expiry |
