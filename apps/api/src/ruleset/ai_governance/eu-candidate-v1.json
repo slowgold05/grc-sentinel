@@ -1,0 +1,15 @@
+{
+  "ruleset_id": "eu-ai-act-candidate",
+  "version": 1,
+  "status": "test_only_awaiting_qualified_legal_review",
+  "publisher": "European Parliament and Council of the European Union",
+  "source_identifier": "CELEX:32024R1689",
+  "source_url": "https://eur-lex.europa.eu/eli/reg/2024/1689/oj",
+  "source_review": "docs/ai-governance-sources/eu-ai-act-source-review.md",
+  "candidate_branches": {
+    "territorial_scope": "Article 2",
+    "prohibited": "Article 5",
+    "high_risk": "Article 6 and Annexes I/III",
+    "transparency": "Article 50"
+  }
+}

@@ -195,6 +195,36 @@ class InternalRiskResult(BaseModel):
     missing_facts: tuple[str, ...]
 
 
+class EUCandidateFacts(BaseModel):
+    """Reviewer-supplied facts for a non-production EU AI Act candidate assessment."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    geography: ShortLabel
+    operator_role: OperatorRole
+    intended_purpose: str = Field(min_length=1, max_length=2_000)
+    affected_persons: tuple[ShortLabel, ...] = Field(default_factory=tuple, max_length=50)
+    territorial_scope_confirmed: bool | None = None
+    prohibited_practice_indicators: tuple[ShortLabel, ...] = Field(default_factory=tuple, max_length=50)
+    prohibited_review_complete: bool | None = None
+    annex_i_or_iii_category: ShortLabel | None = None
+    high_risk_path_confirmed: bool | None = None
+    gpai_role_confirmed: bool | None = None
+    transparency_scenario: ShortLabel | None = None
+    transparency_review_complete: bool | None = None
+
+
+class EUCandidateResult(BaseModel):
+    """Test-only EU AI Act candidate route, not a legal determination."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    ruleset_id: str
+    ruleset_version: int
+    source_identifier: str
+    status: CandidateLegalStatus
+    fired_condition: str | None
+    missing_facts: tuple[str, ...]
+
+
 class AISystemCreate(BaseModel):
     """Validated request for an engagement-owned AI system."""
 
