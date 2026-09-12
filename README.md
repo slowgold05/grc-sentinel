@@ -21,8 +21,10 @@ The homepage is seeded so anyone can explore the product without uploading data.
 | ![Fintech intake](screenshots/02-intake.png) | ![Control coverage](screenshots/03-coverage.png) |
 | **Risk register** | **Expiring Audit Hub share** |
 | ![Risk register](screenshots/04-risks.png) | ![Audit Hub share](screenshots/10-audit-share.png) |
+| **AI system inventory** | **AI-system Audit Hub share** |
+| ![AI system inventory](screenshots/11-ai-systems.png) | ![AI-system Audit Hub share](screenshots/12-ai-audit-share.png) |
 
-The full walkthrough — intake, control evidence, risks, monitoring, questionnaires, framework drift, policies, the trust center, and an expiring Audit Hub share — is documented in [`screenshots/`](screenshots/README.md).
+The full walkthrough — intake, control evidence, risks, monitoring, questionnaires, framework drift, policies, the trust center, AI inventory, and expiring engagement- and system-scoped Audit Hub shares — is documented in [`screenshots/`](screenshots/README.md).
 
 To repeat the browser smoke test and authenticated screenshot walkthrough:
 
@@ -32,7 +34,7 @@ python -m uv run python scripts/selenium_portfolio.py --headless
 python -m uv run python scripts/selenium_portfolio.py --capture
 ```
 
-The capture command opens an isolated Chrome session, pauses for Clerk sign-in and organization selection, uses only fictional LedgerPeak Payments data, and writes the ten walkthrough images under `screenshots/`. The deployed Vercel-to-Railway flow passed this complete walkthrough on 1 September 2026.
+The capture command opens an isolated Chrome session, pauses for Clerk sign-in and organization selection, uses only fictional LedgerPeak Payments data, and writes the 12 walkthrough images under `screenshots/`. The deployed Vercel-to-Railway flow passed this complete walkthrough on 12 September 2026.
 
 ## What it does
 
@@ -70,6 +72,22 @@ The capture command opens an isolated Chrome session, pauses for Clerk sign-in a
 9. Monitoring checks can create immutable evidence and flag pass-to-fail drift.
 10. AI systems move through inventory, impact assessment, risk, evaluation, human decisions, policy drafting, incidents, exceptions, and deployment gates.
 11. Approved material can be exported or shared through an expiring, system-scoped Audit Hub link.
+
+## AI governance lifecycle
+
+The implemented portfolio scenario governs **LedgerPeak Support Assistant**, a fictional local RAG assistant that drafts customer-support replies for human review and cannot take external actions.
+
+1. Register the AI system, owner, purpose, model, vendor, hosting, data, affected people, geography, autonomy, and human oversight.
+2. Run deterministic internal-risk triage and a clearly labelled, review-gated EU AI Act candidate assessment.
+3. Submit an immutable impact-assessment version and link identified risks to the existing risk register.
+4. Define versioned evaluations across performance, robustness, prompt injection, privacy leakage, groundedness, harmful output, contextual fairness, oversight effectiveness, and reliability.
+5. Record append-only human decisions for assessment, residual risk, deployment, material change, exceptions, and retirement.
+6. Block deployment when required assessments, evaluations, decisions, legal review, or unexpired exceptions are missing.
+7. Generate one of ten separate AI policy drafts from selected, installed objectives; reject malformed, unsupported, or unfaithful citations before storage.
+8. Track incidents, expiring exceptions, vendor-review gaps, configuration drift, and overdue reviews.
+9. Share a read-only, expiring, revocable AI-system record through Audit Hub without exposing unrelated tenant evidence.
+
+The AI model may summarize retrieved records and draft policy. It cannot classify legal applicability, approve thresholds or deployments, accept risk, decide incident reportability, or create evidence. See the [AI governance implementation roadmap](docs/ai-governance-implementation-roadmap.md) and [release-readiness report](docs/ai-governance-release-readiness.md) for the trust boundaries and verification evidence.
 
 ## How the AI is constrained
 
@@ -134,6 +152,7 @@ The current local knowledge base contains **7 framework records, 4,305 controls,
 
 - NIST SP 800-53 Rev. 5 controls come from official [NIST OSCAL content](https://github.com/usnistgov/oscal-content).
 - NIST AI RMF 1.0 outcomes come from NIST's official [AI RMF Playbook JSON](https://airc.nist.gov/docs/playbook.json); Playbook actions stay labelled voluntary suggestions.
+- AI governance uses 72 imported NIST AI RMF 1.0 outcomes as its source-bounded policy corpus; all 72 have local embeddings.
 - Cross-framework identifiers come from the [Secure Controls Framework](https://securecontrolsframework.com/).
 - PCI DSS 4.0.1 and SOC 2 provide the sourced cross-framework view used by the fintech demo.
 - A HIPAA ruleset currently provides the executable applicability proof-of-concept and 30-profile evaluation set; new legal rules remain inactive until their source review and golden evaluation set are approved.
@@ -206,6 +225,7 @@ See [DATA_POLICY.md](DATA_POLICY.md), [THREAT_MODEL.md](THREAT_MODEL.md), and th
 - Frontend ESLint, TypeScript, and production-build validation
 - Static analysis and secret/dependency scanning in CI
 - Latest GitHub Actions release-readiness run passed, including Linux production packaging and Gitleaks
+- Authenticated Selenium passed the deployed fintech intake → coverage → AI inventory → AI-system Audit Hub workflow and produced 12 portfolio screenshots
 
 ```powershell
 Set-Location apps/api
