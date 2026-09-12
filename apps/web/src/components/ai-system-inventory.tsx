@@ -28,7 +28,7 @@ const fieldClass = "rounded-lg border border-zinc-700 bg-black px-3 py-2 text-sl
 const split = (value: FormDataEntryValue | null) => String(value ?? "").split(",").map((item) => item.trim()).filter(Boolean);
 
 function StatusBadge({ status }: { status: string }) {
-  const tone = status === "suspended" ? "bg-amber-400/10 text-amber-300" : status === "retired" ? "bg-zinc-700 text-zinc-300" : "bg-red-400/10 text-red-300";
+  const tone = status === "suspended" ? "bg-amber-400/10 text-amber-300" : status === "retired" ? "bg-zinc-700 text-zinc-300" : "bg-teal-400/10 text-teal-300";
   return <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${tone}`}>{status.replaceAll("_", " ")}</span>;
 }
 
@@ -217,7 +217,7 @@ export function AISystemInventory() {
         <label className="flex items-center gap-2 text-sm"><input name="external_access" type="checkbox" /> External users can access it</label>
         <label className="flex items-center gap-2 text-sm"><input name="tool_access" type="checkbox" /> Can invoke tools or actions</label>
         {engagements.length === 0 && <p className="text-sm text-amber-300 sm:col-span-2">Create an engagement on the coverage page before registering an AI system.</p>}
-        <button disabled={saving || engagements.length === 0} className="rounded-lg bg-red-400 px-4 py-2 font-semibold text-black hover:bg-red-300 disabled:cursor-not-allowed disabled:opacity-40 sm:col-span-2">{saving ? "Saving…" : "Register system"}</button>
+        <button disabled={saving || engagements.length === 0} className="rounded-lg bg-teal-400 px-4 py-2 font-semibold text-black hover:bg-teal-300 disabled:cursor-not-allowed disabled:opacity-40 sm:col-span-2">{saving ? "Saving…" : "Register system"}</button>
         {error && <p role="alert" className="text-sm text-rose-300 sm:col-span-2">{error}</p>}
       </form>
     </section>

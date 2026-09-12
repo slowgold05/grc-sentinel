@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
+import { AppShell } from "../components/app-shell";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -12,8 +13,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en">
       <body>
         {process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
-          ? <ClerkProvider>{children}</ClerkProvider>
-          : children}
+          ? <ClerkProvider><AppShell>{children}</AppShell></ClerkProvider>
+          : <AppShell>{children}</AppShell>}
       </body>
     </html>
   );

@@ -35,6 +35,15 @@ def screenshot(driver: webdriver.Chrome, path: Path) -> None:
     path.write_bytes(base64.b64decode(payload["data"]))
 
 
+def set_date(driver: webdriver.Chrome, element: object, value: str) -> None:
+    """Set an ISO date without relying on the workstation's input locale."""
+    driver.execute_script(
+        "arguments[0].value = arguments[1]; arguments[0].dispatchEvent(new Event('input', {bubbles:true})); arguments[0].dispatchEvent(new Event('change', {bubbles:true}));",
+        element,
+        value,
+    )
+
+
 def engagement_diagnostics(driver: webdriver.Chrome) -> str:
     """Return status-only browser diagnostics without request headers or tokens."""
     details = []
@@ -88,8 +97,8 @@ def capture_ai_governance(driver: webdriver.Chrome, base_url: str, output: Path)
     }
     for name, value in values.items():
         form.find_element(By.NAME, name).send_keys(value)
-    form.find_element(By.NAME, "contract_date").send_keys("09/01/2026")
-    form.find_element(By.NAME, "vendor_review_date").send_keys("09/11/2026")
+    set_date(driver, form.find_element(By.NAME, "contract_date"), "2026-09-01")
+    set_date(driver, form.find_element(By.NAME, "vendor_review_date"), "2026-09-11")
     Select(form.find_element(By.NAME, "human_review_coverage")).select_by_value("every_output")
     form.find_element(By.XPATH, ".//button[normalize-space()='Register system']").click()
     WebDriverWait(driver, 30).until(
@@ -140,15 +149,23 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
     for name in (
         "us",
         "financial_services",
-        "pci",
-        "soc2",
+        "card_data",
+        "securities",
+        "california",
+        "eu",
+        "singapore",
+        "public_company",
     ):
         form.find_element(By.NAME, name).click()
+    form.find_element(
+        By.XPATH, ".//button[normalize-space()='Continue to regulatory review →']"
+    ).click()
     Select(form.find_element(By.NAME, "ftc_financial_institution")).select_by_value("yes")
     Select(form.find_element(By.NAME, "customer_financial_information")).select_by_value("yes")
     Select(form.find_element(By.NAME, "glba_other_regulator")).select_by_value("no")
     Select(form.find_element(By.NAME, "glba_financial_activity")).select_by_value("finance_company")
     form.find_element(By.NAME, "glba_customer_count").send_keys("12000")
+    form.find_element(By.XPATH, ".//button[contains(., 'PCI DSS')]").click()
     Select(form.find_element(By.NAME, "pci_entity_role")).select_by_value("merchant")
     for name in (
         "pci_stores_account_data",
@@ -160,11 +177,13 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
         Select(form.find_element(By.NAME, name)).select_by_value("yes")
     Select(form.find_element(By.NAME, "pci_fully_outsourced")).select_by_value("no")
     Select(form.find_element(By.NAME, "pci_validation_method")).select_by_value("saq_d_merchant")
+    form.find_element(By.XPATH, ".//button[contains(., 'Regulation S-P')]").click()
     Select(form.find_element(By.NAME, "reg_sp_covered_institution")).select_by_value("yes")
     Select(form.find_element(By.NAME, "reg_sp_entity_type")).select_by_value("broker_dealer")
     Select(form.find_element(By.NAME, "reg_sp_size_cohort")).select_by_value("larger")
     Select(form.find_element(By.NAME, "reg_sp_customer_information")).select_by_value("yes")
     Select(form.find_element(By.NAME, "reg_sp_service_provider_used")).select_by_value("yes")
+    form.find_element(By.XPATH, ".//button[contains(., 'FINRA')]").click()
     Select(form.find_element(By.NAME, "finra_member")).select_by_value("yes")
     Select(form.find_element(By.NAME, "finra_firm_type")).select_by_value("carrying_clearing")
     Select(form.find_element(By.NAME, "finra_customer_accounts")).select_by_value("yes")
@@ -172,6 +191,7 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
         "yes"
     )
     Select(form.find_element(By.NAME, "finra_bcp_scope_confirmed")).select_by_value("yes")
+    form.find_element(By.XPATH, ".//button[contains(., 'NYDFS')]").click()
     Select(form.find_element(By.NAME, "nydfs_licensed")).select_by_value("yes")
     Select(form.find_element(By.NAME, "nydfs_authorization_type")).select_by_value(
         "financial_services"
@@ -179,6 +199,7 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
     Select(form.find_element(By.NAME, "nydfs_exemption")).select_by_value("none")
     Select(form.find_element(By.NAME, "nydfs_class_a_company")).select_by_value("no")
     Select(form.find_element(By.NAME, "nydfs_uses_affiliate_program")).select_by_value("no")
+    form.find_element(By.XPATH, ".//button[contains(., 'CCPA')]").click()
     for name in (
         "ccpa_covered_business",
         "california_consumer_data",
@@ -193,6 +214,7 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
     form.find_element(By.NAME, "ccpa_gross_revenue_usd").send_keys("30000000")
     form.find_element(By.NAME, "ccpa_consumers_or_households").send_keys("120000")
     form.find_element(By.NAME, "ccpa_selling_sharing_revenue_percent").send_keys("10")
+    form.find_element(By.XPATH, ".//button[contains(., 'DORA')]").click()
     Select(form.find_element(By.NAME, "dora_entity_type")).select_by_value("payment_institution")
     Select(form.find_element(By.NAME, "dora_article_2_exclusion")).select_by_value("none")
     for name in (
@@ -206,6 +228,7 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
     Select(form.find_element(By.NAME, "dora_critical_ict_provider_designated")).select_by_value(
         "no"
     )
+    form.find_element(By.XPATH, ".//button[contains(., 'MAS TRM')]").click()
     Select(form.find_element(By.NAME, "mas_institution_type")).select_by_value(
         "payment_or_dpt_entity"
     )
@@ -220,8 +243,9 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
         "mas_scope_confirmed",
     ):
         Select(form.find_element(By.NAME, name)).select_by_value("yes")
+    form.find_element(By.XPATH, ".//button[contains(., 'SOX 404')]").click()
     Select(form.find_element(By.NAME, "sox_filer_category")).select_by_value("accelerated_filer")
-    form.find_element(By.NAME, "sox_reporting_period_end").send_keys("12/31/2025")
+    set_date(driver, form.find_element(By.NAME, "sox_reporting_period_end"), "2025-12-31")
     Select(form.find_element(By.NAME, "sox_management_assessment_status")).select_by_value(
         "effective"
     )
@@ -233,8 +257,12 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
         "sox_scope_confirmed",
     ):
         Select(form.find_element(By.NAME, name)).select_by_value("yes")
+    for name in ("pci", "soc2"):
+        form.find_element(By.NAME, name).click()
     screenshot(driver, output / "02-intake.png")
-    form.find_element(By.XPATH, ".//button[normalize-space()='Create and evaluate']").click()
+    form.find_element(
+        By.XPATH, ".//button[normalize-space()='Review and create assessment']"
+    ).click()
     WebDriverWait(driver, 30).until(
         lambda page: page.find_elements(
             By.XPATH, "//button[normalize-space()='Create 24-hour audit link']"

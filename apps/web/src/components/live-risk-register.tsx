@@ -83,7 +83,7 @@ export function LiveRiskRegister() {
         <select name="impact" aria-label="Impact" className="rounded-lg border border-zinc-700 bg-black px-3 py-2">{[1, 2, 3, 4, 5].map((value) => <option key={value}>{value}</option>)}</select>
         <input name="control_ids" placeholder="Controls: IA-2, AC-2" className="rounded-lg border border-zinc-700 bg-black px-3 py-2" />
         <select name="ai_system_id" aria-label="Related AI system" className="rounded-lg border border-zinc-700 bg-black px-3 py-2"><option value="">No AI system</option>{aiSystems.map((system) => <option key={system.id} value={system.id}>{system.name}</option>)}</select>
-        <button className="rounded-lg bg-red-400 px-4 py-2 font-semibold text-slate-950 hover:bg-red-300">Add risk</button>
+        <button className="rounded-lg bg-teal-400 px-4 py-2 font-semibold text-slate-950 hover:bg-teal-300">Add risk</button>
       </form>
       {error && <p role="alert" className="mt-3 text-sm text-rose-300">{error}</p>}
       <div className="mt-5 grid gap-3 sm:grid-cols-2">

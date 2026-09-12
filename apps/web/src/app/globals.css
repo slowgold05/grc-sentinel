@@ -3,15 +3,93 @@
 @tailwind utilities;
 
 html {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
   margin: 0;
-  background: #000;
+  background: #f5f7f9;
+}
+
+:focus-visible {
+  outline: 2px solid #2dd4bf;
+  outline-offset: 3px;
+}
+
+@media print {
+  button,
+  summary {
+    display: none;
+  }
+
+  body,
+  main {
+    background: #fff !important;
+    color: #111827 !important;
+  }
 }
 
 ::selection {
-  background: #ef4444;
+  background: #5b45e0;
   color: #fff;
+}
+
+.app-shell main {
+  min-height: 100vh;
+}
+
+/* Keep the legacy feature screens visually consistent with the new light workspace shell. */
+.app-shell main.bg-black,
+.app-shell main .bg-black,
+.app-shell main .bg-zinc-950 {
+  background: #fff;
+}
+
+.app-shell main.text-slate-100,
+.app-shell main .text-slate-100 {
+  color: #0f172a;
+}
+
+.app-shell main .text-slate-300,
+.app-shell main .text-slate-400 {
+  color: #64748b;
+}
+
+.app-shell main .text-red-300,
+.app-shell main .text-red-400,
+.app-shell main .text-red-500 {
+  color: #684ee8;
+}
+
+.app-shell main .border-zinc-700,
+.app-shell main .border-zinc-800 {
+  border-color: #e2e8f0;
+}
+
+.scope-form > fieldset:nth-of-type(n + 2):nth-of-type(-n + 10) {
+  display: none;
+}
+
+.scope-form[data-active-review="glba"] > fieldset:nth-of-type(2),
+.scope-form[data-active-review="pci"] > fieldset:nth-of-type(3),
+.scope-form[data-active-review="reg-sp"] > fieldset:nth-of-type(4),
+.scope-form[data-active-review="finra"] > fieldset:nth-of-type(5),
+.scope-form[data-active-review="nydfs"] > fieldset:nth-of-type(6),
+.scope-form[data-active-review="ccpa"] > fieldset:nth-of-type(7),
+.scope-form[data-active-review="dora"] > fieldset:nth-of-type(8),
+.scope-form[data-active-review="mas"] > fieldset:nth-of-type(9),
+.scope-form[data-active-review="sox"] > fieldset:nth-of-type(10) {
+  display: grid;
+}
+
+.scope-form[data-step="1"] > .review-picker,
+.scope-form[data-step="1"] > fieldset:nth-of-type(n + 2),
+.scope-form[data-step="1"] > button[type="submit"] {
+  display: none;
+}
+
+.scope-form[data-step="2"] > input,
+.scope-form[data-step="2"] > fieldset:first-of-type,
+.scope-form[data-step="2"] > .step-one-actions {
+  display: none;
 }

@@ -11,9 +11,9 @@ const likelihoods = [5, 4, 3, 2, 1];
 const impacts = [1, 2, 3, 4, 5];
 
 function severity(score: number) {
-  if (score >= 15) return "border-rose-400/40 bg-rose-400/15 text-rose-100";
-  if (score >= 8) return "border-amber-400/40 bg-amber-400/15 text-amber-100";
-  return "border-emerald-400/30 bg-emerald-400/10 text-emerald-100";
+  if (score >= 15) return "border-rose-300 bg-rose-50 text-rose-800";
+  if (score >= 8) return "border-amber-300 bg-amber-50 text-amber-800";
+  return "border-emerald-300 bg-emerald-50 text-emerald-800";
 }
 
 export default function RisksPage() {
