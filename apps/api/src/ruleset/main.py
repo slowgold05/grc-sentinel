@@ -8,10 +8,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.concurrency import run_in_threadpool
 
 from ruleset.audit_hub import (
+    AIDashboard,
     AuditShare,
     AuditShareCreate,
     AuditShareCreated,
     create_share_link,
+    get_ai_dashboard,
     resolve_share,
     revoke_share,
 )
@@ -180,6 +182,33 @@ def post_audit_share(
     except LookupError as error:
         raise HTTPException(status_code=404, detail=str(error)) from error
     return AuditShareCreated(token=token, expires_at=expires_at)
+
+
+@app.post(
+    "/api/ai-systems/{system_id}/audit-shares",
+    response_model=AuditShareCreated,
+    status_code=status.HTTP_201_CREATED,
+)
+def post_ai_audit_share(
+    system_id: UUID, payload: AuditShareCreate, identity: CurrentTenant
+) -> AuditShareCreated:
+    system = get_ai_system(engine, identity.org_id, system_id)
+    if system is None:
+        raise HTTPException(status_code=404, detail="AI system not found")
+    expires_at = datetime.now(UTC) + timedelta(hours=payload.expires_in_hours)
+    token = create_share_link(
+        engine,
+        identity.org_id,
+        system.engagement_id,
+        expires_at,
+        ai_system_id=system_id,
+    )
+    return AuditShareCreated(token=token, expires_at=expires_at)
+
+
+@app.get("/api/ai-governance/dashboard", response_model=AIDashboard)
+def get_ai_governance_dashboard(identity: CurrentTenant) -> AIDashboard:
+    return get_ai_dashboard(engine, identity.org_id)
 
 
 @app.delete("/api/audit-shares/{token}", status_code=status.HTTP_204_NO_CONTENT)

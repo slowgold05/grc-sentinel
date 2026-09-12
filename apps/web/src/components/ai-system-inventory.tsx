@@ -22,6 +22,7 @@ type AISystem = {
 };
 type InternalRisk = { rating: string; score: number | null; fired_conditions: string[]; missing_facts: string[]; ruleset_version: number };
 type AIObjective = { id: string; framework: string; source_version: string; objective_type: string; basis: string; scope: string };
+type AIDashboard = { inventory: number; overdue_reviews: number; governance_blockers: number; failed_evaluations: number; open_incidents: number; expiring_exceptions: number };
 
 const fieldClass = "rounded-lg border border-zinc-700 bg-black px-3 py-2 text-slate-100 placeholder:text-zinc-600";
 const split = (value: FormDataEntryValue | null) => String(value ?? "").split(",").map((item) => item.trim()).filter(Boolean);
@@ -38,9 +39,11 @@ export function AISystemInventory() {
   const [selected, setSelected] = useState<AISystem | null>(null);
   const [internalRisk, setInternalRisk] = useState<InternalRisk | null>(null);
   const [objectives, setObjectives] = useState<AIObjective[]>([]);
+  const [dashboard, setDashboard] = useState<AIDashboard | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [shareUrl, setShareUrl] = useState("");
 
   const request = useCallback(async (path: string, init?: RequestInit) => {
     const token = await getToken();
@@ -59,9 +62,10 @@ export function AISystemInventory() {
   const refresh = useCallback(async () => {
     setLoading(true);
     try {
-      const [systemRows, engagementRows] = await Promise.all([request("/api/ai-systems"), request("/api/engagements")]);
+      const [systemRows, engagementRows, dashboardRow] = await Promise.all([request("/api/ai-systems"), request("/api/engagements"), request("/api/ai-governance/dashboard")]);
       setSystems(systemRows);
       setEngagements(engagementRows);
+      setDashboard(dashboardRow);
       setSelected((current) => current ? systemRows.find((row: AISystem) => row.id === current.id) ?? null : null);
       setError("");
     } catch (reason) {
@@ -151,11 +155,26 @@ export function AISystemInventory() {
     }
   }
 
+  async function createAuditShare() {
+    if (!selected) return;
+    setSaving(true);
+    try {
+      const share = await request(`/api/ai-systems/${selected.id}/audit-shares`, { method: "POST", body: JSON.stringify({ expires_in_hours: 24 }) });
+      setShareUrl(`${window.location.origin}/audit/share/${share.token}`);
+      setError("");
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Could not create the audit share");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   if (!isLoaded || loading) return <p className="mt-8 text-sm text-slate-400">Loading AI inventory&hellip;</p>;
   if (!userId) return <p className="mt-8 text-sm text-slate-400">Sign in and select an organization to manage AI systems.</p>;
 
   return (
     <section className="grid gap-8 py-10 xl:grid-cols-[minmax(22rem,0.8fr)_minmax(28rem,1.2fr)]" aria-label="AI system inventory">
+      {dashboard && <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:col-span-2">{[["Inventory", dashboard.inventory], ["Governance blockers", dashboard.governance_blockers], ["Overdue reviews", dashboard.overdue_reviews], ["Failed evaluations", dashboard.failed_evaluations], ["Open incidents", dashboard.open_incidents], ["Exceptions expiring", dashboard.expiring_exceptions]].map(([label, value]) => <div key={label} className="rounded-xl border border-zinc-800 bg-zinc-950 p-4"><p className="text-xs uppercase tracking-wide text-slate-500">{label}</p><p className="mt-2 text-2xl font-semibold text-red-400">{value}</p></div>)}</div>}
       <div>
         <h2 className="text-xl font-semibold">Registered systems</h2>
         <p className="mt-2 text-sm text-slate-400">Tenant-scoped records protected by PostgreSQL row-level security.</p>
@@ -163,7 +182,7 @@ export function AISystemInventory() {
         <div className="mt-5 space-y-3">
           {systems.map((system) => <button key={system.id} type="button" onClick={() => setSelected(system)} className="block w-full rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-left hover:border-red-500/40 focus:outline-none focus:ring-2 focus:ring-red-500"><span className="flex items-start justify-between gap-3"><span className="font-semibold">{system.name}</span><StatusBadge status={system.status} /></span><span className="mt-2 block text-sm text-slate-400">{system.profile.vendor} / {system.profile.model_name}</span></button>)}
         </div>
-        {selected && <article className="mt-5 rounded-xl border border-red-500/20 bg-red-500/[0.04] p-5" aria-live="polite"><div className="flex items-start justify-between gap-3"><h3 className="text-lg font-semibold">{selected.name}</h3><StatusBadge status={selected.status} /></div><dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2"><div><dt className="text-slate-500">Owner</dt><dd>{selected.owner}</dd></div><div><dt className="text-slate-500">Role</dt><dd>{selected.profile.operator_roles.join(", ")}</dd></div><div><dt className="text-slate-500">Purpose</dt><dd>{selected.business_purpose}</dd></div><div><dt className="text-slate-500">Decision impact</dt><dd>{selected.profile.decision_impact}</dd></div><div><dt className="text-slate-500">Data</dt><dd>{selected.profile.data_categories.join(", ") || "None recorded"}</dd></div><div><dt className="text-slate-500">Oversight</dt><dd>{selected.profile.human_oversight}</dd></div><div><dt className="text-slate-500">Hosting region</dt><dd>{selected.profile.hosting_region || "Not recorded"}</dd></div><div><dt className="text-slate-500">Vendor review</dt><dd>{selected.profile.vendor_review_date || "Not recorded"}</dd></div></dl>{selected.vendor_review_gaps.length > 0 && <p className="mt-3 text-xs text-amber-300">Vendor review gaps: {selected.vendor_review_gaps.join(", ").replaceAll("_", " ")}</p>}{internalRisk && <div className="mt-4 rounded-lg border border-zinc-800 bg-black/60 p-3 text-sm"><p><span className="text-slate-500">Internal risk v{internalRisk.ruleset_version}:</span> {internalRisk.rating.replaceAll("_", " ")}{internalRisk.score !== null && ` (${internalRisk.score})`}</p><p className="mt-1 text-xs text-slate-500">{internalRisk.missing_facts.length ? `Missing: ${internalRisk.missing_facts.join(", ")}` : `Fired: ${internalRisk.fired_conditions.join(", ") || "baseline"}`}</p><p className="mt-1 text-xs text-slate-500">Internal prioritization only; not a legal classification.</p></div>}<div className="mt-4 space-y-2">{objectives.map((item) => <p key={item.id} className="rounded-lg border border-violet-400/20 p-2 text-xs text-violet-200">{item.framework.replaceAll("_", " ")} {item.source_version} · {item.objective_type} · {item.basis.replaceAll("_", " ")}</p>)}</div><form onSubmit={addObjective} className="mt-4 grid gap-2"><select name="framework" aria-label="AI assurance framework" className={fieldClass}><option value="nist_ai_rmf">NIST AI RMF 1.0 · voluntary</option><option value="iso_42001">ISO/IEC 42001:2023 · certifiable</option><option value="singapore_model_ai_governance">Singapore Model AI Governance Framework · voluntary</option></select><select name="basis" aria-label="Objective basis" className={fieldClass}><option value="company_strategy">Company strategy</option><option value="customer_contract">Customer contract</option><option value="regulator_request">Regulator request</option></select><input required name="scope" maxLength={2000} placeholder="Objective scope" className={fieldClass} /><input name="target_date" type="date" aria-label="Objective target date" className={fieldClass} /><button disabled={saving} className="rounded-lg bg-violet-400 px-3 py-2 text-sm font-semibold text-black disabled:opacity-40">Select assurance objective</button></form><div className="mt-5 flex flex-wrap gap-2">{["in_review", "suspended", "retired"].map((status) => <button key={status} type="button" disabled={saving || selected.status === status} onClick={() => void changeStatus(status)} className="rounded-lg border border-zinc-700 px-3 py-2 text-xs font-medium hover:border-red-500 disabled:cursor-not-allowed disabled:opacity-40">Mark {status.replaceAll("_", " ")}</button>)}</div><p className="mt-3 text-xs text-slate-500">Objectives are selected goals, never automatically applicable law. Approval and deployment require the protected human gate.</p></article>}
+        {selected && <article className="mt-5 rounded-xl border border-red-500/20 bg-red-500/[0.04] p-5" aria-live="polite"><div className="flex items-start justify-between gap-3"><h3 className="text-lg font-semibold">{selected.name}</h3><StatusBadge status={selected.status} /></div><dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2"><div><dt className="text-slate-500">Owner</dt><dd>{selected.owner}</dd></div><div><dt className="text-slate-500">Role</dt><dd>{selected.profile.operator_roles.join(", ")}</dd></div><div><dt className="text-slate-500">Purpose</dt><dd>{selected.business_purpose}</dd></div><div><dt className="text-slate-500">Decision impact</dt><dd>{selected.profile.decision_impact}</dd></div><div><dt className="text-slate-500">Data</dt><dd>{selected.profile.data_categories.join(", ") || "None recorded"}</dd></div><div><dt className="text-slate-500">Oversight</dt><dd>{selected.profile.human_oversight}</dd></div><div><dt className="text-slate-500">Hosting region</dt><dd>{selected.profile.hosting_region || "Not recorded"}</dd></div><div><dt className="text-slate-500">Vendor review</dt><dd>{selected.profile.vendor_review_date || "Not recorded"}</dd></div></dl>{selected.vendor_review_gaps.length > 0 && <p className="mt-3 text-xs text-amber-300">Vendor review gaps: {selected.vendor_review_gaps.join(", ").replaceAll("_", " ")}</p>}{internalRisk && <div className="mt-4 rounded-lg border border-zinc-800 bg-black/60 p-3 text-sm"><p><span className="text-slate-500">Internal risk v{internalRisk.ruleset_version}:</span> {internalRisk.rating.replaceAll("_", " ")}{internalRisk.score !== null && ` (${internalRisk.score})`}</p><p className="mt-1 text-xs text-slate-500">{internalRisk.missing_facts.length ? `Missing: ${internalRisk.missing_facts.join(", ")}` : `Fired: ${internalRisk.fired_conditions.join(", ") || "baseline"}`}</p><p className="mt-1 text-xs text-slate-500">Internal prioritization only; not a legal classification.</p></div>}<div className="mt-4 space-y-2">{objectives.map((item) => <p key={item.id} className="rounded-lg border border-violet-400/20 p-2 text-xs text-violet-200">{item.framework.replaceAll("_", " ")} {item.source_version} · {item.objective_type} · {item.basis.replaceAll("_", " ")}</p>)}</div><form onSubmit={addObjective} className="mt-4 grid gap-2"><select name="framework" aria-label="AI assurance framework" className={fieldClass}><option value="nist_ai_rmf">NIST AI RMF 1.0 · voluntary</option><option value="iso_42001">ISO/IEC 42001:2023 · certifiable</option><option value="singapore_model_ai_governance">Singapore Model AI Governance Framework · voluntary</option></select><select name="basis" aria-label="Objective basis" className={fieldClass}><option value="company_strategy">Company strategy</option><option value="customer_contract">Customer contract</option><option value="regulator_request">Regulator request</option></select><input required name="scope" maxLength={2000} placeholder="Objective scope" className={fieldClass} /><input name="target_date" type="date" aria-label="Objective target date" className={fieldClass} /><button disabled={saving} className="rounded-lg bg-violet-400 px-3 py-2 text-sm font-semibold text-black disabled:opacity-40">Select assurance objective</button></form><div className="mt-5 flex flex-wrap gap-2">{["in_review", "suspended", "retired"].map((status) => <button key={status} type="button" disabled={saving || selected.status === status} onClick={() => void changeStatus(status)} className="rounded-lg border border-zinc-700 px-3 py-2 text-xs font-medium hover:border-red-500 disabled:cursor-not-allowed disabled:opacity-40">Mark {status.replaceAll("_", " ")}</button>)}<button type="button" disabled={saving} onClick={() => void createAuditShare()} className="rounded-lg border border-red-500/50 px-3 py-2 text-xs font-medium text-red-300">Create 24-hour audit share</button></div>{shareUrl && <a className="mt-3 block break-all text-xs text-red-300 underline" href={shareUrl}>{shareUrl}</a>}<p className="mt-3 text-xs text-slate-500">Objectives are selected goals, never automatically applicable law. Approval and deployment require the protected human gate.</p></article>}
       </div>
 
       <form onSubmit={submit} className="grid gap-4 rounded-2xl border border-zinc-800 bg-zinc-950 p-6 sm:grid-cols-2" id="new-ai-system">
