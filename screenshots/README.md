@@ -18,7 +18,13 @@ CCPA/CPRA, DORA, MAS TRM, and SOX sections.
 | 8 | `08-policies.png` | Generated policy library and verified DOCX export action |
 | 9 | `09-trust-center.png` | Implemented safeguards and evidence claims |
 | 10 | `10-audit-share.png` | Expiring read-only Audit Hub evidence view |
+| 11 | `11-ai-systems.png` | AI inventory, dashboard, lifecycle, objectives, and vendor gaps |
+| 12 | `12-ai-audit-share.png` | System-scoped AI governance record and explicit exclusions |
+
+The latest code also supports system-scoped Audit Hub shares containing assessments, objectives,
+linked risks, evaluations, human decisions, policies, explicitly linked evidence, incidents, and
+exclusions. Refresh authenticated captures after deploying migrations `0031` through `0034`.
 
 Do not include credentials, tokens, browser profiles, real company data, or unrelated desktop applications in captures. Use only the fictional demonstration tenant.
 
-Reproduce the public smoke test with `python -m uv run python scripts/selenium_portfolio.py --headless` from `apps/api`, or add `--capture` for the authenticated ten-stage walkthrough.
+Reproduce the public smoke test with `python -m uv run python scripts/selenium_portfolio.py --headless` from `apps/api`, or add `--capture` for the authenticated twelve-stage walkthrough.

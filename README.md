@@ -41,6 +41,9 @@ The capture command opens an isolated Chrome session, pauses for Clerk sign-in a
 | Company intake | Captures detailed entity, threshold, exemption, licence, reporting, and assurance facts across the US, EU, and Singapore | Gives every candidate decision a reproducible facts snapshot without asking AI to interpret legal status |
 | Applicability | Evaluates approved versioned rules with `applicable`, `not_applicable`, and `needs_review` outcomes | Keeps active legal applicability deterministic while unapproved regimes remain review-gated |
 | Assurance planning | Tracks SOC 2, ISO 27001, and NIST alignment separately from mandatory regulations | Avoids falsely presenting voluntary frameworks as laws |
+| AI governance | Inventories systems, triages risk, versions assessments/configurations, records human decisions, and gates deployment | Makes the governed AI lifecycle reproducible without letting a model approve itself |
+| AI evaluations | Versions datasets, metrics, human-approved thresholds, results, and drift across nine dimensions | Preserves the exact evidence behind pass/fail claims |
+| AI incidents and exceptions | Tracks append-only incident transitions and time-limited exceptions with owners and compensating controls | Keeps reportability human-owned and expired risk acceptance out of deployment |
 | Control knowledge base | Ingests versioned NIST OSCAL and Secure Controls Framework records | Provides traceable control identifiers and mappings |
 | Secure evidence upload | Validates, encrypts, parses, retains, and hard-deletes PDF/DOCX policies | Treats customer documents as hostile and sensitive input |
 | RAG coverage analysis | Retrieves relevant policy sections and maps exact quotes to controls | Makes every coverage claim inspectable |
@@ -50,7 +53,7 @@ The capture command opens an isolated Chrome session, pauses for Clerk sign-in a
 | Risk register | Stores likelihood, impact, treatment state, and mapped controls in a heatmap | Connects compliance gaps to operational risk |
 | Continuous monitoring | Runs read-only GitHub and AWS checks and stores immutable results | Detects when implemented safeguards drift from policy claims |
 | Framework drift | Compares framework versions and identifies affected policy statements | Shows what must be reviewed when standards change |
-| Audit Hub | Creates expiring read-only evidence shares and records access events | Supports scoped auditor collaboration |
+| Audit Hub | Creates expiring read-only engagement or AI-system evidence shares and records access events | Supports scoped auditor collaboration without over-sharing |
 | Trust center | Publishes implemented and planned safeguards with evidence | Demonstrates that the platform follows its own advice |
 | Multi-tenancy | Maps Clerk organizations to internal tenant UUIDs protected by PostgreSQL RLS | Makes database isolation the final security boundary |
 
@@ -65,7 +68,8 @@ The capture command opens an isolated Chrome session, pauses for Clerk sign-in a
 7. Coverage analysis records exact supporting quotes and marks controls covered, partial, or missing.
 8. The user reviews risks, remediation work, draft policies, and questionnaire answers.
 9. Monitoring checks can create immutable evidence and flag pass-to-fail drift.
-10. Approved material can be exported or shared through an expiring Audit Hub link.
+10. AI systems move through inventory, impact assessment, risk, evaluation, human decisions, policy drafting, incidents, exceptions, and deployment gates.
+11. Approved material can be exported or shared through an expiring, system-scoped Audit Hub link.
 
 ## How the AI is constrained
 
@@ -126,9 +130,10 @@ flowchart TB
 
 ## Framework and regulation coverage
 
-The current knowledge base contains **6 framework records, 4,233 controls, 4,354 sourced crosswalk mappings, and 4,233 embeddings**. The hosted database was populated from the official SCF 2026.2 workbook using the same validated, idempotent importer; that import processed 1,534 SCF controls and 4,354 selected mappings.
+The current local knowledge base contains **7 framework records, 4,305 controls, 4,354 sourced crosswalk mappings, and 4,305 embeddings** after importing 72 official NIST AI RMF outcomes. The hosted database was populated from the official SCF 2026.2 workbook using the same validated, idempotent importer; that import processed 1,534 SCF controls and 4,354 selected mappings.
 
 - NIST SP 800-53 Rev. 5 controls come from official [NIST OSCAL content](https://github.com/usnistgov/oscal-content).
+- NIST AI RMF 1.0 outcomes come from NIST's official [AI RMF Playbook JSON](https://airc.nist.gov/docs/playbook.json); Playbook actions stay labelled voluntary suggestions.
 - Cross-framework identifiers come from the [Secure Controls Framework](https://securecontrolsframework.com/).
 - PCI DSS 4.0.1 and SOC 2 provide the sourced cross-framework view used by the fintech demo.
 - A HIPAA ruleset currently provides the executable applicability proof-of-concept and 30-profile evaluation set; new legal rules remain inactive until their source review and golden evaluation set are approved.
@@ -191,7 +196,7 @@ See [DATA_POLICY.md](DATA_POLICY.md), [THREAT_MODEL.md](THREAT_MODEL.md), and th
 
 ## Tests and measurable checks
 
-- 95 automated backend tests
+- 138 automated backend tests
 - 30 regulation-applicability evaluation profiles
 - 32 additional GLBA candidate profiles awaiting qualified approval
 - Machine-validated activation gates for all nine fintech regimes
@@ -288,16 +293,19 @@ screenshots/              Walkthrough images
 
 The implementation plan is documented in [grc-platform-build-roadmap.md](grc-platform-build-roadmap.md). `PROJECT.md` records repository conventions and rebuilt state.
 
-The next planned extension is a governed AI-system lifecycle covering inventory, impact and risk
-assessment, deterministic regulatory triage, evaluation evidence, human deployment approvals,
-AI-policy generation, monitoring, incidents, and Audit Hub reporting. See the
-[AI governance implementation roadmap](docs/ai-governance-implementation-roadmap.md).
+The [AI governance implementation roadmap](docs/ai-governance-implementation-roadmap.md) portfolio
+cut is now implemented: inventory, deterministic triage, impact assessments, linked risks,
+append-only human decisions, deployment gates, versioned evaluations and drift, ten AI policy
+types, incidents, exceptions, vendor gaps, dashboard metrics, and system-scoped Audit Hub records.
+See the [AI governance release-readiness report](docs/ai-governance-release-readiness.md).
 
 ## Current limitations
 
 - This is a prototype, not a compliance determination service.
 - GLBA is the finance-focused activation proof-of-concept: a 32-profile candidate evaluation set and test-only end-to-end contract demonstrate the path from deterministic applicability through required controls, verified gaps, and Audit Hub evidence. GLBA and the detailed foundations for PCI DSS, Regulation S-P, FINRA, NYDFS, CCPA/CPRA, DORA, MAS TRM, and SOX 404 remain inactive until protected rulesets/objectives, sourced requirements and mappings, and golden evaluation sets receive qualified human approval.
 - The public deployment does not host Ollama. Run locally for private generation and embeddings.
+- NIST AI RMF is available as a voluntary policy corpus. ISO/IEC 42001 text and Singapore guidance remain fail-closed until permitted, publisher-sourced content is imported.
+- EU AI Act results remain candidate scope triage; AI incident reportability always requires qualified human/legal review.
 - GitHub and AWS monitoring require explicitly scoped, read-only credentials.
 - Have I Been Pwned domain exposure is omitted because it requires a verified-domain API account.
 - Human approval remains mandatory for generated policies and questionnaire answers.

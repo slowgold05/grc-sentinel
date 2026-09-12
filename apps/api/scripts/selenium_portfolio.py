@@ -60,6 +60,63 @@ def open_page(driver: webdriver.Chrome, base_url: str, route: str, heading: str)
     )
 
 
+def capture_ai_governance(driver: webdriver.Chrome, base_url: str, output: Path) -> None:
+    """Create one fictional AI inventory record and its scoped audit share."""
+    open_page(driver, base_url, "/ai-systems", "Know every AI system you govern.")
+    form = WebDriverWait(driver, 20).until(
+        conditions.presence_of_element_located((By.ID, "new-ai-system"))
+    )
+    Select(form.find_element(By.NAME, "engagement_id")).select_by_index(1)
+    values = {
+        "name": "LedgerPeak Support Assistant",
+        "owner": "Customer Operations",
+        "business_purpose": "Draft support replies for human review",
+        "description": "Local RAG assistant with no external actions",
+        "model_name": "qwen3:14b",
+        "vendor": "Ollama local",
+        "hosting_region": "Local workstation",
+        "data_use_terms": "Local processing; no vendor training use",
+        "subprocessors": "None declared",
+        "security_artifacts": "Local architecture review",
+        "intended_users": "Support agents",
+        "affected_persons": "Customers",
+        "data_categories": "Support tickets",
+        "geographies": "United States, Singapore",
+        "autonomy": "Drafting only",
+        "decision_impact": "A human decides whether to send every answer",
+        "human_oversight": "Every output is reviewed by a support agent",
+    }
+    for name, value in values.items():
+        form.find_element(By.NAME, name).send_keys(value)
+    form.find_element(By.NAME, "contract_date").send_keys("09/01/2026")
+    form.find_element(By.NAME, "vendor_review_date").send_keys("09/11/2026")
+    Select(form.find_element(By.NAME, "human_review_coverage")).select_by_value("every_output")
+    form.find_element(By.XPATH, ".//button[normalize-space()='Register system']").click()
+    WebDriverWait(driver, 30).until(
+        conditions.text_to_be_present_in_element(
+            (By.TAG_NAME, "body"), "LedgerPeak Support Assistant"
+        )
+    )
+    screenshot(driver, output / "11-ai-systems.png")
+    driver.find_element(
+        By.XPATH, "//button[normalize-space()='Create 24-hour audit share']"
+    ).click()
+    link = (
+        WebDriverWait(driver, 20)
+        .until(
+            conditions.presence_of_element_located(
+                (By.XPATH, "//a[contains(@href, '/audit/share/')]")
+            )
+        )
+        .get_attribute("href")
+    )
+    driver.get(link)
+    WebDriverWait(driver, 20).until(
+        conditions.text_to_be_present_in_element((By.TAG_NAME, "body"), "AI system record")
+    )
+    screenshot(driver, output / "12-ai-audit-share.png")
+
+
 def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -> None:
     """Capture the fictional signed-in walkthrough after one manual Clerk login."""
     driver.get(base_url)
@@ -111,10 +168,14 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
     Select(form.find_element(By.NAME, "finra_member")).select_by_value("yes")
     Select(form.find_element(By.NAME, "finra_firm_type")).select_by_value("carrying_clearing")
     Select(form.find_element(By.NAME, "finra_customer_accounts")).select_by_value("yes")
-    Select(form.find_element(By.NAME, "finra_mission_critical_systems_identified")).select_by_value("yes")
+    Select(form.find_element(By.NAME, "finra_mission_critical_systems_identified")).select_by_value(
+        "yes"
+    )
     Select(form.find_element(By.NAME, "finra_bcp_scope_confirmed")).select_by_value("yes")
     Select(form.find_element(By.NAME, "nydfs_licensed")).select_by_value("yes")
-    Select(form.find_element(By.NAME, "nydfs_authorization_type")).select_by_value("financial_services")
+    Select(form.find_element(By.NAME, "nydfs_authorization_type")).select_by_value(
+        "financial_services"
+    )
     Select(form.find_element(By.NAME, "nydfs_exemption")).select_by_value("none")
     Select(form.find_element(By.NAME, "nydfs_class_a_company")).select_by_value("no")
     Select(form.find_element(By.NAME, "nydfs_uses_affiliate_program")).select_by_value("no")
@@ -142,8 +203,12 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
         "dora_scope_confirmed",
     ):
         Select(form.find_element(By.NAME, name)).select_by_value("yes")
-    Select(form.find_element(By.NAME, "dora_critical_ict_provider_designated")).select_by_value("no")
-    Select(form.find_element(By.NAME, "mas_institution_type")).select_by_value("payment_or_dpt_entity")
+    Select(form.find_element(By.NAME, "dora_critical_ict_provider_designated")).select_by_value(
+        "no"
+    )
+    Select(form.find_element(By.NAME, "mas_institution_type")).select_by_value(
+        "payment_or_dpt_entity"
+    )
     Select(form.find_element(By.NAME, "mas_trm_notice_number")).select_by_value("FSM-N13")
     for name in (
         "mas_trm_notice_subject",
@@ -157,7 +222,9 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
         Select(form.find_element(By.NAME, name)).select_by_value("yes")
     Select(form.find_element(By.NAME, "sox_filer_category")).select_by_value("accelerated_filer")
     form.find_element(By.NAME, "sox_reporting_period_end").send_keys("12/31/2025")
-    Select(form.find_element(By.NAME, "sox_management_assessment_status")).select_by_value("effective")
+    Select(form.find_element(By.NAME, "sox_management_assessment_status")).select_by_value(
+        "effective"
+    )
     Select(form.find_element(By.NAME, "sox_attestation_status")).select_by_value("unqualified")
     for name in (
         "exchange_act_reporting_company",
@@ -187,15 +254,23 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
         open_page(driver, base_url, route, heading)
         screenshot(driver, output / filename)
 
+    capture_ai_governance(driver, base_url, output)
+
     driver.get(base_url)
     WebDriverWait(driver, 20).until(
         conditions.element_to_be_clickable(
             (By.XPATH, "//button[normalize-space()='Create 24-hour audit link']")
         )
     ).click()
-    link = WebDriverWait(driver, 20).until(
-        conditions.presence_of_element_located((By.XPATH, "//a[contains(@href, '/audit/share/')]") )
-    ).get_attribute("href")
+    link = (
+        WebDriverWait(driver, 20)
+        .until(
+            conditions.presence_of_element_located(
+                (By.XPATH, "//a[contains(@href, '/audit/share/')]")
+            )
+        )
+        .get_attribute("href")
+    )
     driver.get(link)
     WebDriverWait(driver, 20).until(
         lambda page: page.find_elements(By.XPATH, "//h2[normalize-space()='Company profile']")

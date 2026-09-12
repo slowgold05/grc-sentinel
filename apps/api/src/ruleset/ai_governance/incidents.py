@@ -66,21 +66,40 @@ class IncidentStaleError(Exception):
 
 
 def _validate_links(connection, system_id: UUID, facts: IncidentFacts) -> None:
-    checks = (
-        ("risks", "id = ANY(:ids)", facts.risk_ids),
+    counts = (
         (
-            "ai_evaluation_runs r JOIN ai_evaluation_definitions d ON d.id = r.definition_id",
-            "r.id = ANY(:ids) AND d.ai_system_id = :system_id",
-            facts.evaluation_run_ids,
+            facts.risk_ids,
+            connection.execute(
+                text("SELECT count(*) FROM risks WHERE id = ANY(:ids)"),
+                {"ids": facts.risk_ids},
+            ).scalar_one()
+            if facts.risk_ids
+            else 0,
         ),
-        ("control_evidence", "id = ANY(:ids)", facts.evidence_ids),
+        (
+            facts.evaluation_run_ids,
+            connection.execute(
+                text(
+                    "SELECT count(*) FROM ai_evaluation_runs r JOIN ai_evaluation_definitions d "
+                    "ON d.id = r.definition_id WHERE r.id = ANY(:ids) AND d.ai_system_id = :system"
+                ),
+                {"ids": facts.evaluation_run_ids, "system": system_id},
+            ).scalar_one()
+            if facts.evaluation_run_ids
+            else 0,
+        ),
+        (
+            facts.evidence_ids,
+            connection.execute(
+                text("SELECT count(*) FROM control_evidence WHERE id = ANY(:ids)"),
+                {"ids": facts.evidence_ids},
+            ).scalar_one()
+            if facts.evidence_ids
+            else 0,
+        ),
     )
-    for table, condition, ids in checks:
-        if ids and connection.execute(
-            text(f"SELECT count(*) FROM {table} WHERE {condition}"),
-            {"ids": ids, "system_id": system_id},
-        ).scalar_one() != len(ids):
-            raise ValueError("linked record is missing, cross-tenant, or belongs to another system")
+    if any(count != len(ids) for ids, count in counts):
+        raise ValueError("linked record is missing, cross-tenant, or belongs to another system")
 
 
 def _insert_event(

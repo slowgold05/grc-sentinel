@@ -102,7 +102,7 @@ class GovernanceDecisionType(StrEnum):
 class EvaluationResult(StrEnum):
     """Stored verdicts for versioned AI evaluations."""
 
-    PASS = "pass"
+    PASS = "pass"  # nosec B105 - evaluation verdict, not a credential
     FAIL = "fail"
     ERROR = "error"
 

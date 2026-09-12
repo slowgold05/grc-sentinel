@@ -120,13 +120,16 @@ def resolve_share(engine: Engine, token: str) -> AuditShare | None:
             {"id": share["engagement_id"]},
         ).scalar_one()
         system_id = share["ai_system_id"]
-        policy_scope = "AND ai_system_id = :system" if system_id is not None else ""
+        policy_query = (
+            "SELECT id, policy_type, version, created_at FROM policies "
+            "WHERE engagement_id = :id AND ai_system_id = :system ORDER BY created_at"
+            if system_id is not None
+            else "SELECT id, policy_type, version, created_at FROM policies "
+            "WHERE engagement_id = :id ORDER BY created_at"
+        )
         policies = list(
             connection.execute(
-                text(
-                    "SELECT id, policy_type, version, created_at FROM policies "
-                    f"WHERE engagement_id = :id {policy_scope} ORDER BY created_at"
-                ),
+                text(policy_query),
                 {"id": share["engagement_id"], "system": system_id},
             ).mappings()
         )

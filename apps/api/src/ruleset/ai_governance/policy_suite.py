@@ -101,12 +101,16 @@ def prepare_ai_policy_context(
         raise ValueError("at least one control must be selected")
     with engine.begin() as connection:
         connection.execute(text("SELECT set_config('app.org_id', :id, true)"), {"id": str(org_id)})
-        system = connection.execute(
-            text(
-                "SELECT engagement_id, name, business_purpose, profile FROM ai_systems WHERE id = :id"
-            ),
-            {"id": system_id},
-        ).mappings().one_or_none()
+        system = (
+            connection.execute(
+                text(
+                    "SELECT engagement_id, name, business_purpose, profile FROM ai_systems WHERE id = :id"
+                ),
+                {"id": system_id},
+            )
+            .mappings()
+            .one_or_none()
+        )
         if system is None:
             raise LookupError("AI system not found")
         objectives = connection.execute(
@@ -122,13 +126,17 @@ def prepare_ai_policy_context(
         gaps: list[str] = []
         for objective in objectives:
             name, version, classification = _OBJECTIVE_CORPORA[objective]
-            framework = connection.execute(
-                text(
-                    "SELECT id, publisher, machine_readable_source FROM frameworks "
-                    "WHERE name = :name AND version = :version"
-                ),
-                {"name": name, "version": version},
-            ).mappings().one_or_none()
+            framework = (
+                connection.execute(
+                    text(
+                        "SELECT id, publisher, machine_readable_source FROM frameworks "
+                        "WHERE name = :name AND version = :version"
+                    ),
+                    {"name": name, "version": version},
+                )
+                .mappings()
+                .one_or_none()
+            )
             if framework is None:
                 gaps.append(f"{name} {version}: approved control corpus not installed")
                 continue
@@ -156,7 +164,11 @@ def prepare_ai_policy_context(
                     control_id=row["control_code"],
                     text=row["body"],
                     parameters={
-                        **row["params"],
+                        **{
+                            key: value
+                            for key, value in row["params"].items()
+                            if key != "suggested_actions"
+                        },
                         "source_framework": name,
                         "source_version": version,
                         "source_classification": classification,
@@ -165,7 +177,9 @@ def prepare_ai_policy_context(
 
     missing = sorted(requested - controls.keys())
     if missing:
-        raise ValueError(f"controls are not in a selected installed objective: {', '.join(missing)}")
+        raise ValueError(
+            f"controls are not in a selected installed objective: {', '.join(missing)}"
+        )
     title = _POLICY_TITLES[policy_type]
     return AIPolicyContext(
         engagement_id=system["engagement_id"],
@@ -200,9 +214,7 @@ async def generate_ai_policy(
     verify: Callable[[str, dict[str, Any]], Awaitable[ModelResult]],
 ) -> AIPolicyDraftCreated:
     """Generate, deterministically cite-check, semantically verify, and store one draft."""
-    context = prepare_ai_policy_context(
-        engine, org_id, system_id, policy_type, request.control_ids
-    )
+    context = prepare_ai_policy_context(engine, org_id, system_id, policy_type, request.control_ids)
     generated = await generate(
         build_generation_prompt(context.plan, context.controls, context.company_facts),
         GenerationOutput.model_json_schema(),
@@ -216,7 +228,15 @@ async def generate_ai_policy(
     for statement in output.statements:
         result = await verify(
             build_faithfulness_prompt(statement, context.controls),
-            FaithfulnessVerdict.model_json_schema(),
+            {
+                "type": "object",
+                "properties": {
+                    "faithful": {"type": "boolean"},
+                    "issue": {"type": "string"},
+                },
+                "required": ["faithful", "issue"],
+                "additionalProperties": False,
+            },
         )
         verifier_usage[0] += result.input_tokens
         verifier_usage[1] += result.output_tokens

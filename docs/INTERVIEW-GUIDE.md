@@ -41,6 +41,11 @@ the retrieval context. Deterministic verification rejects unsupported citations.
 reviewable compliance workspace containing coverage, gaps, risks, monitoring evidence, policies,
 questionnaire answers, and expiring auditor shares.
 
+The AI-governance workflow also treats the model as a governed system. It inventories purpose,
+data, autonomy, oversight, and vendor facts; versions impact assessments and evaluations; records
+human-only decisions; gates deployment; tracks incidents and exceptions; and creates an Audit Hub
+record scoped to one AI system.
+
 ## The problem I was solving
 
 Many AI compliance demos ask a model to read a regulation and decide what a company must do. That
@@ -115,6 +120,7 @@ form trusted output. Unsupported control IDs and evidence claims are rejected.
 - GLBA 32-profile reviewer package and test-only end-to-end activation contract
 - Machine-validated activation manifest for all nine fintech regimes
 - NIST OSCAL and SCF knowledge-base ingestion
+- NIST AI RMF 1.0 outcome ingestion from NIST's official Playbook JSON
 - PCI DSS and SOC 2 sourced cross-framework demo data
 - Encrypted PDF/DOCX upload and constrained parsing
 - RAG-based coverage and gap analysis
@@ -124,6 +130,11 @@ form trusted output. Unsupported control IDs and evidence claims are rejected.
 - Questionnaire review workflow
 - Framework-version drift analysis
 - Expiring read-only Audit Hub links
+- AI inventory, deterministic triage, impact assessment, linked risks, and configuration drift
+- Nine versioned evaluation categories with human-approved thresholds
+- Ten source-bounded AI policy types with citation and faithfulness checks
+- Append-only AI decisions/incidents, expiring exceptions, vendor gaps, and deployment gates
+- AI governance dashboard and system-scoped Audit Hub shares
 - Retention enforcement and hard deletion
 - Automated tests and security checks in GitHub Actions
 
@@ -223,13 +234,14 @@ make evidence immutable or traceable, and put validation at every boundary.
 
 ### What would you build next?
 
-The next step is not another UI feature. It is qualified review and activation of one fintech
-regime at a time: approved source version, executable rules, requirement import, sourced mappings,
-30 or more golden profiles, API persistence tests, and authenticated browser verification.
+The next high-value step is qualified review and activation of one fintech legal regime at a time,
+plus licensed or publisher-approved ISO/Singapore AI corpora. Each activation needs an approved
+source version, executable rules, requirement import, sourced mappings, at least 30 golden
+profiles, persistence tests, and authenticated browser verification.
 
 ### How do you know the project works?
 
-The repository currently has 95 backend tests plus property-based rule tests, frontend lint and
+The repository currently has 138 backend tests plus property-based rule tests, frontend lint and
 type checks, knowledge-base integrity validation, Selenium browser coverage, migration checks,
 Bandit, Semgrep, Gitleaks, and Python/JavaScript dependency audits in CI.
 
@@ -250,6 +262,8 @@ Bandit, Semgrep, Gitleaks, and Python/JavaScript dependency audits in CI.
   snapshots and human-reviewed versioned rules.
 - Built a source-backed control knowledge base from NIST OSCAL and SCF with PostgreSQL/pgvector
   retrieval and integrity validation.
+- Built a governed AI lifecycle with versioned evaluations, append-only human decisions,
+  deployment gates, incidents/exceptions, and system-scoped audit sharing.
 - Implemented a local Ollama RAG pipeline with schema validation and deterministic rejection of
   hallucinated control citations.
 - Enforced multi-tenant isolation using Clerk Organizations and forced PostgreSQL row-level
