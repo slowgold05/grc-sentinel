@@ -39,7 +39,8 @@ unfaithful output fails before storage. Human approval is a separate append-only
 
 On this Windows host, Next.js completes compilation, type validation, and static-page generation,
 then cannot create standalone-output symlinks (`EPERM`). Linux CI is the packaging authority.
-Gitleaks remains enforced by GitHub Actions because the executable is not installed locally.
+The GitHub Actions release gate passed Linux packaging, dependency audits, Bandit, Semgrep, and
+Gitleaks for commit `9ad1ce9`.
 
 ## Claims not made
 

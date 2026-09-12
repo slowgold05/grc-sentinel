@@ -6,7 +6,7 @@ The design premise is that a language model should never decide what legally app
 
 > GRC Sentinel is a prototype. It is not legal advice, a certification, or an audit opinion. Generated compliance material requires qualified human review before use.
 
-**[Open the live demo](https://grc-sentinel-slowgold05s-projects.vercel.app)** · **[API health](https://api-production-3fd2d.up.railway.app/health)**
+**[Open the live demo](https://web-six-xi-53.vercel.app)** · **[API health](https://api-production-3fd2d.up.railway.app/health)**
 
 ---
 

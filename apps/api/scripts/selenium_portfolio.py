@@ -15,7 +15,7 @@ from selenium.webdriver.support import expected_conditions as conditions
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 
-DEFAULT_URL = "https://grc-sentinel-slowgold05s-projects.vercel.app"
+DEFAULT_URL = "https://web-six-xi-53.vercel.app"
 PUBLIC_PAGES = {
     "04-risks.png": ("/risks", "Risk, linked to controls."),
     "05-monitoring.png": ("/monitoring", "Policy says it. Systems prove it."),
