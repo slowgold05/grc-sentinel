@@ -11,9 +11,9 @@
 
 ## 1. What this project is
 
-GRC Sentinel generates audit-ready information-security policies. A deterministic
-rules engine decides which regulations (HIPAA, PCI DSS, SOC 2, GDPR, PDPA…)
-apply to a company; a retrieval-bounded LLM pipeline drafts policies that cite
+GRC Sentinel generates audit-ready information-security and AI-governance policies. A deterministic
+rules engine evaluates approved applicability rules while unapproved legal regimes remain
+review-gated; a retrieval-bounded LLM pipeline drafts policies that cite
 security controls (NIST 800-53, mapped via crosswalks to SOC 2 / ISO 27001 IDs);
 a deterministic verifier rejects any output citing a control that was not in
 the retrieval context.
@@ -68,7 +68,7 @@ plan → retrieve → generate → verify_citations (deterministic) → verify_f
 ├── THREAT_MODEL.md         ← assets, actors, mitigations (STRIDE-lite)
 ├── DATA_POLICY.md          ← data classes, retention periods, deletion rules
 ├── apps/
-│   ├── web/                ← Next.js 14 App Router, TypeScript strict, Tailwind
+│   ├── web/                ← Next.js 15 App Router, TypeScript strict, Tailwind
 │   │   └── src/{app,components,lib}/
 │   └── api/                ← FastAPI, Python 3.12, uv
 │       └── src/ruleset/
@@ -95,13 +95,13 @@ plan → retrieve → generate → verify_citations (deterministic) → verify_f
 
 | Layer | Choice | Notes |
 |---|---|---|
-| Frontend | Next.js 14, TS `strict: true` | no `any`, no `@ts-ignore` |
+| Frontend | Next.js 15, TS `strict: true` | no `any`, no `@ts-ignore` |
 | Backend | FastAPI + Pydantic v2 | Pydantic model on EVERY function boundary |
 | DB | Postgres 16 + pgvector | one DB for relational + embeddings |
 | Migrations | alembic | never edit an applied migration |
 | Tests | pytest, hypothesis, vitest | tests define "done" |
 | LLM | Ollama local API | model IDs live in `config.py`, never inline |
-| Auth | managed provider (Clerk/Auth0/Supabase) | never hand-rolled |
+| Auth | Clerk Organizations | never hand-rolled |
 | Tenancy | Postgres RLS, `org_id` on every tenant table | DB enforces isolation, not app code |
 | Secrets | `.env` local / platform store deployed | loaded only via `config.py::settings` |
 | CI security | gitleaks, pip-audit, pnpm audit, bandit, semgrep | gates block merge |
@@ -274,13 +274,16 @@ a provider. The sweeper in `retention/` enforces `expires_at`.
 
 ## 9. Rebuild status
 
-The repository has been rebuilt through roadmap Part 7.5. Alembic head `0020`
-includes the knowledge base, tenancy, uploads, coverage, OSINT, generated
-policies, monitoring evidence, questionnaire answers, risks, audit shares, and
-retention enforcement, Clerk organization authentication, encrypted connector credentials, and separately modeled assurance objectives. The backend suite contains 69 passing tests; the web
-app exposes the coverage demo, trust page, and risk heatmap. The default model
-provider is local Ollama, with an optional OpenAI-compatible hosted generation endpoint.
+The repository is rebuilt through the AI-governance portfolio cut in roadmap Part 10.9. Alembic
+has one head at `0034`, and the backend suite contains 138 tests. The platform includes the control
+knowledge base, tenancy, uploads, evidence-backed coverage, OSINT, policies, monitoring,
+questionnaires, risks, audit shares, retention, Clerk organization authentication, encrypted
+connector credentials, assurance objectives, and the AI-governance lifecycle from inventory
+through system-scoped Audit Hub sharing.
 
-Remaining external inputs are hosting and portfolio publishing. Protected tenant APIs verify
-Clerk sessions, provision a newly selected organization as an isolated tenant, and map the
-active organization to an internal UUID before setting `app.org_id`.
+The Next.js application is deployed on Vercel and the FastAPI/PostgreSQL service on Railway.
+Authenticated Selenium passed the 12-stage fictional fintech walkthrough on 12 September 2026,
+and GitHub CI passed commit `469a4d0`. Local Ollama remains the default private generation and
+embedding provider; it is intentionally not hosted in the public demo. Qualified review and
+publisher-sourced imports remain required before protected fintech legal rules or the EU AI Act
+candidate classifier can be activated.

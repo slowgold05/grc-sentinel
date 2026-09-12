@@ -220,11 +220,11 @@ Protected objective activation, evidence ingestion, and sourced ITGC mappings re
 Release criterion: no README card says “implemented” unless its active rule/objective, sourced
 requirements, mappings, workflow, evaluation set, and production verification all pass.
 
-Audit (2026-09-01): all nine detailed scope/objective foundations and their candidate tests are
+Audit (2026-09-12): all nine detailed scope/objective foundations and their candidate tests are
 present, but none satisfies the protected activation criterion. The repository therefore keeps
 HIPAA as the only executable legal-applicability proof-of-concept and accurately labels the new
 regimes as awaiting human review. The exact approval and ingestion backlog is recorded in
 [`fintech-release-readiness.md`](fintech-release-readiness.md). The machine-validated nine-regime
-activation manifest, 95 backend tests, local Vercel-mode production build, authenticated Selenium
-walkthrough, dependency/static-security checks, and Linux CI all pass. Gitleaks remains a CI-provided
+activation manifest, 138 backend tests, production Vercel/Railway deployment, authenticated
+12-stage Selenium walkthrough, dependency/static-security checks, and Linux CI all pass. Gitleaks remains a CI-provided
 gate because no local binary is installed.

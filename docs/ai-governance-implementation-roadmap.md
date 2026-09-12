@@ -1,7 +1,13 @@
 # AI governance and policy implementation roadmap
 
-Status: **planned — implement one bounded task at a time**
+Status: **portfolio scope implemented through Phase 10.9**
 Source review date: **2026-09-11**
+
+Implementation audit: **2026-09-12**. Phases 10.0–10.9 are implemented for the fictional
+fintech support-assistant portfolio scenario. Alembic has one head at `0034`; 138 backend tests,
+frontend checks, security/dependency gates, Linux CI, and the deployed 12-stage Selenium
+walkthrough pass. EU AI Act output remains candidate-only, ISO/IEC 42001 and Singapore corpora
+remain fail-closed pending permitted publisher sources, and all approvals remain human actions.
 
 This roadmap adds an auditable AI-governance lifecycle to GRC Sentinel. An LLM may retrieve and
 draft, but it may not classify legal obligations, set risk tolerance, approve deployment, or invent
@@ -258,9 +264,9 @@ RLS/deletion tests, or test claims without output.
 
 ## Recommended portfolio cut
 
-Complete phases 10.0–10.6, one fictional RAG-assistant evaluation pack, and the 10.8 Audit Hub
-view. Vendor normalization and agentic execution controls can wait until multiple vendors or
-tool-using agents exist.
+Completed: phases 10.0–10.9, one fictional RAG-assistant evaluation pack, and the system-scoped
+Audit Hub view. Vendor normalization and agentic execution controls remain deliberately deferred
+until multiple vendors or tool-using agents create a real need.
 
 Interview story: **“I built a governed AI lifecycle where deterministic rules triage risk and
 candidate legal scope, immutable evidence proves evaluations, humans control deployment, and the

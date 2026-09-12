@@ -40,7 +40,8 @@ unfaithful output fails before storage. Human approval is a separate append-only
 On this Windows host, Next.js completes compilation, type validation, and static-page generation,
 then cannot create standalone-output symlinks (`EPERM`). Linux CI is the packaging authority.
 The GitHub Actions release gate passed Linux packaging, dependency audits, Bandit, Semgrep, and
-Gitleaks for commit `9ad1ce9`.
+Gitleaks for commit `469a4d0`. The deployed authenticated Selenium walkthrough passed on
+12 September 2026 and produced 12 screenshots, including AI inventory and a system-scoped share.
 
 ## Claims not made
 

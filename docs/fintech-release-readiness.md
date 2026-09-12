@@ -1,6 +1,6 @@
 # Fintech regime release readiness
 
-Audit date: 2026-09-01
+Audit date: 2026-09-12
 
 ## Verified foundation
 
@@ -9,11 +9,12 @@ Audit date: 2026-09-01
   NYDFS Part 500, CCPA/CPRA, DORA, MAS TRM Notices, and SOX Section 404.
 - Classification labels keep regulation, SRO rule, reporting/audit objective, and contractual
   assurance standard distinct.
-- 95 backend tests pass; Ruff, KB validation, frontend lint/type/production build, authenticated
+- 138 backend tests pass; Ruff, KB validation, frontend lint/type/production build, authenticated
   Selenium walkthrough, Bandit, Semgrep, Python dependency audit, and pnpm audit pass.
-- PostgreSQL is healthy and Alembic is at head `0022`.
+- PostgreSQL is healthy and Alembic has one head at `0034`.
 - The current Vercel production deployment and Railway health endpoint return 200, and the
-  detailed ten-stage reviewer screenshots were refreshed from the deployed application.
+  detailed 12-stage reviewer screenshots were refreshed from the deployed application on
+  12 September 2026.
 - GLBA has a 32-profile candidate set plus a test-only activation contract covering persistence,
   required controls, verified gap evidence, and Audit Hub sharing.
 
