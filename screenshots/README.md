@@ -19,9 +19,9 @@ labelled Audit Hub summaries. These are screenshots of the application, not desi
 | [07-framework-drift.png](07-framework-drift.png) | Framework version comparison controls | Signed-in tool; no comparison result claimed |
 | [08-policies.png](08-policies.png) | Policy library and model-usage counters | Signed-in empty library; no generation or export performed |
 | [09-trust-center.png](09-trust-center.png) | Platform safeguards and implementation disclosures | Public information, not a certification |
-| [10-audit-share.png](10-audit-share.png) | Engagement-scoped Audit Hub with a labelled company-facts table | Read-only fictional share; no additional evidence records |
+| [10-audit-share.png](10-audit-share.png) | Engagement Audit Hub with the shared navigation, theme controls, and square fact panels | Read-only fictional share; no additional evidence records |
 | [11-ai-systems.png](11-ai-systems.png) | Registered AI inventory, draft system details, and registration form | Signed-in fictional AI record |
-| [12-ai-audit-share.png](12-ai-audit-share.png) | AI-system Audit Hub with explicit exclusions | Read-only draft record, not deployment approval |
+| [12-ai-audit-share.png](12-ai-audit-share.png) | AI-system Audit Hub in the current theme with explicit exclusions | Read-only draft record, not deployment approval |
 | [13-dark-theme.png](13-dark-theme.png) | Complete homepage in dark mode | Public, fictional example |
 | [14-public-demo.png](14-public-demo.png) | Assessment excerpts, AI example, and illustrative policy | Public read-only product tour |
 | [15-mobile.png](15-mobile.png) | Homepage and navigation at a 390-pixel viewport | Public responsive layout |
@@ -37,8 +37,15 @@ after their workspace content appeared.
 
 The test organization contains records from earlier walkthroughs, so repeated LedgerPeak names
 are separate test records, not distinct customers. No existing records were deleted for presentation.
-The Audit Hub has its own stripped-down report layout without the main navigation; its captures
-show the current report page, not a restyled mockup.
+The Audit Hub previously bypassed the shared layout, so its first refreshed screenshots still
+showed the old visual design. Both report types now use the current navigation, sun/moon control,
+theme palette, and square panels. Their corrected screenshots were retaken after deploying that
+layout fix. The report remains accessible through a valid share link without signing in;
+it does not show the private workspace navigation or add editing controls. Print styling hides
+navigation and uses a white report background.
+
+The browser regression check covers the shared shell, light/dark themes, 1440/390/320-pixel
+widths, and print styling on both loaded report types and the invalid-link state.
 
 This pass did **not** run Ollama inference, connect GitHub/AWS, approve generated material, or
 complete an audit. Empty states and pending/draft labels are preserved deliberately. Share URLs

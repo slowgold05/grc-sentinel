@@ -13,7 +13,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 
-from selenium_portfolio import screenshot
+from selenium_portfolio import check_audit_layout, screenshot
 
 
 def contrast(first: str, second: str) -> float:
@@ -162,7 +162,11 @@ def main() -> None:
             if route == "/workspace":
                 wait.until(lambda page: "Open your own workspace" in page.find_element(By.TAG_NAME, "main").text)
                 assert not driver.find_elements(By.CSS_SELECTOR, "form.scope-form")
-        print("Public UI checks passed: themes/contrast, five widths, hover/keyboard menus, product images and links, demo disclosures, routes, and signed-out workspace.")
+        open_page("/audit/share/invalid")
+        wait.until(lambda page: page.find_elements(By.CSS_SELECTOR, ".audit-report [role='alert']"))
+        assert "invalid, expired, or revoked" in driver.find_element(By.CSS_SELECTOR, "[role='alert']").text
+        check_audit_layout(driver)
+        print("Public UI checks passed: themes/contrast, five widths, hover/keyboard menus, product images and links, demo disclosures, routes, signed-out workspace, and invalid audit-share layout.")
     finally:
         driver.quit()
 

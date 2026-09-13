@@ -133,6 +133,9 @@ button, summary, a { -webkit-tap-highlight-color: transparent; }
 @media print {
   .site-header, .skip-link, .ticker-control, button { display: none; }
   body, .app-shell, .page-wrap { background: #fff; color: #111; }
+  .audit-report { --canvas: #fff; --surface: #fff; --ink: #111; --muted: #333; --line: #bbb; --accent: #234fbb; }
+  .audit-report .audit-facts > div { break-inside: avoid; }
+  .audit-report details { display: none; }
 }
 
 .scope-form > fieldset:nth-of-type(n + 2):nth-of-type(-n + 10) {

@@ -47,6 +47,39 @@ def set_date(driver: webdriver.Chrome, element: object, value: str) -> None:
     )
 
 
+def check_audit_layout(driver: webdriver.Chrome) -> None:
+    """Require the shared report shell, both themes, responsive facts, and print styling."""
+    wait = WebDriverWait(driver, 20)
+    assert driver.find_elements(By.CSS_SELECTOR, ".app-shell .site-header")
+    assert not driver.find_elements(By.CLASS_NAME, "workspace-nav")
+    report = driver.find_element(By.CLASS_NAME, "audit-report")
+    assert not report.find_elements(By.CSS_SELECTOR, "form, input, textarea, select")
+    theme = driver.find_element(By.CLASS_NAME, "theme-toggle")
+    original = driver.execute_script("return document.documentElement.dataset.theme")
+    backgrounds = []
+    try:
+        for mode in ("light", "dark"):
+            if driver.execute_script("return document.documentElement.dataset.theme") != mode:
+                theme.click()
+            wait.until(lambda page: page.execute_script("return document.documentElement.dataset.theme") == mode)
+            backgrounds.append(driver.execute_script("return getComputedStyle(document.querySelector('.app-shell')).backgroundColor"))
+            for panel in report.find_elements(By.CLASS_NAME, "surface"):
+                assert driver.execute_script("return parseFloat(getComputedStyle(arguments[0]).borderTopLeftRadius) <= 2", panel)
+            for width in (1440, 390, 320):
+                driver.execute_cdp_cmd("Emulation.setDeviceMetricsOverride", {"width": width, "height": 1000, "deviceScaleFactor": 1, "mobile": False})
+                assert driver.execute_script("return document.documentElement.scrollWidth <= innerWidth"), "Audit report overflows"
+        assert backgrounds[0] != backgrounds[1], "Audit theme did not change"
+        driver.execute_cdp_cmd("Emulation.setEmulatedMedia", {"media": "print"})
+        assert driver.execute_script("return getComputedStyle(document.querySelector('.site-header')).display") == "none"
+        for panel in report.find_elements(By.CLASS_NAME, "surface"):
+            assert driver.execute_script("return getComputedStyle(arguments[0]).backgroundColor", panel) == "rgb(255, 255, 255)"
+    finally:
+        driver.execute_cdp_cmd("Emulation.setEmulatedMedia", {"media": ""})
+        driver.execute_cdp_cmd("Emulation.clearDeviceMetricsOverride", {})
+        if driver.execute_script("return document.documentElement.dataset.theme") != original:
+            theme.click()
+
+
 def engagement_diagnostics(driver: webdriver.Chrome) -> str:
     """Return status-only browser diagnostics without request headers or tokens."""
     details = []
@@ -124,6 +157,7 @@ def capture_ai_governance(driver: webdriver.Chrome, base_url: str, output: Path)
     WebDriverWait(driver, 20).until(
         conditions.text_to_be_present_in_element((By.TAG_NAME, "body"), "AI system record")
     )
+    check_audit_layout(driver)
     screenshot(driver, output / "12-ai-audit-share.png")
 
 
@@ -313,6 +347,7 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
     errors = driver.find_elements(By.CSS_SELECTOR, "[role='alert']")
     if errors:
         raise RuntimeError(f"Audit share failed: {errors[0].text}")
+    check_audit_layout(driver)
     screenshot(driver, output / "10-audit-share.png")
 
 

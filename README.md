@@ -47,11 +47,13 @@ and authenticated fictional records are labelled separately; click an image to i
 | **Platform safeguards** | **Signed-in AI inventory** |
 | ![Trust center with implementation disclosures](screenshots/09-trust-center.png) | ![Registered fictional AI system and governance controls](screenshots/11-ai-systems.png) |
 | **Engagement Audit Hub** | **AI-system Audit Hub** |
-| ![Read-only company profile with a labelled facts table](screenshots/10-audit-share.png) | ![Read-only draft AI system record and explicit exclusions](screenshots/12-ai-audit-share.png) |
+| ![Current-theme company facts report with shared navigation](screenshots/10-audit-share.png) | ![Current-theme draft AI report with shared navigation and exclusions](screenshots/12-ai-audit-share.png) |
 
 The private walkthrough uses fictional LedgerPeak records. Monitoring, questionnaires, and policies
 show setup or empty states, not completed checks or generated evidence. Audit shares show captured
 facts and draft records, not an approved assessment or audit opinion.
+Both Audit Hub views now share the platform navigation, light/dark controls, and square-panel
+styling. Valid share links remain read-only and do not require the reviewer to sign in.
 
 </details>
 

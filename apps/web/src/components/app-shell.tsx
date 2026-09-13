@@ -16,7 +16,7 @@ const navigation = [
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [dark, setDark] = useState(false);
-  const publicPage = pathname === "/" || pathname === "/demo" || pathname === "/trust";
+  const publicPage = pathname === "/" || pathname === "/demo" || pathname === "/trust" || pathname.startsWith("/audit/share/");
 
   useEffect(() => {
     let saved: string | null = null;
@@ -33,7 +33,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     try { localStorage.setItem("grc-theme", next ? "dark" : "light"); } catch { /* The toggle still works for this visit. */ }
   }
 
-  if (pathname.startsWith("/sign-") || pathname.startsWith("/audit/share/")) return children;
+  if (pathname.startsWith("/sign-")) return children;
   return <div className="app-shell">
     <a href="#main-content" className="skip-link">Skip to content</a>
     <header className="site-header">
