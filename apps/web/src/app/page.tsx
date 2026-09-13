@@ -17,6 +17,8 @@ const work = [
   ["Collect current access-review evidence", "Due this week", "/monitoring"],
 ] as const;
 
+const regimes = ["GLBA", "PCI DSS", "Reg S-P", "FINRA", "NYDFS", "SOX", "CCPA / CPRA", "DORA", "MAS TRM", "HIPAA", "ISO 27001", "NIST AI RMF"];
+
 export default function Home() {
   const [assessmentOpen, setAssessmentOpen] = useState(false);
   return (
@@ -26,7 +28,23 @@ export default function Home() {
         <div className="flex items-center gap-3 lg:hidden"><AuthControls /></div>
       </header>
 
-      <section className="py-7" aria-labelledby="program-status">
+      <section className="hero-panel my-7 grid overflow-hidden rounded-3xl bg-[#17132f] text-white lg:grid-cols-[minmax(0,1fr)_420px]" aria-labelledby="platform-heading">
+        <div className="flex flex-col justify-center p-7 sm:p-10">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-violet-300">Connected compliance</p>
+          <h2 id="platform-heading" className="mt-4 max-w-xl text-3xl font-semibold tracking-tight sm:text-4xl">One control program. Every relevant framework.</h2>
+          <p className="mt-4 max-w-xl text-sm leading-7 text-slate-300">Scope regulations, connect shared controls, collect evidence, and govern AI systems without turning the workspace into a wall of forms.</p>
+          <div className="mt-6 rounded-xl border border-white/15 bg-white/[0.06] p-4 text-xs leading-5 text-slate-300"><strong className="text-white">Portfolio disclaimer:</strong> GRC Sentinel is a resume demonstration, not legal advice or a compliance determination service. Reviewer-gated rules and generated policies require qualified third-party approval before real-world use.</div>
+          <Link href="/framework-drift" className="mt-6 w-fit rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-[#17132f]">Explore frameworks</Link>
+        </div>
+        <div className="compliance-wheel" aria-label="Frameworks represented in GRC Sentinel">
+          <div className="compliance-wheel__core"><span>GRC</span><strong>Sentinel</strong><small>Control graph</small></div>
+          <div className="compliance-wheel__track" aria-hidden="true">
+            {regimes.map((regime, index) => <span key={regime} className="compliance-wheel__item" style={{ "--angle": `${index * 30}deg`, "--reverse-angle": `${index * -30}deg` } as React.CSSProperties}><span>{regime}</span></span>)}
+          </div>
+        </div>
+      </section>
+
+      <section className="pb-7" aria-labelledby="program-status">
         <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
           <div><h2 id="program-status" className="text-lg font-semibold">Program status</h2><p className="mt-1 text-sm text-slate-500">A focused view of what needs attention now.</p></div>
           <button type="button" onClick={() => { setAssessmentOpen(true); requestAnimationFrame(() => document.querySelector("#new-assessment")?.scrollIntoView({ behavior: "smooth" })); }} className="rounded-lg bg-[#5b45e0] px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#4933c7]">New assessment</button>

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { AuthControls } from "./auth-controls";
 
 const navigation = [
@@ -17,6 +18,21 @@ const navigation = [
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [dark, setDark] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("grc-theme") === "dark";
+    setDark(saved);
+    document.documentElement.dataset.theme = saved ? "dark" : "light";
+  }, []);
+
+  function toggleTheme() {
+    const next = !dark;
+    setDark(next);
+    document.documentElement.dataset.theme = next ? "dark" : "light";
+    localStorage.setItem("grc-theme", next ? "dark" : "light");
+  }
+
   if (pathname.startsWith("/sign-") || pathname.startsWith("/audit/share/")) return children;
 
   return (
@@ -27,12 +43,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <span className="grid size-9 place-items-center rounded-xl bg-[#5b45e0] text-sm font-bold text-white">GS</span>
             <span>GRC Sentinel</span>
           </Link>
-          <details className="relative lg:hidden">
+          <div className="flex items-center gap-2"><button type="button" onClick={toggleTheme} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600" aria-label={`Use ${dark ? "light" : "dark"} theme`}>{dark ? "Light" : "Dark"}</button><details className="relative lg:hidden">
             <summary className="cursor-pointer list-none rounded-lg border border-slate-200 px-3 py-2 text-sm">Menu</summary>
             <nav className="absolute right-0 z-30 mt-2 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-xl">
               {navigation.map(([href, label]) => <Link key={href} href={href} className="block rounded-lg px-3 py-2 text-sm hover:bg-slate-100">{label}</Link>)}
             </nav>
-          </details>
+          </details></div>
         </div>
         <nav className="hidden px-3 lg:block" aria-label="Primary navigation">
           <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Workspace</p>
@@ -41,6 +57,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             return <Link key={href} href={href} className={`mb-1 flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium ${active ? "bg-violet-50 text-[#5138d4]" : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"}`}><span className="w-5 text-center text-[10px] font-bold tracking-tight text-slate-400" aria-hidden>{icon}</span>{label}</Link>;
           })}
         </nav>
+        <button type="button" onClick={toggleTheme} className="mx-6 mt-6 hidden w-[199px] rounded-lg border border-slate-200 px-3 py-2 text-left text-xs font-semibold text-slate-500 lg:block">{dark ? "☀  Light theme" : "◐  Dark theme"}</button>
         <div className="absolute bottom-0 hidden w-[247px] border-t border-slate-200 bg-white p-4 lg:block"><AuthControls /></div>
       </aside>
       <div className="min-w-0">{children}</div>
