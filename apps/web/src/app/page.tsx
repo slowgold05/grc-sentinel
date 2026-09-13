@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { AuthControls } from "../components/auth-controls";
 import { LiveIntake } from "../components/live-intake";
 
 const metrics = [
@@ -23,9 +22,8 @@ export default function Home() {
   const [assessmentOpen, setAssessmentOpen] = useState(false);
   return (
     <main className="bg-[#f5f7f9] px-5 py-6 text-slate-950 sm:px-8 lg:px-10 lg:py-8">
-      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-6">
+      <header className="border-b border-slate-200 pb-6">
         <div><p className="text-sm text-slate-500">LedgerPeak Payments</p><h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">Compliance overview</h1></div>
-        <div className="flex items-center gap-3 lg:hidden"><AuthControls /></div>
       </header>
 
       <section className="hero-panel my-7 grid overflow-hidden rounded-3xl bg-[#17132f] text-white lg:grid-cols-[minmax(0,1fr)_420px]" aria-labelledby="platform-heading">

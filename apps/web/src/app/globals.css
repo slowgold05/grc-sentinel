@@ -114,8 +114,8 @@ body {
 
 html[data-theme="dark"] body,
 html[data-theme="dark"] .app-shell { background: #0d0b18; color: #f8fafc; }
-html[data-theme="dark"] .app-shell > aside,
-html[data-theme="dark"] .app-shell > aside > div,
+html[data-theme="dark"] .app-shell > header,
+html[data-theme="dark"] .app-shell > header .bg-white,
 html[data-theme="dark"] .app-shell main,
 html[data-theme="dark"] .app-shell main.bg-black,
 html[data-theme="dark"] .app-shell main .bg-black,
