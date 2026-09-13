@@ -58,7 +58,7 @@ export default function AuditSharePage() {
   const title = share?.ai_system ? "AI system record" : "Company profile";
 
   return <main className="min-h-screen bg-black px-5 py-12 text-slate-100 sm:px-8"><div className="mx-auto max-w-[1500px]">
-    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-red-500">GRC Sentinel audit hub</p>
+    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-red-500">Sentinal audit hub</p>
     <div className="mt-3 flex flex-wrap items-end justify-between gap-4"><div><h1 className="text-4xl font-semibold">Read-only compliance evidence</h1><p className="mt-2 text-sm text-slate-400">A scoped, external review package. Records cannot be changed from this page.</p></div><button type="button" onClick={() => window.print()} className="rounded-lg bg-teal-400 px-4 py-2 text-sm font-semibold text-black hover:bg-teal-300">Print report</button></div>
     {error && <p role="alert" className="mt-8 text-rose-300">{error}</p>}
     {!share && !error && <p className="mt-8 text-slate-400">Loading verified evidence…</p>}

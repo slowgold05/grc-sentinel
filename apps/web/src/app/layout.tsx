@@ -4,7 +4,7 @@ import { AppShell } from "../components/app-shell";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "GRC Sentinel",
+  title: "Sentinal",
   description: "Evidence-grounded GRC automation and continuous compliance",
 };
 

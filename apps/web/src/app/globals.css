@@ -38,6 +38,10 @@ body {
   min-height: 100vh;
 }
 
+.app-shell [class*="rounded-"] {
+  border-radius: 2px;
+}
+
 /* Keep the legacy feature screens visually consistent with the new light workspace shell. */
 .app-shell main.bg-black,
 .app-shell main .bg-black,
@@ -74,7 +78,6 @@ body {
 
 html[data-theme="dark"] body,
 html[data-theme="dark"] .app-shell { background: #0d0b18; color: #f8fafc; }
-html[data-theme="dark"] .app-shell > header,
 html[data-theme="dark"] .app-shell > header .bg-white,
 html[data-theme="dark"] .app-shell main,
 html[data-theme="dark"] .app-shell main.bg-black,

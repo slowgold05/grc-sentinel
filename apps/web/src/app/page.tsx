@@ -33,7 +33,7 @@ export default function Home() {
   }
 
   return (
-    <main className="bg-[#f5f7f9] px-5 py-6 text-slate-950 sm:px-8 lg:px-10 lg:py-8">
+    <main className="home-page bg-[#f5f7f9] px-5 py-6 text-slate-950 sm:px-8 lg:px-10 lg:py-8">
       <header className="border-b border-slate-200 pb-6">
         <div><p className="text-sm text-slate-500">LedgerPeak Payments</p><h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">Compliance overview</h1></div>
       </header>
@@ -43,7 +43,7 @@ export default function Home() {
         <div className="flex flex-col justify-center p-7 sm:p-10 lg:p-12">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-300">Compliance, made understandable</p>
           <h2 id="platform-heading" className="mt-4 max-w-xl text-4xl font-semibold tracking-tight sm:text-5xl">Turn compliance work into a clear plan.</h2>
-          <p className="mt-5 max-w-xl text-base leading-7 text-slate-300">GRC Sentinel helps a company understand which security and AI-governance requirements may matter, organize proof that safeguards exist, and show reviewers what still needs attention.</p>
+          <p className="mt-5 max-w-xl text-base leading-7 text-slate-300">Sentinal helps a company understand which security and AI-governance requirements may matter, organize proof that safeguards exist, and show reviewers what still needs attention.</p>
           <div className="mt-7 flex flex-wrap gap-3"><button type="button" onClick={startAssessment} className="rounded-lg bg-[#4f7cff] px-5 py-3 text-sm font-semibold text-white hover:bg-[#3e69e8]">Start an assessment</button><a href="#how-it-works" className="rounded-lg border border-white/25 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10">How it works</a></div>
           <p className="mt-5 text-xs leading-5 text-slate-400">Portfolio demonstration only. It supports structured review; it does not replace legal counsel, a qualified assessor, or formal certification.</p>
         </div>
@@ -54,7 +54,7 @@ export default function Home() {
           <div className="mt-4 rounded-xl border border-white/10 p-4"><p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Next action</p><p className="mt-2 text-sm font-medium">Review the incident response gap</p><p className="mt-1 text-xs text-slate-400">Owner: Security · High priority</p></div>
         </div>
         </div>
-        <div className="framework-marquee border-t border-white/10 py-5" aria-label="Frameworks represented in GRC Sentinel">
+        <div className="framework-marquee border-t border-white/10 py-5" aria-label="Frameworks represented in Sentinal">
           <div className="framework-marquee__track">{[0, 1].map((copy) => <div key={copy} className="framework-marquee__group" aria-hidden={copy === 1}>{regimes.map((regime) => <span key={`${copy}-${regime}`}>{regime}</span>)}</div>)}</div>
         </div>
       </section>
