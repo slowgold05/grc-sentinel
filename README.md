@@ -19,7 +19,7 @@ Actual company assessments now live in [Workspace](https://web-six-xi-53.vercel.
 ![Sentinal public homepage](screenshots/01-overview.png)
 
 The public landing page uses a slim horizontal header with an accessible **Platform** dropdown,
-an original grid-and-orbit hero, and alternating screenshot-led sections for compliance, AI
+a quiet charcoal hero with subtle Policy → Evidence → Review trails, and alternating screenshot-led sections for compliance, AI
 governance, and policy evidence. The product images are captured from Sentinal's own fictional
 demo; no customer logos, endorsements, or certification claims are implied. All workspace tools
 remain available through Platform and the workspace navigation. Motion is limited to a pausable

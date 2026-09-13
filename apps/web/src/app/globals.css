@@ -165,10 +165,15 @@ button, summary, a { -webkit-tap-highlight-color: transparent; }
 
 /* Public product story. Dedicated colors avoid changing tenant-tool semantics. */
 .landing-hero { position: relative; isolation: isolate; overflow: hidden; background: #1e2b30; }
-.hero-orbit { position: absolute; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; background-image: radial-gradient(circle at 20% 40%, #d0eaff88 0 1px, transparent 1.5px), radial-gradient(circle at 75% 20%, #a6c9ff55 0 1px, transparent 1.5px); background-size: 163px 181px, 247px 137px; }
-.orbit-globe { position: absolute; width: 250px; height: 250px; left: max(-100px, calc(50% - 740px)); top: 35px; border-radius: 50%; background: radial-gradient(circle at 27% 25%, #d7e5e8, #809aab 28%, #344b59 53%, #172229 73%); box-shadow: inset -24px -8px 40px #101a20, 0 0 45px #c4e3ff15; opacity: .8; }
-.orbit-satellite { position: absolute; width: 110px; height: 110px; border-radius: 50%; right: max(-30px, calc(50% - 660px)); top: 480px; background: radial-gradient(circle at 28% 28%, #b5f8fa, #518ec6 30%, #203653 65%, #182830 80%); box-shadow: 0 0 50px #70b3ff20; }
-.orbit-grid { position: absolute; bottom: -90px; left: 10%; width: 80%; height: 390px; transform: perspective(380px) rotateX(58deg); background-image: linear-gradient(#a5d9e522 1px, transparent 1px), linear-gradient(90deg, #a5d9e522 1px, transparent 1px); background-size: 50px 50px; mask-image: radial-gradient(ellipse, #000, transparent 68%); }
+.hero-scene { position: relative; isolation: isolate; min-width: 0; }
+.hero-scene::before { content: ""; position: absolute; inset: -100px -80px; z-index: -1; pointer-events: none; background: radial-gradient(ellipse, #527ddc24, transparent 70%); }
+.evidence-trails { position: absolute; inset: -34px -24px; pointer-events: none; }
+.evidence-trails svg { width: 100%; height: 100%; overflow: visible; fill: #84afd5; stroke: #84afd54d; stroke-width: 1; }
+.evidence-trails path { fill: none; vector-effect: non-scaling-stroke; }
+.evidence-trails span { position: absolute; padding: 4px 9px; background: #1e2b30; color: #abc2d2; font: 10px monospace; letter-spacing: .07em; }
+.trail-policy { top: 0; left: 14%; }
+.trail-evidence { top: 0; right: 10%; }
+.trail-review { bottom: 1%; right: 16%; }
 .hero-layout { display: grid; grid-template-columns: .95fr 1.25fr; align-items: center; gap: 64px; padding-block: 88px 76px; }
 .hero-copy { position: relative; }
 .hero-copy h1 { font-size: clamp(2.5rem, 4.65vw, 4.6rem); line-height: 1.02; letter-spacing: -.055em; font-weight: 600; margin: 24px 0; max-width: 12ch; }
@@ -178,7 +183,7 @@ button, summary, a { -webkit-tap-highlight-color: transparent; }
 .hero-actions .hero-link { font-size: 13px; text-decoration: none; color: #dceaf1; }
 .hero-note { color: #bacbd2; font-size: 11px; line-height: 1.6; margin-top: 18px; max-width: 330px; }
 .hero-eyebrow { font: 10px monospace; letter-spacing: .08em; line-height: 1.7; color: #aacfff; }
-.hero-product { min-width: 0; padding: 9px; background: linear-gradient(120deg, #b9f4ff20, #7498df08 60%); border: 1px solid #bdd7f233; box-shadow: 28px 30px 65px #05101755; transform: perspective(1400px) rotateY(-5deg); }
+.hero-product { position: relative; min-width: 0; padding: 9px; background: linear-gradient(120deg, #b9f4ff20, #7498df08 60%); border: 1px solid #bdd7f233; box-shadow: 28px 30px 65px #05101755; transform: perspective(1400px) rotateY(-5deg); }
 .product-preview { background: #19262d; color: #edf4f7; border: 1px solid #4b5e66; font-size: 12px; }
 .preview-title { display: flex; gap: 12px; align-items: center; padding: 18px; border-bottom: 1px solid #40535b; background: #2a3b43; }
 .preview-title strong { display: block; font-size: 14px; }
@@ -264,10 +269,13 @@ button, summary, a { -webkit-tap-highlight-color: transparent; }
   .hero-layout, .feature-row, .feature-reverse, .workflow-heading, .closing-layout { grid-template-columns: 1fr; }
   .hero-copy h1 { font-size: clamp(2.65rem, 9vw, 4rem); max-width: 15ch; }
   .hero-product { transform: none; margin-top: 12px; }
-  .orbit-globe { left: auto; right: -120px; opacity: .35; }
+  .hero-scene { margin-top: 28px; }
+  .evidence-trails { inset: -20px 0 auto; display: flex; justify-content: space-between; }
+  .evidence-trails svg { display: none; }
+  .evidence-trails::before { content: ""; position: absolute; inset: 9px 8px auto; border-top: 1px solid #84afd54d; }
+  .evidence-trails span { position: relative; inset: auto; }
   .hero-copy { max-width: 560px; }
   .hero-copy > .hero-muted { max-width: 500px; }
-  .orbit-satellite { display: none; }
   .framework-strip > p { padding-right: 0; margin-bottom: 12px; }
   .framework-strip .ticker-control { position: static; margin: 0 0 16px; }
   .framework-strip .framework-marquee__group span { font-size: 16px; }

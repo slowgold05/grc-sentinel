@@ -80,6 +80,11 @@ def main() -> None:
             return
         open_page("/")
         assert not driver.find_elements(By.CSS_SELECTOR, "form, #program-status")
+        assert not driver.find_elements(By.CSS_SELECTOR, ".hero-orbit, .orbit-globe, .orbit-grid, .orbit-satellite")
+        trails = driver.find_element(By.CLASS_NAME, "evidence-trails")
+        assert trails.get_attribute("aria-hidden") == "true"
+        assert [label.text for label in trails.find_elements(By.TAG_NAME, "span")] == ["Policy", "Evidence", "Review"]
+        assert driver.execute_script("return getComputedStyle(arguments[0]).pointerEvents", trails) == "none"
         assert "Example workspace" in driver.find_element(By.CLASS_NAME, "product-preview").text
         assert "74%" not in driver.find_element(By.TAG_NAME, "main").text
         for mode in ["light", "dark"]:

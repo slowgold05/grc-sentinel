@@ -22,10 +22,15 @@ const steps = [
 export default function Home() {
   return <main className="landing-page">
     <section className="landing-hero" aria-labelledby="platform-heading">
-      <div className="hero-orbit" aria-hidden="true"><div className="orbit-globe" /><div className="orbit-grid" /><div className="orbit-satellite" /></div>
       <div className="marketing-container hero-layout">
         <div className="hero-copy"><p className="hero-eyebrow">EVIDENCE. OVERSIGHT. TRUST.</p><h1 id="platform-heading">Compliance, with the evidence to back it.</h1><p className="hero-muted">Understand your requirements, find policy gaps, and keep human oversight of your AI. One workspace. A clearer picture.</p><div className="hero-actions"><Link className="primary-button" href="/demo">Explore demo <span aria-hidden>→</span></Link><Link className="hero-link" href="/workspace">Open workspace →</Link></div><p className="hero-note">Fictional data. Real workflows. No account needed to explore.</p></div>
-        <div className="hero-product"><ProductPreview /></div>
+        <div className="hero-scene">
+          <div className="evidence-trails" aria-hidden="true">
+            <svg viewBox="0 0 720 720" preserveAspectRatio="none" focusable="false"><path d="M100 12H665V300H700V690H520M45 180V650H270V708H420" /><circle cx="100" cy="12" r="3" /><circle cx="700" cy="300" r="3" /><circle cx="520" cy="690" r="3" /></svg>
+            <span className="trail-policy">Policy</span><span className="trail-evidence">Evidence</span><span className="trail-review">Review</span>
+          </div>
+          <div className="hero-product"><ProductPreview /></div>
+        </div>
       </div>
       <div className="marketing-container framework-strip" id="frameworks"><p className="hero-muted">REGULATIONS & FRAMEWORKS REPRESENTED <span>Coverage varies · Not certifications</span></p><details className="ticker-control"><summary>Pause framework strip</summary><span className="sr-only">Close to resume.</span></details><div className="framework-marquee" aria-label="Regulations and frameworks represented"><div className="framework-marquee__track">{[0, 1].map((copy) => <div key={copy} className="framework-marquee__group" aria-hidden={copy === 1}>{regimes.map((regime) => <span key={regime}>{regime}</span>)}</div>)}</div></div></div>
     </section>
