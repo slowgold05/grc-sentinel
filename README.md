@@ -16,7 +16,7 @@ The **Sentinal** homepage explains the platform in plain language. [Explore the 
 
 Actual company assessments now live in [Workspace](https://web-six-xi-53.vercel.app/workspace), behind Clerk sign-in and organization selection. Navigation and account controls stay visible on smaller screens; a sun/moon control remembers the selected theme. Risks show priorities, owners, and next actions before an optional heatmap. The complete local build adds private document processing and inference through Ollama; the public tour never reads or writes tenant records.
 
-![Sentinal public homepage](screenshots/01-overview.png)
+![Sentinal homepage with the new evidence-trail background and example workspace](screenshots/frontpage.png)
 
 The public landing page uses a slim horizontal header with an accessible **Platform** dropdown,
 a quiet charcoal hero with subtle Policy → Evidence → Review trails, and alternating screenshot-led sections for compliance, AI
@@ -25,13 +25,35 @@ demo; no customer logos, endorsements, or certification claims are implied. All 
 remain available through Platform and the workspace navigation. Motion is limited to a pausable
 framework strip that respects reduced-motion preferences.
 
-| Intake and applicability | Evidence-backed coverage |
+<details>
+<summary>Explore the screenshots: homepage, product tour, and signed-in workspace</summary>
+
+All images below were refreshed from the deployed UI on **13 September 2026**. Public examples
+and authenticated fictional records are labelled separately; click an image to inspect it at full size.
+
+| Homepage — light theme | Homepage — dark theme |
 | --- | --- |
-| ![Fintech intake](screenshots/02-intake.png) | ![Control coverage](screenshots/03-coverage.png) |
-| **Risk register** | **Expiring Audit Hub share** |
-| ![Risk register](screenshots/04-risks.png) | ![Audit Hub share](screenshots/10-audit-share.png) |
-| **AI system inventory** | **AI-system Audit Hub share** |
-| ![AI system inventory](screenshots/11-ai-systems.png) | ![AI-system Audit Hub share](screenshots/12-ai-audit-share.png) |
+| ![Full homepage in light mode](screenshots/01-overview.png) | ![Full homepage in dark mode](screenshots/13-dark-theme.png) |
+| **Platform navigation** | **Mobile homepage** |
+| ![Expanded Platform menu](screenshots/16-navigation.png) | ![Homepage at mobile width](screenshots/15-mobile.png) |
+| **Public product tour** | **Illustrative evidence and gap** |
+| ![Fictional assessment, AI record, and policy extract](screenshots/14-public-demo.png) | ![Event-logging example with a policy quote and next action](screenshots/03-coverage.png) |
+| **Signed-in regulatory intake** | **Public risk examples** |
+| ![Progressive regulatory review with one panel expanded](screenshots/02-intake.png) | ![Fictional risks with priorities and next actions](screenshots/04-risks.png) |
+| **Monitoring connection setup** | **Questionnaire review queue** |
+| ![Signed-in GitHub and AWS connection controls](screenshots/05-monitoring.png) | ![Signed-in questionnaire empty state](screenshots/06-questionnaires.png) |
+| **Framework comparison tool** | **Policy library** |
+| ![Installed-framework version comparison controls](screenshots/07-framework-drift.png) | ![Signed-in policy library and model usage](screenshots/08-policies.png) |
+| **Platform safeguards** | **Signed-in AI inventory** |
+| ![Trust center with implementation disclosures](screenshots/09-trust-center.png) | ![Registered fictional AI system and governance controls](screenshots/11-ai-systems.png) |
+| **Engagement Audit Hub** | **AI-system Audit Hub** |
+| ![Read-only company profile with a labelled facts table](screenshots/10-audit-share.png) | ![Read-only draft AI system record and explicit exclusions](screenshots/12-ai-audit-share.png) |
+
+The private walkthrough uses fictional LedgerPeak records. Monitoring, questionnaires, and policies
+show setup or empty states, not completed checks or generated evidence. Audit shares show captured
+facts and draft records, not an approved assessment or audit opinion.
+
+</details>
 
 The full walkthrough — intake, control evidence, risks, monitoring, questionnaires, framework drift, policies, the trust center, AI inventory, and expiring engagement- and system-scoped Audit Hub shares — is documented in [`screenshots/`](screenshots/README.md).
 
@@ -44,7 +66,7 @@ python -m uv run python scripts/selenium_ui_review.py --base-url https://web-six
 python -m uv run python scripts/selenium_portfolio.py --capture
 ```
 
-The capture command opens an isolated Chrome session, pauses for Clerk sign-in and organization selection in Workspace, uses only fictional LedgerPeak Payments data, and writes walkthrough images under `screenshots/`. The separate UI review checks hover and keyboard navigation, five viewport widths, theme persistence, hero-text contrast, reduced motion, product-image loading, example disclosures, and the signed-out workspace. It does not test authenticated submissions or claim approval of the illustrated records. Screenshot refresh dates and historical authenticated captures are identified in [`screenshots/README.md`](screenshots/README.md).
+The capture command opens an isolated Chrome session, pauses for Clerk sign-in and organization selection in Workspace, uses only fictional LedgerPeak Payments data, and writes walkthrough images under `screenshots/`. It creates a sample assessment, a draft AI record, and expiring audit shares. The separate UI review checks hover and keyboard navigation, five viewport widths, theme persistence, hero-text contrast, reduced motion, product-image loading, example disclosures, and the signed-out workspace. That public check does not test authenticated submissions or claim approval of the illustrated records. The screenshot index, capture scope, and refresh instructions are in [`screenshots/README.md`](screenshots/README.md).
 
 ## What it does
 

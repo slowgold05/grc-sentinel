@@ -1,37 +1,50 @@
 # Reviewer walkthrough captures
 
-Public UI captures were refreshed on 13 September 2026 for the screenshot-led Sentinal overhaul.
-They contain only fictional, read-only examples. They do not prove authenticated submissions,
-AI inference, legal approval, or a completed audit.
+The public and signed-in captures were refreshed on **13 September 2026** from
+[the deployed app](https://web-six-xi-53.vercel.app). They show the current Sentinal interface:
+horizontal navigation, light/dark themes, the evidence-trail homepage, progressive intake, and
+labelled Audit Hub summaries. These are screenshots of the application, not design mockups.
 
-During local UI verification, Clerk emitted a session-refresh configuration warning. No
-credentials were changed, and authenticated sign-in/submissions were not revalidated in this
-pass. This warning is separate from the passing public-navigation and signed-out checks.
+## Screenshot index
 
-| File | Stage shown |
-| --- | --- |
-| `01-overview.png` | Public homepage: plain-language introduction and clearly labelled example |
-| `04-risks.png` | Fictional risks with priorities, owners, and next actions; heatmap collapsed |
-| `13-dark-theme.png` | Homepage in dark mode |
-| `14-public-demo.png` | Public assessment excerpts, AI-system example, and illustrative policy |
-| `15-mobile.png` | Narrow-screen navigation, account controls, and homepage |
-| `16-navigation.png` | Expanded Platform menu with direct access to workspace tools |
+| File | Stage shown | Data and session |
+| --- | --- | --- |
+| [frontpage.png](frontpage.png) | First-screen homepage preview used at the top of the README | Public, fictional example |
+| [01-overview.png](01-overview.png) | Complete homepage in light mode | Public, fictional example |
+| [02-intake.png](02-intake.png) | Regulatory review with one expanded panel and assurance objectives | Signed in, fictional company facts |
+| [03-coverage.png](03-coverage.png) | Expanded event-logging quote and next action | Public illustrative assessment, not tenant analysis |
+| [04-risks.png](04-risks.png) | Priorities, owners, and next actions; heatmap collapsed | Public fictional risk examples |
+| [05-monitoring.png](05-monitoring.png) | GitHub/AWS connection controls and evidence-history action | Signed-in setup; no connector credentials supplied |
+| [06-questionnaires.png](06-questionnaires.png) | Questionnaire review queue | Signed-in empty state; no answers approved |
+| [07-framework-drift.png](07-framework-drift.png) | Framework version comparison controls | Signed-in tool; no comparison result claimed |
+| [08-policies.png](08-policies.png) | Policy library and model-usage counters | Signed-in empty library; no generation or export performed |
+| [09-trust-center.png](09-trust-center.png) | Platform safeguards and implementation disclosures | Public information, not a certification |
+| [10-audit-share.png](10-audit-share.png) | Engagement-scoped Audit Hub with a labelled company-facts table | Read-only fictional share; no additional evidence records |
+| [11-ai-systems.png](11-ai-systems.png) | Registered AI inventory, draft system details, and registration form | Signed-in fictional AI record |
+| [12-ai-audit-share.png](12-ai-audit-share.png) | AI-system Audit Hub with explicit exclusions | Read-only draft record, not deployment approval |
+| [13-dark-theme.png](13-dark-theme.png) | Complete homepage in dark mode | Public, fictional example |
+| [14-public-demo.png](14-public-demo.png) | Assessment excerpts, AI example, and illustrative policy | Public read-only product tour |
+| [15-mobile.png](15-mobile.png) | Homepage and navigation at a 390-pixel viewport | Public responsive layout |
+| [16-navigation.png](16-navigation.png) | Expanded Platform menu | Public desktop navigation |
 
-The following captures are retained from earlier authenticated walkthroughs. Their visual design
-may predate the current navigation; a new authenticated capture was not part of this UI pass.
+## What this refresh verified
 
-| File | Historical stage |
-| --- | --- |
-| `02-intake.png` | Company facts, regulatory inputs, and assurance objectives |
-| `03-coverage.png` | Evidence quote and remediation gap |
-| `05-monitoring.png` | GitHub/AWS connection controls and evidence history |
-| `06-questionnaires.png` | Answer review |
-| `07-framework-drift.png` | Framework comparison |
-| `08-policies.png` | Policy library and export |
-| `09-trust-center.png` | Platform safeguards |
-| `10-audit-share.png` | Engagement-scoped Audit Hub |
-| `11-ai-systems.png` | AI inventory and lifecycle |
-| `12-ai-audit-share.png` | System-scoped AI governance Audit Hub |
+The public UI review passed theme/contrast, five viewport widths, hover/keyboard navigation,
+product-image loading, example disclosures, routes, and signed-out workspace checks.
+The signed-in walkthrough completed fictional assessment and AI-record creation and opened both
+engagement- and AI-system-scoped audit shares. Pages initially captured during loading were retaken
+after their workspace content appeared.
+
+The test organization contains records from earlier walkthroughs, so repeated LedgerPeak names
+are separate test records, not distinct customers. No existing records were deleted for presentation.
+The Audit Hub has its own stripped-down report layout without the main navigation; its captures
+show the current report page, not a restyled mockup.
+
+This pass did **not** run Ollama inference, connect GitHub/AWS, approve generated material, or
+complete an audit. Empty states and pending/draft labels are preserved deliberately. Share URLs
+expire and are not published here; the PNGs remain viewable after expiry.
+
+## Reproduce the captures
 
 From `apps/api`, run:
 
@@ -41,10 +54,14 @@ python -m uv run python scripts/selenium_portfolio.py --headless
 python -m uv run python scripts/selenium_portfolio.py --capture
 ```
 
-The UI review checks five viewport widths, hover/keyboard menus, product-image loading, account
-controls, light/dark themes, hero-text contrast, theme persistence, reduced motion, public examples,
-routes, and signed-out workspace
-gating. It saves public images to `.tmp-ui-checks/` at the repository root by default.
+The UI review saves public images to `.tmp-ui-checks/` at the repository root by default.
+Use `home-light.png` for `01-overview.png`, `home-dark.png` for `13-dark-theme.png`,
+`demo.png` for `14-public-demo.png`, `mobile.png` for `15-mobile.png`, `navigation.png`
+for `16-navigation.png`, and `risks.png` for `04-risks.png`. The homepage preview is a
+viewport-only capture; the numbered captures are full-page images except the menu viewport.
+Inspect every image before replacing a tracked PNG, including account controls and lazy-loaded
+product images. The portfolio script waits for headings, which can appear before session/API
+content; retake any loading states after the actual content is visible.
 
 The homepage uses three panel captures in `apps/web/public/product/`, taken from the public demo
 in light mode. To refresh these illustrative images without accessing tenant records, run from
