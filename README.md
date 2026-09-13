@@ -12,9 +12,11 @@ The design premise is that a language model should never decide what legally app
 
 ## Explore the live demo
 
-The public homepage contains a fictional fintech engagement for **LedgerPeak Payments**, a source-linked US/EU/Singapore regulatory-perimeter view, and an interactive PCI DSS 4.0.1 / SOC 2 control-coverage matrix. Select any control to inspect its exact policy evidence and remediation gap. The navigation also demonstrates the risk register, continuous monitoring, questionnaire review, framework drift, policy library, and trust center.
+The **Sentinal** homepage explains the platform in plain language. [Explore the public tour](https://web-six-xi-53.vercel.app/demo) without an account: inspect fictional **LedgerPeak Payments** policy excerpts, evidence gaps, a support-assistant AI record, and an illustrative policy extract. Six example document checks share one consistent summary: three covered, two partial, and one missing. These are demonstration records, not a live compliance score.
 
-The homepage is seeded so anyone can explore the product without uploading data. The complete local build adds private document processing and local inference through Ollama. This split keeps the hosted demo inexpensive and prevents real policy text from being sent to a hosted model.
+Actual company assessments now live in [Workspace](https://web-six-xi-53.vercel.app/workspace), behind Clerk sign-in and organization selection. Navigation and account controls stay visible on smaller screens; a sun/moon control remembers the selected theme. Risks show priorities, owners, and next actions before an optional heatmap. The complete local build adds private document processing and inference through Ollama; the public tour never reads or writes tenant records.
+
+![Sentinal public homepage](screenshots/01-overview.png)
 
 | Intake and applicability | Evidence-backed coverage |
 | --- | --- |
@@ -31,10 +33,11 @@ To repeat the browser smoke test and authenticated screenshot walkthrough:
 ```powershell
 Set-Location apps/api
 python -m uv run python scripts/selenium_portfolio.py --headless
+python -m uv run python scripts/selenium_ui_review.py --base-url https://web-six-xi-53.vercel.app
 python -m uv run python scripts/selenium_portfolio.py --capture
 ```
 
-The capture command opens an isolated Chrome session, pauses for Clerk sign-in and organization selection, uses only fictional LedgerPeak Payments data, and writes the 12 walkthrough images under `screenshots/`. The deployed Vercel-to-Railway flow passed this complete walkthrough on 12 September 2026.
+The capture command opens an isolated Chrome session, pauses for Clerk sign-in and organization selection in Workspace, uses only fictional LedgerPeak Payments data, and writes walkthrough images under `screenshots/`. The separate UI review checks public navigation, five viewport widths, theme persistence, hero-text contrast, reduced motion, example disclosures, and the signed-out workspace. It does not test authenticated submissions or claim approval of the illustrated records. Screenshot refresh dates and historical authenticated captures are identified in [`screenshots/README.md`](screenshots/README.md).
 
 ## What it does
 

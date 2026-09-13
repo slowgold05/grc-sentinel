@@ -17,18 +17,21 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 DEFAULT_URL = "https://web-six-xi-53.vercel.app"
 PUBLIC_PAGES = {
-    "04-risks.png": ("/risks", "Risk, linked to controls."),
-    "05-monitoring.png": ("/monitoring", "Policy says it. Systems prove it."),
-    "06-questionnaires.png": ("/questionnaires", "Security questionnaire answers"),
-    "07-framework-drift.png": ("/framework-drift", "Regulatory drift impact"),
-    "08-policies.png": ("/policies", "Verified policy exports"),
-    "09-trust-center.png": ("/trust", "The platform follows the controls it recommends."),
-    "11-ai-systems.png": ("/ai-systems", "Know every AI system you govern."),
+    "04-risks.png": ("/risks", "Risk register"),
+    "05-monitoring.png": ("/monitoring", "Monitoring"),
+    "06-questionnaires.png": ("/questionnaires", "Questionnaires"),
+    "07-framework-drift.png": ("/framework-drift", "Framework changes"),
+    "08-policies.png": ("/policies", "Policies"),
+    "09-trust-center.png": ("/trust", "Platform safeguards"),
+    "11-ai-systems.png": ("/ai-systems", "AI systems"),
 }
 
 
 def screenshot(driver: webdriver.Chrome, path: Path) -> None:
     """Save a full-page PNG through Chrome's native capture command."""
+    driver.execute_async_script(
+        "const done=arguments[0]; window.scrollTo(0, 0); requestAnimationFrame(() => requestAnimationFrame(done));"
+    )
     payload = driver.execute_cdp_cmd(
         "Page.captureScreenshot", {"format": "png", "captureBeyondViewport": True}
     )
@@ -71,7 +74,7 @@ def open_page(driver: webdriver.Chrome, base_url: str, route: str, heading: str)
 
 def capture_ai_governance(driver: webdriver.Chrome, base_url: str, output: Path) -> None:
     """Create one fictional AI inventory record and its scoped audit share."""
-    open_page(driver, base_url, "/ai-systems", "Know every AI system you govern.")
+    open_page(driver, base_url, "/ai-systems", "AI systems")
     form = WebDriverWait(driver, 20).until(
         conditions.presence_of_element_located((By.ID, "new-ai-system"))
     )
@@ -101,11 +104,9 @@ def capture_ai_governance(driver: webdriver.Chrome, base_url: str, output: Path)
     set_date(driver, form.find_element(By.NAME, "vendor_review_date"), "2026-09-11")
     Select(form.find_element(By.NAME, "human_review_coverage")).select_by_value("every_output")
     form.find_element(By.XPATH, ".//button[normalize-space()='Register system']").click()
-    WebDriverWait(driver, 30).until(
-        conditions.text_to_be_present_in_element(
-            (By.TAG_NAME, "body"), "LedgerPeak Support Assistant"
-        )
-    )
+    WebDriverWait(driver, 30).until(conditions.element_to_be_clickable(
+        (By.XPATH, "//button[normalize-space()='Create 24-hour audit share']"),
+    ))
     screenshot(driver, output / "11-ai-systems.png")
     driver.find_element(
         By.XPATH, "//button[normalize-space()='Create 24-hour audit share']"
@@ -128,12 +129,12 @@ def capture_ai_governance(driver: webdriver.Chrome, base_url: str, output: Path)
 
 def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -> None:
     """Capture the fictional signed-in walkthrough after one manual Clerk login."""
-    driver.get(base_url)
+    driver.get(f"{base_url}/workspace")
     try:
         driver.find_element(By.XPATH, "//button[normalize-space()='Sign in']").click()
     except Exception:
         pass
-    print("Complete Clerk sign-in and select your GRC Sentinel organization in Chrome.")
+    print("Complete Clerk sign-in, open Workspace, and select your Sentinal organization in Chrome.")
     try:
         WebDriverWait(driver, 600).until(
             conditions.presence_of_element_located((By.ID, "new-engagement"))
@@ -265,7 +266,7 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
     ).click()
     WebDriverWait(driver, 30).until(
         lambda page: page.find_elements(
-            By.XPATH, "//button[normalize-space()='Create 24-hour audit link']"
+            By.XPATH, "//button[normalize-space()='Create audit link']"
         )
         or page.find_elements(By.CSS_SELECTOR, "[role='alert']")
     )
@@ -274,8 +275,13 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
         raise RuntimeError(
             f"Engagement creation failed: {errors[0].text}; {engagement_diagnostics(driver)}"
         )
+    open_page(driver, base_url, "", "Turn compliance work into a clear plan.")
     screenshot(driver, output / "01-overview.png")
-    driver.find_element(By.XPATH, "//button[.//span[normalize-space()='AU-2']]").click()
+    driver.get(f"{base_url}/demo#assessment")
+    WebDriverWait(driver, 20).until(conditions.element_to_be_clickable(
+        (By.XPATH, "//summary[contains(., 'Event logging')]"),
+    )).click()
+    # This is an illustrative quote, not the newly created engagement's analysis.
     screenshot(driver, output / "03-coverage.png")
 
     for filename, (route, heading) in PUBLIC_PAGES.items():
@@ -284,10 +290,10 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
 
     capture_ai_governance(driver, base_url, output)
 
-    driver.get(base_url)
+    driver.get(f"{base_url}/workspace")
     WebDriverWait(driver, 20).until(
         conditions.element_to_be_clickable(
-            (By.XPATH, "//button[normalize-space()='Create 24-hour audit link']")
+            (By.XPATH, "//button[normalize-space()='Create audit link']")
         )
     ).click()
     link = (
@@ -324,8 +330,8 @@ def main() -> None:
         options.add_argument("--headless=new")
     driver = webdriver.Chrome(options=options)
     try:
-        open_page(driver, args.base_url, "", "Control coverage, with proof.")
-        assert "Fintech scoping perimeter" in driver.page_source
+        open_page(driver, args.base_url, "", "Turn compliance work into a clear plan.")
+        assert "Example workspace" in driver.find_element(By.CLASS_NAME, "demo-preview").text
         for route, heading in PUBLIC_PAGES.values():
             open_page(driver, args.base_url, route, heading)
         if args.capture:

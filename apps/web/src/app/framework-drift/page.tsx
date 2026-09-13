@@ -1,6 +1,7 @@
-import Link from "next/link";
 import { FrameworkImpact } from "../../components/framework-impact";
+import { ToolPage } from "../../components/tool-page";
 
+/** Compare installed versions and review the policies affected by changes. */
 export default function FrameworkDriftPage() {
-  return <main className="min-h-screen bg-black px-5 py-10 text-slate-100 sm:px-8"><div className="mx-auto max-w-[1600px]"><Link href="/" className="text-sm text-red-400">← Coverage</Link><p className="mt-8 text-xs font-semibold uppercase tracking-[0.24em] text-red-500">Framework intelligence</p><h1 className="mt-3 text-4xl font-semibold">Regulatory drift impact</h1><p className="mt-4 max-w-2xl text-slate-400">Compare two installed framework versions and find every tenant policy statement that needs review.</p>{process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ? <FrameworkImpact /> : <p className="mt-8 text-amber-200">Configure Clerk to compare live framework data.</p>}</div></main>;
+  return <ToolPage title="Framework changes" description="Compare two installed versions of a framework and find policy statements that need another review."><FrameworkImpact /></ToolPage>;
 }

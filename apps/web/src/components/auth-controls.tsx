@@ -16,10 +16,10 @@ export function AuthControls() {
     <>
       <Show when="signed-out">
         <SignInButton>
-          <button className="border border-white/50 px-4 py-2 font-medium text-white hover:bg-white/10">Sign in</button>
+          <button className="secondary-button">Sign in</button>
         </SignInButton>
         <SignUpButton>
-          <button className="bg-[#4f7cff] px-4 py-2 font-semibold text-white hover:bg-[#3e69e8]">Sign up</button>
+          <button className="primary-button">Sign up</button>
         </SignUpButton>
       </Show>
       <Show when="signed-in"><OrganizationSwitcher hidePersonal /><UserButton /></Show>
