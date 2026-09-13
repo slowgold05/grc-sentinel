@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import argparse
+import base64
 from pathlib import Path
 import re
 
 from selenium import webdriver
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 
 from selenium_portfolio import screenshot
@@ -29,6 +32,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--base-url", default="http://localhost:3010")
     parser.add_argument("--output", type=Path, default=Path("../../.tmp-ui-checks"))
+    parser.add_argument("--capture-assets", type=Path, help="Capture the three public demo panels for the homepage, then exit.")
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
     options = webdriver.ChromeOptions()
@@ -47,6 +51,10 @@ def main() -> None:
 
     def capture(name: str) -> None:
         wait_for_account()
+        for picture in driver.find_elements(By.CSS_SELECTOR, ".feature-image img"):
+            driver.execute_script("arguments[0].scrollIntoView({block:'center'})", picture)
+            wait.until(lambda page: page.execute_script("return arguments[0].complete && arguments[0].naturalWidth > 0", picture))
+        driver.execute_script("document.activeElement?.blur()")
         screenshot(driver, args.output / name)
 
     def theme_button():
@@ -56,9 +64,23 @@ def main() -> None:
         assert driver.execute_script("return document.documentElement.scrollWidth <= innerWidth"), "Page overflows horizontally"
 
     try:
+        if args.capture_assets:
+            args.capture_assets.mkdir(parents=True, exist_ok=True)
+            driver.execute_cdp_cmd("Emulation.setDeviceMetricsOverride", {"width": 960, "height": 1600, "deviceScaleFactor": 1, "mobile": False})
+            open_page("/demo")
+            if driver.execute_script("return document.documentElement.dataset.theme") != "light":
+                theme_button().click()
+            driver.find_element(By.CSS_SELECTOR, "#assessment summary").click()
+            driver.execute_async_script("const done=arguments[0]; scrollTo(0,0); requestAnimationFrame(() => requestAnimationFrame(done));")
+            for section in ["assessment", "ai-system", "policy"]:
+                clip = driver.execute_script("const r=arguments[0].getBoundingClientRect(); return {x:r.left+scrollX,y:r.top+scrollY,width:r.width,height:r.height,scale:1}", driver.find_element(By.ID, section))
+                result = driver.execute_cdp_cmd("Page.captureScreenshot", {"format": "png", "captureBeyondViewport": True, "clip": clip})
+                (args.capture_assets / f"{section}.png").write_bytes(base64.b64decode(result["data"]))
+            print("Captured three public, fictional demo panels; no tenant data accessed.")
+            return
         open_page("/")
         assert not driver.find_elements(By.CSS_SELECTOR, "form, #program-status")
-        assert "Example workspace" in driver.find_element(By.CLASS_NAME, "demo-preview").text
+        assert "Example workspace" in driver.find_element(By.CLASS_NAME, "product-preview").text
         assert "74%" not in driver.find_element(By.TAG_NAME, "main").text
         for mode in ["light", "dark"]:
             if driver.execute_script("return document.documentElement.dataset.theme") != mode:
@@ -73,21 +95,41 @@ def main() -> None:
             driver.refresh()
             wait.until(lambda page: page.execute_script("return document.documentElement.dataset.theme") == mode)
 
+        wait_for_account()
+        ActionChains(driver).move_to_element(driver.find_element(By.CSS_SELECTOR, ".platform-menu summary")).perform()
+        wait.until(lambda page: page.find_element(By.CLASS_NAME, "platform-menu").get_attribute("open"))
+        driver.save_screenshot(str(args.output / "navigation.png"))
+        ActionChains(driver).move_to_element(driver.find_element(By.CLASS_NAME, "brand")).perform()
+        wait.until(lambda page: not page.find_element(By.CLASS_NAME, "platform-menu").get_attribute("open"))
+
         for width in [1440, 1024, 768, 390, 320]:
             driver.execute_cdp_cmd("Emulation.setDeviceMetricsOverride", {"width": width, "height": 1000, "deviceScaleFactor": 1, "mobile": False})
             check_width()
             nav = driver.find_element(By.CLASS_NAME, "site-nav")
-            for link in nav.find_elements(By.TAG_NAME, "a"):
+            for link in nav.find_elements(By.CSS_SELECTOR, ":scope > a"):
                 assert link.is_displayed()
                 assert driver.execute_script("const r=arguments[0].getBoundingClientRect(); return r.left>=0 && r.right<=innerWidth", link), link.text
             sign_in = wait.until(lambda page: next((button for button in page.find_elements(By.TAG_NAME, "button") if button.text == "Sign in" and button.is_displayed()), False))
             assert sign_in.rect["width"] >= 44
+            menu = driver.find_element(By.CSS_SELECTOR, ".platform-menu summary")
+            menu.send_keys(Keys.ENTER)
+            wait.until(lambda page: page.find_element(By.CLASS_NAME, "platform-menu").get_attribute("open"))
+            assert driver.find_element(By.CSS_SELECTOR, '.menu-links a[href="/workspace"]').is_displayed()
+            check_width()
+            menu.send_keys(Keys.ESCAPE)
+            assert not driver.find_element(By.CLASS_NAME, "platform-menu").get_attribute("open")
             if width == 390:
                 capture("mobile.png")
 
         driver.execute_cdp_cmd("Emulation.setEmulatedMedia", {"features": [{"name": "prefers-reduced-motion", "value": "reduce"}]})
         assert driver.execute_script("return getComputedStyle(document.querySelector('.framework-marquee__track')).animationName") == "none"
         driver.execute_cdp_cmd("Emulation.clearDeviceMetricsOverride", {})
+        driver.find_element(By.CSS_SELECTOR, '.product-jump-nav a[href="#ai-governance"]').click()
+        wait.until(lambda page: page.current_url.endswith("#ai-governance"))
+        for picture in driver.find_elements(By.CSS_SELECTOR, ".feature-image img"):
+            wait.until(lambda page: page.execute_script("return arguments[0].complete && arguments[0].naturalWidth > 0", picture))
+        assert len(driver.find_elements(By.CSS_SELECTOR, ".feature-image img")) == 3
+        driver.execute_script("scrollTo(0,0)")
         driver.find_element(By.CSS_SELECTOR, '.landing-hero a[href="/demo"]').click()
         wait.until(lambda page: "/demo" in page.current_url)
         wait.until(lambda page: page.find_elements(By.ID, "assessment"))
@@ -115,7 +157,7 @@ def main() -> None:
             if route == "/workspace":
                 wait.until(lambda page: "Open your own workspace" in page.find_element(By.TAG_NAME, "main").text)
                 assert not driver.find_elements(By.CSS_SELECTOR, "form.scope-form")
-        print("Public UI checks passed: themes/contrast, five widths, account access, demo disclosures, routes, and signed-out workspace.")
+        print("Public UI checks passed: themes/contrast, five widths, hover/keyboard menus, product images and links, demo disclosures, routes, and signed-out workspace.")
     finally:
         driver.quit()
 

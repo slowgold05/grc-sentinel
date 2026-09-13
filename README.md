@@ -18,6 +18,13 @@ Actual company assessments now live in [Workspace](https://web-six-xi-53.vercel.
 
 ![Sentinal public homepage](screenshots/01-overview.png)
 
+The public landing page uses a slim horizontal header with an accessible **Platform** dropdown,
+an original grid-and-orbit hero, and alternating screenshot-led sections for compliance, AI
+governance, and policy evidence. The product images are captured from Sentinal's own fictional
+demo; no customer logos, endorsements, or certification claims are implied. All workspace tools
+remain available through Platform and the workspace navigation. Motion is limited to a pausable
+framework strip that respects reduced-motion preferences.
+
 | Intake and applicability | Evidence-backed coverage |
 | --- | --- |
 | ![Fintech intake](screenshots/02-intake.png) | ![Control coverage](screenshots/03-coverage.png) |
@@ -37,7 +44,7 @@ python -m uv run python scripts/selenium_ui_review.py --base-url https://web-six
 python -m uv run python scripts/selenium_portfolio.py --capture
 ```
 
-The capture command opens an isolated Chrome session, pauses for Clerk sign-in and organization selection in Workspace, uses only fictional LedgerPeak Payments data, and writes walkthrough images under `screenshots/`. The separate UI review checks public navigation, five viewport widths, theme persistence, hero-text contrast, reduced motion, example disclosures, and the signed-out workspace. It does not test authenticated submissions or claim approval of the illustrated records. Screenshot refresh dates and historical authenticated captures are identified in [`screenshots/README.md`](screenshots/README.md).
+The capture command opens an isolated Chrome session, pauses for Clerk sign-in and organization selection in Workspace, uses only fictional LedgerPeak Payments data, and writes walkthrough images under `screenshots/`. The separate UI review checks hover and keyboard navigation, five viewport widths, theme persistence, hero-text contrast, reduced motion, product-image loading, example disclosures, and the signed-out workspace. It does not test authenticated submissions or claim approval of the illustrated records. Screenshot refresh dates and historical authenticated captures are identified in [`screenshots/README.md`](screenshots/README.md).
 
 ## What it does
 

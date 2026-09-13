@@ -1,48 +1,42 @@
+import Image from "next/image";
 import Link from "next/link";
-import { DemoPreview } from "../components/demo-preview";
+import { ProductPreview } from "../components/product-preview";
+import assessmentImage from "../../public/product/assessment.png";
+import aiImage from "../../public/product/ai-system.png";
+import policyImage from "../../public/product/policy.png";
 
 const regimes = ["GLBA", "PCI DSS", "Regulation S-P", "FINRA 4370", "NYDFS 500", "SOX 404", "CCPA / CPRA", "DORA", "MAS TRM", "HIPAA", "ISO 27001", "SOC 2", "NIST 800-53", "NIST AI RMF", "ISO 42001"];
+const features = [
+  { id: "compliance", label: "Compliance", eyebrow: "CONNECT THE REQUIREMENT TO THE PROOF", title: "Know what is documented. See what is missing.", description: "Bring your company profile and policies into one workspace. Review requirements, inspect the supporting text, and turn gaps into a clear next action.", image: assessmentImage, tone: "assessment", alt: "Sentinal public assessment showing example policy excerpts and covered, partial, or missing checks", href: "/demo#assessment", action: "Explore the assessment" },
+  { id: "ai-governance", label: "AI governance", eyebrow: "KEEP PEOPLE IN THE DECISION", title: "Govern the AI you use. Not just the policies you write.", description: "Record each system's purpose, data, owner, and human oversight. Keep risk assessments, evaluations, and approval decisions connected to the system they govern.", image: aiImage, tone: "ai-system", alt: "Sentinal fictional support-assistant record with an owner, purpose, hosting details, and human oversight", href: "/demo#ai-system", action: "Meet the example AI system" },
+  { id: "evidence", label: "Policy & evidence", eyebrow: "MAKE THE REVIEW EASIER", title: "Less searching for evidence. More clarity for the reviewer.", description: "Keep policy statements connected to their sources and review decisions. Share approved work through scoped, expiring Audit Hub links when it is ready.", image: policyImage, tone: "policy", alt: "Sentinal illustrative policy extract clearly labelled as requiring human review", href: "/demo#policy", action: "Inspect a policy example" },
+];
 const steps = [
-  ["Describe the company", "Answer questions about where the business operates, its customers, and the data it handles."],
-  ["Review what matters", "Record regulatory scope and assurance goals, with expert review where needed."],
-  ["Find the missing proof", "Compare policies with safeguards and see the supporting text for each finding."],
-  ["Put the next step in motion", "Track risks, review drafts, and share organized evidence with a reviewer."],
+  ["Describe", "Add the company profile and scope facts."],
+  ["Connect", "Upload policies and find supporting evidence."],
+  ["Review", "Resolve gaps and record human decisions."],
+  ["Share", "Export reviewed work or create an expiring audit link."],
 ];
 
-/** Public introduction; assessments and company data live in the workspace. */
+/** Screenshot-led public introduction; no tenant records are requested or modified. */
 export default function Home() {
   return <main className="landing-page">
     <section className="landing-hero" aria-labelledby="platform-heading">
-      <div className="mx-auto grid max-w-[1440px] items-center gap-10 px-5 py-12 sm:px-8 sm:py-16 lg:grid-cols-2 lg:gap-16 lg:py-20">
-        <div>
-          <p className="hero-eyebrow">Security, compliance & AI governance</p>
-          <h1 id="platform-heading" className="mt-5 text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl xl:text-6xl">Turn compliance work into a clear plan.</h1>
-          <p className="hero-muted mt-6 max-w-xl text-lg leading-8">Sentinal helps teams organize security requirements, find gaps in their policies, and keep the proof ready for review.</p>
-          <p className="hero-muted mt-3 max-w-xl text-base leading-7">From protecting payment data to reviewing AI tools, see what is documented, what needs attention, and who needs to review it.</p>
-          <div className="mt-8 flex flex-wrap gap-3"><Link className="primary-button" href="/demo">Explore demo <span aria-hidden>→</span></Link><Link className="hero-secondary" href="/workspace">Open workspace</Link></div>
-          <p className="hero-muted mt-4 text-sm">The product tour is read-only. No account required.</p>
-        </div>
-        <DemoPreview />
+      <div className="hero-orbit" aria-hidden="true"><div className="orbit-globe" /><div className="orbit-grid" /><div className="orbit-satellite" /></div>
+      <div className="marketing-container hero-layout">
+        <div className="hero-copy"><p className="hero-eyebrow">EVIDENCE. OVERSIGHT. TRUST.</p><h1 id="platform-heading">Compliance, with the evidence to back it.</h1><p className="hero-muted">Understand your requirements, find policy gaps, and keep human oversight of your AI. One workspace. A clearer picture.</p><div className="hero-actions"><Link className="primary-button" href="/demo">Explore demo <span aria-hidden>→</span></Link><Link className="hero-link" href="/workspace">Open workspace →</Link></div><p className="hero-note">Fictional data. Real workflows. No account needed to explore.</p></div>
+        <div className="hero-product"><ProductPreview /></div>
       </div>
-      <div className="border-t border-white/20 py-5">
-        <p className="hero-muted mb-4 px-5 text-center text-xs uppercase leading-5 tracking-widest">Regulations & frameworks represented · Coverage varies</p>
-        <details className="ticker-control">
-          <summary>Pause framework strip</summary>
-          <div className="sr-only">Animation paused. Close this control to resume.</div>
-        </details>
-        <div className="framework-marquee" aria-label="Regulations and frameworks represented">
-          <div className="framework-marquee__track">{[0, 1].map((copy) => <div key={copy} className="framework-marquee__group" aria-hidden={copy === 1}>{regimes.map((regime) => <span key={regime}>{regime}</span>)}</div>)}</div>
-        </div>
+      <div className="marketing-container framework-strip" id="frameworks"><p className="hero-muted">REGULATIONS & FRAMEWORKS REPRESENTED <span>Coverage varies · Not certifications</span></p><details className="ticker-control"><summary>Pause framework strip</summary><span className="sr-only">Close to resume.</span></details><div className="framework-marquee" aria-label="Regulations and frameworks represented"><div className="framework-marquee__track">{[0, 1].map((copy) => <div key={copy} className="framework-marquee__group" aria-hidden={copy === 1}>{regimes.map((regime) => <span key={regime}>{regime}</span>)}</div>)}</div></div></div>
+    </section>
+    <section className="product-showcase" id="platform" aria-labelledby="showcase-heading">
+      <div className="marketing-container showcase-frame"><header className="section-intro"><p className="hero-eyebrow">THE SENTINAL PLATFORM</p><h2 id="showcase-heading">Your requirements. Your AI.<br />The evidence that connects them.</h2><p>See how the work fits together, before you create an account.</p></header>
+        <nav className="product-jump-nav" aria-label="Platform capabilities">{features.map((feature, index) => <a key={feature.id} href={"#" + feature.id}><span>0{index + 1}</span>{feature.label}<span aria-hidden>↓</span></a>)}</nav>
+        {features.map((feature, index) => <article key={feature.id} id={feature.id} className={"feature-row" + (index % 2 ? " feature-reverse" : "")}><div className="feature-copy"><p className="hero-eyebrow">{feature.eyebrow}</p><h3>{feature.title}</h3><p>{feature.description}</p><Link className="hero-link" href={feature.href}>{feature.action} →</Link><span className="feature-note">Explore fictional example records</span></div><figure className={"feature-image feature-image-" + feature.tone}><Link href={feature.href} aria-label={feature.action}><Image src={feature.image} alt={feature.alt} sizes="(max-width: 760px) 90vw, 600px" /></Link><figcaption>CAPTURED FROM SENTINAL · PUBLIC DEMO</figcaption></figure></article>)}
       </div>
     </section>
-    <section className="mx-auto max-w-[1440px] px-5 py-12 sm:px-8 sm:py-16" id="how-it-works">
-      <div className="max-w-2xl"><p className="eyebrow">What does Sentinal do?</p><h2 className="mt-3 text-3xl font-semibold tracking-tight">Bring the work and its evidence together.</h2><p className="muted mt-4 text-base leading-7">Compliance means showing that your company follows the requirements it is responsible for. Sentinal gives business, security, and audit teams a shared place to organize that work.</p></div>
-      <ol className="mt-8 grid gap-0 border border-[var(--line)] md:grid-cols-2 xl:grid-cols-4">{steps.map(([title, description], index) => <li key={title} className="surface border-0 p-6"><span className="eyebrow">0{index + 1}</span><h3 className="mt-4 text-lg font-semibold">{title}</h3><p className="muted mt-3 text-sm leading-6">{description}</p></li>)}</ol>
-    </section>
-    <section className="mx-auto grid max-w-[1440px] gap-8 border-t border-[var(--line)] px-5 py-12 sm:px-8 lg:grid-cols-2">
-      <div><p className="eyebrow">AI needs oversight too</p><h2 className="mt-3 text-3xl font-semibold tracking-tight">Know how your team uses AI.</h2><p className="muted mt-4 max-w-xl leading-7">Record what an AI tool does, what information it uses, and who reviews its output. Keep assessments and approval decisions alongside the system record.</p><Link className="text-link mt-6 inline-block" href="/demo#ai-system">Meet the example support assistant →</Link></div>
-      <div className="surface p-6 sm:p-8"><p className="eyebrow">Built for a human decision</p><h3 className="mt-3 text-xl font-semibold">AI drafts. People review.</h3><p className="muted mt-4 leading-7">The model helps draft policies using retrieved sources. The application checks cited control references, while a person reviews the result before use.</p><Link className="text-link mt-6 inline-block" href="/demo#policy">Read an illustrative policy extract →</Link></div>
-    </section>
-    <footer className="border-t border-[var(--line)] px-5 py-8 sm:px-8"><div className="mx-auto flex max-w-[1376px] flex-wrap items-start justify-between gap-6"><p className="muted max-w-3xl text-sm leading-6"><strong>Portfolio prototype.</strong> The demo uses fictional records. Sentinal is not legal advice, certification, or an audit opinion. Candidate rules and generated policies require qualified review before real-world use.</p><Link className="text-link text-sm" href="/trust">Platform safeguards →</Link></div></footer>
+    <section className="workflow-section" id="how-it-works"><div className="marketing-container"><div className="workflow-heading"><p className="eyebrow">FROM COMPLEXITY TO A CLEAR NEXT STEP</p><h2>You don’t need to start<br />with every answer.</h2><p className="muted">Start with what you know. Sentinal organizes the questions, evidence, and reviews that come next.</p></div><ol className="workflow-steps">{steps.map(([title, description], index) => <li key={title}><span>0{index + 1}</span><h3>{title}</h3><p className="muted">{description}</p></li>)}</ol></div></section>
+    <section className="closing-section"><div className="marketing-container closing-layout"><div><p className="hero-eyebrow">BUILT FOR A HUMAN DECISION</p><h2>AI can draft.<br />People decide.</h2><p>Sentinal checks generated references and keeps approval with a person. Explore the safeguards behind the platform.</p><Link className="hero-link" href="/trust">Inside the trust center →</Link></div><div className="closing-cta"><p>TAKE A CLOSER LOOK</p><h3>See the work.<br />Follow the evidence.</h3><Link className="primary-button" href="/demo">Explore Sentinal <span aria-hidden>→</span></Link></div></div></section>
+    <footer className="marketing-footer"><div className="marketing-container"><div className="footer-top"><Link href="/" className="brand">SENTINAL</Link><nav aria-label="Footer navigation"><Link href="/demo">Demo</Link><Link href="/workspace">Workspace</Link><Link href="/trust">Trust center</Link></nav></div><p><strong>Portfolio prototype.</strong> Examples are fictional. Not legal advice, certification, or an audit opinion. Candidate rules and generated policies require qualified human review before real-world use.</p></div></footer>
   </main>;
 }

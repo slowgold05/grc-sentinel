@@ -275,7 +275,7 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
         raise RuntimeError(
             f"Engagement creation failed: {errors[0].text}; {engagement_diagnostics(driver)}"
         )
-    open_page(driver, base_url, "", "Turn compliance work into a clear plan.")
+    open_page(driver, base_url, "", "Compliance, with the evidence to back it.")
     screenshot(driver, output / "01-overview.png")
     driver.get(f"{base_url}/demo#assessment")
     WebDriverWait(driver, 20).until(conditions.element_to_be_clickable(
@@ -330,8 +330,8 @@ def main() -> None:
         options.add_argument("--headless=new")
     driver = webdriver.Chrome(options=options)
     try:
-        open_page(driver, args.base_url, "", "Turn compliance work into a clear plan.")
-        assert "Example workspace" in driver.find_element(By.CLASS_NAME, "demo-preview").text
+        open_page(driver, args.base_url, "", "Compliance, with the evidence to back it.")
+        assert "Example workspace" in driver.find_element(By.CLASS_NAME, "product-preview").text
         for route, heading in PUBLIC_PAGES.values():
             open_page(driver, args.base_url, route, heading)
         if args.capture:
