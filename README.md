@@ -8,15 +8,17 @@ The design premise is that a language model should never decide what legally app
 
 > Sentinel GRC is a prototype. It is not legal advice, a certification, or an audit opinion. Generated compliance material requires qualified human review before use.
 
-**[Open the live demo](https://web-six-xi-53.vercel.app)** · **[API health](https://api-production-3fd2d.up.railway.app/health)**
+**[Open the live demo](https://sentinel-grc-ai.vercel.app)** · **[API health](https://api-production-3fd2d.up.railway.app/health)**
+
+The original deployment address redirects to this branded URL; existing shared page links remain usable.
 
 ---
 
 ## Explore the live demo
 
-The **Sentinel GRC** homepage explains the platform in plain language. [Explore the public tour](https://web-six-xi-53.vercel.app/demo) without an account: inspect fictional **LedgerPeak Payments** policy excerpts, evidence gaps, a support-assistant AI record, and an illustrative policy extract. Six example document checks share one consistent summary: three covered, two partial, and one missing. These are demonstration records, not a live compliance score.
+The **Sentinel GRC** homepage explains the platform in plain language. [Explore the public tour](https://sentinel-grc-ai.vercel.app/demo) without an account: inspect fictional **LedgerPeak Payments** policy excerpts, evidence gaps, a support-assistant AI record, and an illustrative policy extract. Six example document checks share one consistent summary: three covered, two partial, and one missing. These are demonstration records, not a live compliance score.
 
-Actual company assessments now live in [Workspace](https://web-six-xi-53.vercel.app/workspace), behind Clerk sign-in and organization selection. Navigation and account controls stay visible on smaller screens; a sun/moon control remembers the selected theme. Risks show priorities, owners, and next actions before an optional heatmap. The complete local build adds private document processing and inference through Ollama; the public tour never reads or writes tenant records.
+Actual company assessments now live in [Workspace](https://sentinel-grc-ai.vercel.app/workspace), behind Clerk sign-in and organization selection. Navigation and account controls stay visible on smaller screens; a sun/moon control remembers the selected theme. Risks show priorities, owners, and next actions before an optional heatmap. The complete local build adds private document processing and inference through Ollama; the public tour never reads or writes tenant records.
 
 ![Sentinel GRC homepage with the new evidence-trail background and example workspace](screenshots/frontpage.png)
 
@@ -70,7 +72,7 @@ To repeat the browser smoke test and authenticated screenshot walkthrough:
 ```powershell
 Set-Location apps/api
 python -m uv run python scripts/selenium_portfolio.py --headless
-python -m uv run python scripts/selenium_ui_review.py --base-url https://web-six-xi-53.vercel.app
+python -m uv run python scripts/selenium_ui_review.py --base-url https://sentinel-grc-ai.vercel.app
 python -m uv run python scripts/selenium_portfolio.py --capture
 ```
 

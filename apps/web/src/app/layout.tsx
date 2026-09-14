@@ -4,7 +4,7 @@ import { AppShell } from "../components/app-shell";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://web-six-xi-53.vercel.app"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://sentinel-grc-ai.vercel.app"),
   title: "Sentinel GRC",
   description: "Evidence-grounded GRC automation and continuous compliance",
   icons: { icon: "/brand/mark.png", apple: "/brand/mark.png" },

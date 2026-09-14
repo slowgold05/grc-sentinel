@@ -1,9 +1,12 @@
 # Reviewer walkthrough captures
 
 The public and signed-in captures were refreshed on **14 September 2026** from
-[the deployed app](https://web-six-xi-53.vercel.app). They show the current Sentinel GRC interface:
+[the deployed app](https://sentinel-grc-ai.vercel.app). They show the current Sentinel GRC interface:
 horizontal navigation, light/dark themes, the evidence-trail homepage, progressive intake, and
 labelled Audit Hub summaries. These are screenshots of the application, not design mockups.
+
+The deployment moved to `sentinel-grc-ai.vercel.app` later the same day. The images show the
+same interface; the original hostname redirects to the new one.
 
 All 17 walkthrough images now show the supplied Sentinel GRC branding. The original uploaded
 logos are preserved; deployment copies live in `apps/web/public/brand/`. The compact mark is
@@ -62,7 +65,7 @@ expire and are not published here; the PNGs remain viewable after expiry.
 From `apps/api`, run:
 
 ```powershell
-python -m uv run python scripts/selenium_ui_review.py --base-url https://web-six-xi-53.vercel.app
+python -m uv run python scripts/selenium_ui_review.py --base-url https://sentinel-grc-ai.vercel.app
 python -m uv run python scripts/selenium_portfolio.py --headless
 python -m uv run python scripts/selenium_portfolio.py --capture
 ```
@@ -82,7 +85,7 @@ in light mode. To refresh these illustrative images without accessing tenant rec
 `apps/api` against the desired deployment (or pass a local `--base-url`):
 
 ```powershell
-python -m uv run python scripts/selenium_ui_review.py --base-url https://web-six-xi-53.vercel.app --capture-assets ../web/public/product
+python -m uv run python scripts/selenium_ui_review.py --base-url https://sentinel-grc-ai.vercel.app --capture-assets ../web/public/product
 ```
 
 These assets contain neither Drata's imagery nor authenticated Audit Hub records. The supplied
