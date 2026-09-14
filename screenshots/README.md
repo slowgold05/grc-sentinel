@@ -1,9 +1,14 @@
 # Reviewer walkthrough captures
 
-The public and signed-in captures were refreshed on **13 September 2026** from
-[the deployed app](https://web-six-xi-53.vercel.app). They show the current Sentinal interface:
+The public and signed-in captures were refreshed on **14 September 2026** from
+[the deployed app](https://web-six-xi-53.vercel.app). They show the current Sentinel GRC interface:
 horizontal navigation, light/dark themes, the evidence-trail homepage, progressive intake, and
 labelled Audit Hub summaries. These are screenshots of the application, not design mockups.
+
+All 17 walkthrough images now show the supplied Sentinel GRC branding. The original uploaded
+logos are preserved; deployment copies live in `apps/web/public/brand/`. The compact mark is
+shared by the header, homepage preview, and footer; the full logo appears on sign-in/sign-up
+pages and in link-preview metadata.
 
 ## Screenshot index
 
@@ -30,21 +35,22 @@ labelled Audit Hub summaries. These are screenshots of the application, not desi
 ## What this refresh verified
 
 The public UI review passed theme/contrast, five viewport widths, hover/keyboard navigation,
-product-image loading, example disclosures, routes, and signed-out workspace checks.
-The signed-in walkthrough completed fictional assessment and AI-record creation and opened both
-engagement- and AI-system-scoped audit shares. Pages initially captured during loading were retaken
-after their workspace content appeared.
+product-image loading, example disclosures, routes, and signed-out workspace checks. Added checks
+require the new logo images, page title, browser icon, and branded sign-in/sign-up pages.
+This refresh reused existing fictional assessment and AI records, filled an unsaved intake
+preview, and created expiring engagement- and AI-system-scoped audit shares. It did not submit
+new assessments or register more AI systems. Screenshots were taken after workspace content
+and logo images had loaded.
 
 The test organization contains records from earlier walkthroughs, so repeated LedgerPeak names
 are separate test records, not distinct customers. No existing records were deleted for presentation.
-The Audit Hub previously bypassed the shared layout, so its first refreshed screenshots still
-showed the old visual design. Both report types now use the current navigation, sun/moon control,
-theme palette, and square panels. Their corrected screenshots were retaken after deploying that
-layout fix. The report remains accessible through a valid share link without signing in;
+Both Audit Hub report types use the current logo, navigation, sun/moon control,
+theme palette, and square panels. Their screenshots were captured in a separate signed-out
+browser, verifying that each report remains accessible through a valid share link without signing in;
 it does not show the private workspace navigation or add editing controls. Print styling hides
 navigation and uses a white report background.
 
-The browser regression check covers the shared shell, light/dark themes, 1440/390/320-pixel
+The browser regression check covers the branded shared shell, light/dark themes, 1440/390/320-pixel
 widths, and print styling on both loaded report types and the invalid-link state.
 
 This pass did **not** run Ollama inference, connect GitHub/AWS, approve generated material, or
@@ -67,7 +73,8 @@ Use `home-light.png` for `01-overview.png`, `home-dark.png` for `13-dark-theme.p
 for `16-navigation.png`, and `risks.png` for `04-risks.png`. The homepage preview is a
 viewport-only capture; the numbered captures are full-page images except the menu viewport.
 Inspect every image before replacing a tracked PNG, including account controls and lazy-loaded
-product images. The portfolio script waits for headings, which can appear before session/API
+product images. Keep the capture browser visible: minimized Chrome windows may pause capture.
+The portfolio script waits for headings, which can appear before session/API
 content; retake any loading states after the actual content is visible.
 
 The homepage uses three panel captures in `apps/web/public/product/`, taken from the public demo

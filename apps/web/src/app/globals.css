@@ -39,7 +39,12 @@ button, summary, a { -webkit-tap-highlight-color: transparent; }
 .site-header { position: sticky; top: 0; z-index: 40; background: #1e2b30; color: #fff; border-bottom: 1px solid #39494f; }
 .header-main { position: relative; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 36px; min-height: 66px; }
 .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 750; letter-spacing: .04em; }
-.brand span { display: grid; width: 27px; height: 27px; place-items: center; border: 1px solid #7b9ce7; color: #b9d7ff; font-size: 12px; }
+.brand-mark { position: relative; display: block; flex: none; width: 40px; height: 40px; overflow: hidden; background: #0c1425; }
+.brand-mark img { position: absolute; width: 210%; height: 210%; max-width: none; left: -55%; top: -55%; }
+.brand-wordmark { line-height: 1.1; font-size: 14px; color: #f2f6fa; }
+.brand-wordmark small { display: block; margin-top: 4px; color: #98bdff; font-size: 9px; letter-spacing: .3em; }
+.brand-compact .brand-mark { width: 32px; height: 32px; }
+.auth-brand { display: block; width: 220px; height: auto; }
 .account-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; max-width: 260px; }
 .site-header .secondary-button { color: #fff; border-color: transparent; background: transparent; }
 .site-header .primary-button { background: #456deb; color: #fff; }
@@ -117,6 +122,8 @@ button, summary, a { -webkit-tap-highlight-color: transparent; }
   .page-wrap { padding: 24px 16px; }
   .marketing-container { width: calc(100% - 32px); }
   .brand { font-size: 13px; gap: 7px; }
+  .site-header .brand-mark { width: 32px; height: 32px; }
+  .site-header .brand-wordmark { font-size: 12px; }
   .account-controls .primary-button, .account-controls .secondary-button { font-size: 12px; padding: 8px 10px; }
   .site-nav { gap: 0 14px; }
   .site-nav > a, .platform-menu > summary { font-size: 12px; padding-inline: 0; }
@@ -191,7 +198,6 @@ button, summary, a { -webkit-tap-highlight-color: transparent; }
 .preview-title { display: flex; gap: 12px; align-items: center; padding: 18px; border-bottom: 1px solid #40535b; background: #2a3b43; }
 .preview-title strong { display: block; font-size: 14px; }
 .preview-title div > span { display: block; margin-top: 4px; color: #c0d0d8; font-size: 10px; }
-.preview-mark { color: #b5f8fa; font-weight: 700; font-size: 20px; }
 .preview-label { margin-left: auto; font: 9px monospace; color: #b5f8fa; border: 1px solid #54757e; padding: 4px; }
 .preview-body { padding: 18px; }
 .preview-kicker { font: 9px monospace; letter-spacing: .08em; color: #bccfd8; }

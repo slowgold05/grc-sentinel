@@ -79,6 +79,10 @@ def main() -> None:
             print("Captured three public, fictional demo panels; no tenant data accessed.")
             return
         open_page("/")
+        assert driver.title == "Sentinel GRC"
+        assert driver.find_element(By.CSS_SELECTOR, 'link[rel="icon"]').get_attribute("href").endswith("/brand/mark.png")
+        assert len(driver.find_elements(By.CSS_SELECTOR, ".brand-mark img")) == 3
+        assert not driver.find_elements(By.CLASS_NAME, "preview-mark")
         assert not driver.find_elements(By.CSS_SELECTOR, "form, #program-status")
         assert not driver.find_elements(By.CSS_SELECTOR, ".hero-orbit, .orbit-globe, .orbit-grid, .orbit-satellite")
         trails = driver.find_element(By.CLASS_NAME, "evidence-trails")
@@ -156,6 +160,8 @@ def main() -> None:
         for route in ["/ai-systems", "/policies", "/monitoring", "/questionnaires", "/framework-drift", "/trust", "/workspace"]:
             open_page(route)
             check_width()
+            logo = driver.find_element(By.CSS_SELECTOR, ".site-header .brand-mark img")
+            wait.until(lambda page: page.execute_script("return arguments[0].complete && arguments[0].naturalWidth > 0", logo))
             assert driver.find_elements(By.CLASS_NAME, "page-heading")
             if route == "/ai-systems":
                 assert driver.find_element(By.ID, "demo-ai-heading").is_displayed()
@@ -166,6 +172,12 @@ def main() -> None:
         wait.until(lambda page: page.find_elements(By.CSS_SELECTOR, ".audit-report [role='alert']"))
         assert "invalid, expired, or revoked" in driver.find_element(By.CSS_SELECTOR, "[role='alert']").text
         check_audit_layout(driver)
+        for route in ("/sign-in", "/sign-up"):
+            driver.get(args.base_url.rstrip("/") + route)
+            logo = wait.until(lambda page: next(iter(page.find_elements(By.CLASS_NAME, "auth-brand")), False))
+            wait.until(lambda page: page.execute_script("return arguments[0].complete && arguments[0].naturalWidth > 0", logo))
+            assert logo.get_attribute("alt") == "Sentinel GRC"
+            check_width()
         print("Public UI checks passed: themes/contrast, five widths, hover/keyboard menus, product images and links, demo disclosures, routes, signed-out workspace, and invalid audit-share layout.")
     finally:
         driver.quit()

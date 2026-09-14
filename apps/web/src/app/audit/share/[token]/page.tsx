@@ -58,7 +58,7 @@ export default function AuditSharePage() {
   const title = share?.ai_system ? "AI system record" : "Company profile";
 
   return <main className="page-wrap audit-report">
-    <header className="page-heading"><div className="flex flex-wrap items-center justify-between gap-3"><p className="eyebrow">Sentinal / Audit Hub</p><span className="muted text-xs">READ-ONLY SHARE</span></div>
+    <header className="page-heading"><div className="flex flex-wrap items-center justify-between gap-3"><p className="eyebrow">Sentinel GRC / Audit Hub</p><span className="muted text-xs">READ-ONLY SHARE</span></div>
       <div className="flex flex-wrap items-end justify-between gap-4"><div><h1>Read-only compliance evidence</h1><p className="muted">A scoped, external review package. Records cannot be changed from this page.</p></div><button type="button" onClick={() => window.print()} className="primary-button">Print report</button></div>
     </header>
     {error && <p role="alert" className="surface border-l-4 border-l-[var(--danger)] p-5 text-[var(--danger)]">{error}</p>}

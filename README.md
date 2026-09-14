@@ -1,10 +1,12 @@
-# GRC Sentinel
+# Sentinel GRC
 
-GRC Sentinel turns a company profile and its existing policy documents into an auditable compliance workspace: applicable requirements, control coverage backed by exact quotes, evidence gaps, risks, draft policies, monitoring results, and auditor-ready exports.
+<img src="apps/web/public/brand/full-logo.png" width="240" alt="Sentinel GRC logo" />
+
+Sentinel GRC turns a company profile and its existing policy documents into an auditable compliance workspace: applicable requirements, control coverage backed by exact quotes, evidence gaps, risks, draft policies, monitoring results, and auditor-ready exports.
 
 The design premise is that a language model should never decide what legally applies, and should never be trusted to invent evidence. Deterministic rules establish applicability, retrieval bounds the model's context, and verification rejects unsupported citations before anything can be stored.
 
-> GRC Sentinel is a prototype. It is not legal advice, a certification, or an audit opinion. Generated compliance material requires qualified human review before use.
+> Sentinel GRC is a prototype. It is not legal advice, a certification, or an audit opinion. Generated compliance material requires qualified human review before use.
 
 **[Open the live demo](https://web-six-xi-53.vercel.app)** · **[API health](https://api-production-3fd2d.up.railway.app/health)**
 
@@ -12,23 +14,27 @@ The design premise is that a language model should never decide what legally app
 
 ## Explore the live demo
 
-The **Sentinal** homepage explains the platform in plain language. [Explore the public tour](https://web-six-xi-53.vercel.app/demo) without an account: inspect fictional **LedgerPeak Payments** policy excerpts, evidence gaps, a support-assistant AI record, and an illustrative policy extract. Six example document checks share one consistent summary: three covered, two partial, and one missing. These are demonstration records, not a live compliance score.
+The **Sentinel GRC** homepage explains the platform in plain language. [Explore the public tour](https://web-six-xi-53.vercel.app/demo) without an account: inspect fictional **LedgerPeak Payments** policy excerpts, evidence gaps, a support-assistant AI record, and an illustrative policy extract. Six example document checks share one consistent summary: three covered, two partial, and one missing. These are demonstration records, not a live compliance score.
 
 Actual company assessments now live in [Workspace](https://web-six-xi-53.vercel.app/workspace), behind Clerk sign-in and organization selection. Navigation and account controls stay visible on smaller screens; a sun/moon control remembers the selected theme. Risks show priorities, owners, and next actions before an optional heatmap. The complete local build adds private document processing and inference through Ollama; the public tour never reads or writes tenant records.
 
-![Sentinal homepage with the new evidence-trail background and example workspace](screenshots/frontpage.png)
+![Sentinel GRC homepage with the new evidence-trail background and example workspace](screenshots/frontpage.png)
 
 The public landing page uses a slim horizontal header with an accessible **Platform** dropdown,
 a quiet charcoal hero with subtle Policy → Evidence → Review trails, and alternating screenshot-led sections for compliance, AI
-governance, and policy evidence. The product images are captured from Sentinal's own fictional
+governance, and policy evidence. The product images are captured from Sentinel GRC's own fictional
 demo; no customer logos, endorsements, or certification claims are implied. All workspace tools
 remain available through Platform and the workspace navigation. Motion is limited to a pausable
 framework strip that respects reduced-motion preferences.
 
+The supplied Sentinel GRC logo is used throughout the shared navigation, homepage preview,
+footer, Audit Hub, sign-in/sign-up pages, browser icon, and link-preview metadata. The gallery
+below has been recaptured with this branding in both themes.
+
 <details>
 <summary>Explore the screenshots: homepage, product tour, and signed-in workspace</summary>
 
-All images below were refreshed from the deployed UI on **13 September 2026**. Public examples
+All images below were refreshed from the deployed UI on **14 September 2026**. Public examples
 and authenticated fictional records are labelled separately; click an image to inspect it at full size.
 
 | Homepage — light theme | Homepage — dark theme |
@@ -72,7 +78,7 @@ The capture command opens an isolated Chrome session, pauses for Clerk sign-in a
 
 ## What it does
 
-| Capability | What GRC Sentinel does | Why it matters |
+| Capability | What Sentinel GRC does | Why it matters |
 | --- | --- | --- |
 | Company intake | Captures detailed entity, threshold, exemption, licence, reporting, and assurance facts across the US, EU, and Singapore | Gives every candidate decision a reproducible facts snapshot without asking AI to interpret legal status |
 | Applicability | Evaluates approved versioned rules with `applicable`, `not_applicable`, and `needs_review` outcomes | Keeps active legal applicability deterministic while unapproved regimes remain review-gated |
@@ -96,10 +102,10 @@ The capture command opens an isolated Chrome session, pauses for Clerk sign-in a
 ## End-to-end workflow
 
 1. A user signs in through Clerk and creates or selects an organization.
-2. GRC Sentinel provisions a tenant and stores only the resolved internal tenant UUID in database context.
+2. Sentinel GRC provisions a tenant and stores only the resolved internal tenant UUID in database context.
 3. The user describes the company and selects contractual or voluntary assurance objectives.
 4. The deterministic rules engine evaluates approved rules and records the facts used; unapproved fintech regimes remain candidate scope assessments for human review.
-5. The user uploads existing PDF or DOCX policies; GRC Sentinel validates, encrypts, and parses them into tenant-scoped sections.
+5. The user uploads existing PDF or DOCX policies; Sentinel GRC validates, encrypts, and parses them into tenant-scoped sections.
 6. Retrieval finds relevant policy sections for each required control.
 7. Coverage analysis records exact supporting quotes and marks controls covered, partial, or missing.
 8. The user reviews risks, remediation work, draft policies, and questionnaire answers.
@@ -125,7 +131,7 @@ The AI model may summarize retrieved records and draft policy. It cannot classif
 
 ## How the AI is constrained
 
-GRC Sentinel uses retrieval-augmented generation, but deterministic software surrounds the model:
+Sentinel GRC uses retrieval-augmented generation, but deterministic software surrounds the model:
 
 ```mermaid
 flowchart LR
@@ -150,11 +156,11 @@ flowchart LR
 - Generation has token budgets, retry limits, and concurrency controls.
 - The default models run locally: `qwen3:14b` for generation and `mxbai-embed-large` for embeddings.
 
-The reasoning behind this design is covered in [How GRC Sentinel rejects hallucinated citations](docs/hallucinated-citations.md).
+The reasoning behind this design is covered in [How Sentinel GRC rejects hallucinated citations](docs/hallucinated-citations.md).
 
 ## Architecture
 
-![GRC Sentinel trust architecture](docs/portfolio-architecture.svg)
+![Sentinel GRC trust architecture](docs/portfolio-architecture.svg)
 
 ```mermaid
 flowchart TB
@@ -193,7 +199,7 @@ The current local knowledge base contains **7 framework records, 4,305 controls,
 - SOC 2, ISO 27001, and NIST are modeled as contractual or voluntary assurance objectives.
 - ISO standards text is not copied; the repository stores permitted identifiers and sourced mappings only.
 
-The current applicability golden set scores **1.00 precision and 1.00 recall**. The integrity check reports zero orphaned crosswalks. SCF does not currently provide a NIST path for SOC privacy criteria `P6.0` and `P6.4`; GRC Sentinel records those source-level gaps rather than inventing mappings.
+The current applicability golden set scores **1.00 precision and 1.00 recall**. The integrity check reports zero orphaned crosswalks. SCF does not currently provide a NIST path for SOC privacy criteria `P6.0` and `P6.4`; Sentinel GRC records those source-level gaps rather than inventing mappings.
 
 The source-backed candidate conditions and their activation checklist are documented in the [fintech applicability review package](docs/fintech-applicability-review.md). The [full fintech implementation roadmap](docs/fintech-full-implementation-roadmap.md) defines the work required to activate each regime end to end. They remain deliberately inactive until human review approves the legal scope, exclusions, and golden profiles.
 

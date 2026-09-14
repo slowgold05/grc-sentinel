@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AuthControls } from "./auth-controls";
+import { Brand } from "./brand";
 
 const navigation = [
   ["/", "Home"], ["/demo", "Demo"], ["/workspace", "Workspace"],
@@ -38,12 +39,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <a href="#main-content" className="skip-link">Skip to content</a>
     <header className="site-header">
       <div className="header-main marketing-container">
-        <Link href="/" className="brand" aria-label="Sentinal home"><span aria-hidden>S</span>SENTINAL</Link>
+        <Link href="/" aria-label="Sentinel GRC home"><Brand /></Link>
         <nav className="site-nav" aria-label="Primary navigation">
           <details className="platform-menu" onPointerEnter={(event) => { if (event.pointerType === "mouse") event.currentTarget.open = true; }} onPointerLeave={(event) => { if (!event.currentTarget.contains(document.activeElement)) event.currentTarget.open = false; }} onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) event.currentTarget.open = false; }} onKeyDown={(event) => { if (event.key === "Escape") { event.currentTarget.open = false; event.currentTarget.querySelector("summary")?.focus(); } }}>
             <summary>Platform <span aria-hidden>⌄</span></summary>
             <div className="platform-dropdown">
-              <div className="menu-intro"><p>THE SENTINAL PLATFORM</p><h2>Clarity, from policy<br />to proof.</h2><Link href="/demo" onClick={(event) => { event.currentTarget.closest("details")?.removeAttribute("open"); }}>Explore the public demo →</Link></div>
+              <div className="menu-intro"><p>THE SENTINEL GRC PLATFORM</p><h2>Clarity, from policy<br />to proof.</h2><Link href="/demo" onClick={(event) => { event.currentTarget.closest("details")?.removeAttribute("open"); }}>Explore the public demo →</Link></div>
               <div className="menu-links">{navigation.filter(([href]) => href !== "/" && href !== "/demo").map(([href, label]) => <Link key={href} href={href} aria-current={pathname === href ? "page" : undefined} onClick={(event) => { event.currentTarget.closest("details")?.removeAttribute("open"); }}>{label}<span aria-hidden>→</span></Link>)}</div>
             </div>
           </details>

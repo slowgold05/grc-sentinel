@@ -29,9 +29,12 @@ PUBLIC_PAGES = {
 
 def screenshot(driver: webdriver.Chrome, path: Path) -> None:
     """Save a full-page PNG through Chrome's native capture command."""
-    driver.execute_async_script(
-        "const done=arguments[0]; window.scrollTo(0, 0); requestAnimationFrame(() => requestAnimationFrame(done));"
-    )
+    for logo in driver.find_elements(By.CSS_SELECTOR, ".brand-mark img, .auth-brand"):
+        WebDriverWait(driver, 20).until(lambda page: page.execute_script(
+            "return arguments[0].complete && arguments[0].naturalWidth > 0", logo,
+        ))
+    # Background Chrome tabs can pause animation frames indefinitely.
+    driver.execute_script("window.scrollTo(0, 0)")
     payload = driver.execute_cdp_cmd(
         "Page.captureScreenshot", {"format": "png", "captureBeyondViewport": True}
     )
@@ -51,6 +54,7 @@ def check_audit_layout(driver: webdriver.Chrome) -> None:
     """Require the shared report shell, both themes, responsive facts, and print styling."""
     wait = WebDriverWait(driver, 20)
     assert driver.find_elements(By.CSS_SELECTOR, ".app-shell .site-header")
+    assert driver.find_elements(By.CSS_SELECTOR, ".site-header .brand-mark img")
     assert not driver.find_elements(By.CLASS_NAME, "workspace-nav")
     report = driver.find_element(By.CLASS_NAME, "audit-report")
     assert not report.find_elements(By.CSS_SELECTOR, "form, input, textarea, select")
@@ -168,7 +172,7 @@ def capture_walkthrough(driver: webdriver.Chrome, base_url: str, output: Path) -
         driver.find_element(By.XPATH, "//button[normalize-space()='Sign in']").click()
     except Exception:
         pass
-    print("Complete Clerk sign-in, open Workspace, and select your Sentinal organization in Chrome.")
+    print("Complete Clerk sign-in, open Workspace, and select your Sentinel GRC organization in Chrome.")
     try:
         WebDriverWait(driver, 600).until(
             conditions.presence_of_element_located((By.ID, "new-engagement"))
